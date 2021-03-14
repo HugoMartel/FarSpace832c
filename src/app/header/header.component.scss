@@ -1,6 +1,7 @@
 a {
     color: white;
     text-decoration: none;
+    font-size: 2em;
 }
 
 a:visited {
@@ -8,6 +9,21 @@ a:visited {
     text-decoration: none;
 }
 
+a.active {
+    text-decoration: underline;
+}
+
 span {
     margin-right: 10px;
+}
+
+span.filler {
+    flex: 1 1 auto;
+}
+
+div.footer-separator {
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    height: 5px;
 }

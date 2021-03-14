@@ -1,12 +1,31 @@
-div.separator {
+div.footer-separator {
     width: 100%;
-    height: 50px;
+    margin: 0px;
+    padding: 0px;
+    height: 30px;
 }
 
 footer {
     display: grid;
     grid-template-areas:"desc team link cont"
                         "cop cop cop cop";
+    grid-template-columns: 25% 25% 25% 25%;
+    align-items: flex-start;
+}
+
+div.footer-element {
+    color: white;
+    padding: 30px;
+}
+
+div.links-container {
+    text-align: center;
+}
+
+p.footer-title {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
 }
 
 div.footer-desc {

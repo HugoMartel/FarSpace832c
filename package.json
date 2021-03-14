@@ -23,6 +23,7 @@
     "@angular/router": "~11.2.4",
     "@babylonjs/core": "^4.2.0",
     "@babylonjs/materials": "^4.2.0",
+    "98.css": "^0.1.16",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"
