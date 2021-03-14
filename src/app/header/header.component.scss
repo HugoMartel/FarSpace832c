@@ -14,7 +14,7 @@ a.active {
 }
 
 span {
-    margin-right: 10px;
+    margin-right: 20px;
 }
 
 span.filler {
@@ -26,4 +26,10 @@ div.footer-separator {
     margin: 0px;
     padding: 0px;
     height: 5px;
+}
+
+button#connectButton {
+    width: 100px;
+    height: 30px;
+    font-weight: bold;
 }
