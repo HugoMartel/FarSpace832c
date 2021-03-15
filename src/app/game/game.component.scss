@@ -1,3 +1,9 @@
+div#mainContainer {
+    display: flex;
+    justify-content: center;
+}
+
+
 canvas#gameCanvas {
     border: black 1px solid;
 }
