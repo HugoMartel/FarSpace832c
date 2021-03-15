@@ -10,14 +10,18 @@ import { MaterialModule } from './material';
 import { GameComponent } from './game/game.component';
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
+import { ProjectComponent } from './project/project.component';
 
 import {WindowRefService} from './services/window-ref.service';
+import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 @NgModule({
   declarations: [
     AppComponent,
     GameComponent,
     FooterComponent,
     HeaderComponent,
+    ProjectComponent,
+    HowToPlayComponent,
   ],
   imports: [
     BrowserModule,

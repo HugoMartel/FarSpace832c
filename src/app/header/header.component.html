@@ -1,8 +1,21 @@
 <mat-toolbar class="title-bar">
     <span><img class="toolbarElement" src="../assets/testLogo.png" alt="FarSpace832c" height="50px" /></span>
-    <span><a class="toolbarElement active" href="#">Home</a></span>
-    <span><a class="toolbarElement" href="#">Project</a></span>
+    <span><a class="toolbarElement" routerLink="/home" routerLinkActive="active" id="homeLink">Home</a></span>
+    <span><a class="toolbarElement" routerLink="/project" routerLinkActive="active" id="projectLink">Project</a></span>
+    <span><a class="toolbarElement" routerLink="/howtoplay" routerLinkActive="active" id="howToPlayLink">How To Play</a></span>
     <span class="filler"></span>
     <span class="account"><button id="connectButton">Connect</button></span>
 </mat-toolbar>
+<script>
+    document.addEventListener("load", (e) => {
+        if (window.location.pathname == "/") {
+            document.getElementById("homeLink").classList.add("active");
+        } else if (window.location.pathname == "/project") {
+            document.getElementById("projectLink").classList.add("active");
+        } else if (window.location.pathname == "/howtoplay") {
+            document.getElementById("howToPlayLink").classList.add("active");
+        }
+        console.log("BORDEL");
+    });
+</script>
 <div class="footer-separator title-bar inactive"></div>
