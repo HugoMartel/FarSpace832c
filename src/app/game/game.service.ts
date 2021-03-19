@@ -1,4 +1,6 @@
 import { WindowRefService } from './../services/window-ref.service';
+import { TerrainService } from './../services/game/gestion/terrain.service';
+
 import { ElementRef, Injectable, NgZone } from '@angular/core';
 import {
   Engine,
