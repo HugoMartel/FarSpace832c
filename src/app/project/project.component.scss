@@ -1,0 +1,53 @@
+div.project-title {
+    text-align: center;
+    font-size: 3em;
+    font-weight: bold;
+}
+
+div.project-text {
+    text-align: justify;
+    font-size: 2em;
+    font-weight: bold;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+div#mainContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.wrapper {
+    display: grid;
+    grid-template-areas:"one one two"
+                        "three four four";
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: flex-start;
+}
+
+.one {
+    padding: 30px;
+    grid-area: two;
+}
+
+.two {
+    padding: 30px;
+    grid-area: one;
+}
+.three {
+    padding: 30px;
+    grid-area: three;
+}
+
+.four {
+    padding: 30px;
+    grid-area: four;
+}
+
+.base {
+    width: 800px;
+}
+
+.pres {
+    width: 800px;
+}
