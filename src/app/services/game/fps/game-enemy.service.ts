@@ -13,17 +13,17 @@ export class GameEnemyService {
   init: Function;
   setup: Function;
 
-  constructor(c: Array<number>, @Inject(Number) private h: number, @Inject(Number) private t: number, @Inject(Number) private s: number) { 
-    this.coord = c;
-    this.health = h;
-    this.type = t;
+  constructor(position: Array<number>, @Inject(Number) private healthbar: number, @Inject(Number) private typeEnemy: number, @Inject(Number) private status: number) { 
+    this.coord = position;
+    this.health = healthbar;
+    this.type = typeEnemy;
     //STATE: 0 = sleep
     //       1 = ambush
     //       2 = death
     //       3 = attack missil
     //       4 = attack near
     //       5 = chasing 
-    this.state = s;
+    this.state = status;
 
     this.setup = (scene: BABYLON.Scene) => {
       this.mesh = BABYLON.MeshBuilder.CreateBox("body", {size: 1, width: 1, height: 1}, scene);
