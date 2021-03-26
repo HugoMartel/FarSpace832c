@@ -1,7 +1,9 @@
 //TODO: change the cone to a realy player model ?
-//TODO: add first enemy
+//TODO: creates IA (aled)
 //TODO: MAYBE do classes for each enemy type (inheriting from the other one)
-//TODO: change and import imp sprite FIX IT
+//TODO: change and import imp sprite FIX ITs
+//TODO: change camera borders cause it looks like a fatass rn
+
 //note: sprite is 45x64
 //TODO: add weapon
 //TODO: add a way to the enemy to talk
@@ -11,8 +13,9 @@ import { ElementRef, Injectable, NgZone } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 //services
 import {GameLevelService} from '../services/game/fps/game-level.service';
+//importing enemy
+import {GameImpService} from '../services/game/fps/enemy/game-imp.service'
 import { GameEnemyService } from '../services/game/fps/game-enemy.service';
-//import {GameEnemyService} from '../services/game/fps/game-enemy.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -51,6 +54,7 @@ export class GameService {
     this.camera.keysDown = [83, 40]; // S or DOWN ARROW
     this.camera.keysLeft = [81]; // Q or LEFT ARROW
     this.camera.keysRight = [68]; // D or RIGHT ARROW
+    //Add attachment controls
     //slowing down the camera speed
     this.camera.speed = 0.3;
     // create a basic light, aiming 0,1,0 - meaning, to the sky
@@ -96,18 +100,11 @@ export class GameService {
     }
     //removing the base mesh
     boxx.dispose();
+    
     //creating the enemy:
-    //TODO: create sprite
-    const spriteManagerImp = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/smallImp.png", 3, {height: 64, width: 40}, this.scene);
+    //TODO: create sprite 
     for(let i = 0; i < level.enemy.length; ++i){
-      switch(level.enemy[i].type){//texture
-        case(1):
-          let imp = new BABYLON.Sprite("impp", spriteManagerImp);
-          imp.position.x = level.enemy[i].coord[0];
-          imp.position.z = level.enemy[i].coord[1];
-          imp.position.y = 1;
-          break;
-      }
+      level.enemy[i].init(this.scene);
     }
 
     // move the sphere upward 1/2 of its height

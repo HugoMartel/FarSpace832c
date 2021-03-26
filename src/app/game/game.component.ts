@@ -1,7 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { GameLevelService } from '../services/game/fps/game-level.service';
 import { GameEnemyService } from '../services/game/fps/game-enemy.service';
-
 import { GameService } from './game.service';
 
 @Component({
@@ -17,16 +16,15 @@ export class GameComponent implements OnInit {
   public constructor(private engServ: GameService) {  }
 
   public ngOnInit(): void {
-    let test = new GameEnemyService(
-      [7, 7],
-      20,
-      1
-    );  
+    let enemytest = [
+      // [[type], [coordx, coordz, state], etc]
+      [[1], [2, 2]]
+    ];
     let levelTEST = new GameLevelService([
       [1, 4],
       [1, 3],
       [2, 5],
-    ], [test],1);
+    ], enemytest,1);
     this.engServ.createScene(this.gameCanvas, levelTEST);
     this.engServ.animate();
   }
