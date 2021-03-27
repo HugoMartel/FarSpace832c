@@ -1,5 +1,6 @@
-<div id="mainContainer">
-    <div class="window">
+<div id="mainContainer"
+    [ngStyle]="{'background-image': 'url(./assets/clouds.png)','background-size': 'cover','background-repeat': 'no-repeat', 'background-position': 'center'}">
+    <div class="window" id="gameWindow">
         <div class="title-bar">
             <div class="title-bar-text">FarSpace832c.exe</div>
             <div class="title-bar-controls">
@@ -9,7 +10,7 @@
             </div>
         </div>
         <div class="window-body">
-            <canvas #gameCanvas id="gameCanvas" width="1600" height="900">Your browser doesn't support the canvas HTML
+            <canvas #gameCanvas id="gameCanvas">Your browser doesn't support the canvas HTML
                 element. Please update it if you want to play!</canvas>
         </div>
     </div>

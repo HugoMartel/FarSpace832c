@@ -1,12 +1,6 @@
-div.project-title {
-    text-align: center;
-    font-size: 3em;
-    font-weight: bold;
-}
-
 div.project-text {
     text-align: justify;
-    font-size: 2em;
+    font-size: 1.7em;
     font-weight: bold;
     padding-left: 20px;
     padding-right: 20px;
@@ -19,7 +13,7 @@ div#mainContainer {
 
 .wrapper {
     display: grid;
-    grid-template-areas:"one one two"
+    grid-template-areas:"two two one"
                         "three four four";
     grid-template-columns: 1fr 1fr 1fr;
     align-items: flex-start;
@@ -27,12 +21,12 @@ div#mainContainer {
 
 .one {
     padding: 30px;
-    grid-area: two;
+    grid-area: one;
 }
 
 .two {
     padding: 30px;
-    grid-area: one;
+    grid-area: two;
 }
 .three {
     padding: 30px;
@@ -45,9 +39,9 @@ div#mainContainer {
 }
 
 .base {
-    width: 800px;
+    width: 100%;
 }
 
 .pres {
-    width: 800px;
+    width: 100%;
 }

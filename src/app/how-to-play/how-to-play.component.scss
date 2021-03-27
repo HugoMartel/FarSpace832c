@@ -1,0 +1,67 @@
+div.project-title {
+    text-align: center;
+    font-size: 3em;
+    font-weight: bold;
+}
+
+div.project-text {
+    text-align: justify;
+    font-size: 2em;
+    font-weight: bold;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+div#mainContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.wrapper {
+    display: grid;
+    grid-template-areas:    "one one two"
+                            "three three two";
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: flex-start;
+}
+
+.one {
+    padding: 30px;
+    grid-area: one;
+}
+
+.two {
+    padding: 30px;
+    grid-area: two;
+}
+
+.three {
+    padding: 30px;
+    grid-area: three;
+}
+
+img.pres {
+    width: 100%;
+}
+
+div#controls {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+div.controls_img {
+    justify-self: flex-start;
+    width: 45%;
+}
+
+img.controls_img {
+    width: 100%;
+}
+
+.controls_text {
+    justify-self: flex-end;
+    width: 45%;
+    text-align: center;
+}
