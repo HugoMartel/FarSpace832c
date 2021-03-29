@@ -2,16 +2,24 @@ import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 @Injectable({ providedIn: 'root' })
 
+//TODO: add a way to change animation in function of the state
+//TODO: add IA
+//TODO: add attacks condition
+//TODO: add pathfinding
+//TODO: add a way to wake up from sleeping state
+//TODO: add a way to pathfind
+
 export class GameEnemyService {
   coord: Array<number>;
   health: number;
   type: number;
   state: number;
   sprtMng: BABYLON.SpriteManager | undefined;
-  sprt : BABYLON.Sprite | undefined;
+  sprt : BABYLON.Sprite | undefined
   mesh: BABYLON.Mesh | undefined;
   init: Function;
   setup: Function;
+  //moveThorwardPlayer: Function;
 
   constructor(position: Array<number>, @Inject(Number) private healthbar: number, @Inject(Number) private typeEnemy: number, @Inject(Number) private status: number) { 
     this.coord = position;
@@ -22,7 +30,8 @@ export class GameEnemyService {
     //       2 = death
     //       3 = attack missil
     //       4 = attack near
-    //       5 = chasing 
+    //       5 = chasing
+
     this.state = status;
 
     this.setup = (scene: BABYLON.Scene) => {
@@ -41,12 +50,37 @@ export class GameEnemyService {
         this.mesh.position = new BABYLON.Vector3(this.coord[0], 0.5, this.coord[1]);
         this.mesh.checkCollisions = true;
         this.mesh.material = enemyMat1;
-        this.sprt = new BABYLON.Sprite("impp", this.sprtMng);
+        this.sprt = new BABYLON.Sprite("lmao", this.sprtMng);
+        //TODO: add way to change sprite in function of the state cc Louis
+        //for(let i = 0; i < )
         this.sprt.position = this.mesh.position;
         this.sprt.isPickable = true;
         this.mesh.checkCollisions = true;
         this.mesh.material = enemyMat1;
       }
     }
+    //LMAO NOT WORKING
+    /*this.moveThorwardPlayer = (playerCoord: Array<number>) => {
+      if(this.coord[0] < Math.round(playerCoord[0])){
+        this.coord[0] += 0.01;
+        if(this.sprt !== undefined) this.sprt.position.x += 0.01;
+        if(this.mesh !== undefined) this.mesh.position.x += 0.01;
+      }
+      else if(this.coord[0] > Math.round(playerCoord[0])){
+        this.coord[0] -= 0.01;
+        if(this.sprt !== undefined) this.sprt.position.x -= 0.01;
+        if(this.mesh !== undefined) this.mesh.position.x -= 0.01;
+      }
+      if(this.coord[1] < Math.round(playerCoord[1])){
+        this.coord[1] += 0.01;
+        if(this.sprt !== undefined) this.sprt.position.z += 0.01;
+        if(this.mesh !== undefined) this.mesh.position.z += 0.01;
+      }
+      else if(this.coord[1] > Math.round(playerCoord[1])){
+        this.coord[1] -= 0.01;
+        if(this.sprt !== undefined) this.sprt.position.z -= 0.01;
+        if(this.mesh !== undefined) this.mesh.position.z -= 0.01;
+      }
+    }*/
   }
 }

@@ -1,10 +1,9 @@
 //TODO: change the cone to a realy player model ?
+//TODO: add a player class ?
 //TODO: creates IA (aled)
-//TODO: MAYBE do classes for each enemy type (inheriting from the other one)
 //TODO: change and import imp sprite FIX ITs
 //TODO: change camera borders cause it looks like a fatass rn
 
-//note: sprite is 45x64
 //TODO: add weapon
 //TODO: add a way to the enemy to talk
 
@@ -125,6 +124,9 @@ export class GameService {
     this.scene.registerBeforeRender(() => {
       //locking the camera on x axis (ghetto way)
       this.camera.rotation.x = 0;
+      //todo add a check if the enemy is in the good state
+      //TODO: fix this shit
+      //for(let i = 0; i < level.enemy.length; ++i) level.enemy[i].moveThorwardPlayer([this.camera.position.x, this.camera.position.z]);
     });
     this.scene.registerAfterRender(() => {
       // simple rotation along the y axis

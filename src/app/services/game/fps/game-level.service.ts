@@ -3,6 +3,7 @@ import * as BABYLON from '@babylonjs/core';
 import { GameEnemyService } from '../fps/game-enemy.service'
 import { GameImpService } from '../fps/enemy/game-imp.service'
 @Injectable({providedIn: 'root'})
+//TODO: add a array containing sprite for each animation frame
 
 export class GameLevelService {
   walls : Array<Array<number>>;
