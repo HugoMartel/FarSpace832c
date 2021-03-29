@@ -12,7 +12,7 @@ export class GameImpService extends GameEnemyService {
     super(position, 10, 1, sec);
     this.setup = (scene: BABYLON.Scene) => {
       //TOCHANGE
-      this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/Imp.png", 3, {height: 64, width: 64}, scene);
+      this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/AllImpAnimation.png", 3, {height: 64, width: 64}, scene);
       this.mesh = BABYLON.MeshBuilder.CreateBox("body", {size: 1, width: 1, height: 1}, scene); 
     }
   }
