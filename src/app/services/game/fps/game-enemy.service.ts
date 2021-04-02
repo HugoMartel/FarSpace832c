@@ -1,3 +1,4 @@
+import { ThrowStmt } from '@angular/compiler';
 import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,8 @@ export class GameEnemyService {
   mesh: BABYLON.Mesh | undefined;
   init: Function;
   setup: Function;
+  stateFrames: Array<Array<number>> | undefined;
+  playAnimation : Function;
   //moveThorwardPlayer: Function;
 
   constructor(position: Array<number>, @Inject(Number) private healthbar: number, @Inject(Number) private typeEnemy: number, @Inject(Number) private status: number) { 
@@ -33,7 +36,7 @@ export class GameEnemyService {
     //       5 = chasing
 
     this.state = status;
-
+    console.log(this.state);
     this.setup = (scene: BABYLON.Scene) => {
       this.mesh = BABYLON.MeshBuilder.CreateBox("body", {size: 1, width: 1, height: 1}, scene);
       this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/error.jpg", 3, {height: 64, width: 40}, scene);
@@ -57,7 +60,8 @@ export class GameEnemyService {
         this.sprt.isPickable = true;
         this.mesh.checkCollisions = true;
         this.mesh.material = enemyMat1;
-        this.sprt.playAnimation(0, 23, true, 300);
+        //defining the frames to play in function of the state:
+        //this.sprt.playAnimation(0, 23, true, 300);
       }
     }
     //LMAO NOT WORKING
@@ -83,5 +87,19 @@ export class GameEnemyService {
         if(this.mesh !== undefined) this.mesh.position.z -= 0.01;
       }
     }*/
+    //TODO: add description
+    this.playAnimation = () => {
+      if(this.stateFrames === undefined || this.sprt === undefined) return;
+      let loop = true;
+      //if the status is death, attack near or attack far, then no looping
+      if(this.state == 2 || this.state == 3 || this.status == 4) loop = false;
+      //playing the animation
+      this.sprt.playAnimation(this.stateFrames[this.state][0], this.stateFrames[this.state][1], loop, 300, () => {
+        if(this.state == 3 || this.state == 4){
+          this.state = 5;
+          this.playAnimation();
+        }
+      });
+    }
   }
 }

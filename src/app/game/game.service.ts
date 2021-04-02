@@ -104,11 +104,11 @@ export class GameService {
     //TODO: create sprite 
     for(let i = 0; i < level.enemy.length; ++i){
       level.enemy[i].init(this.scene);
+      level.enemy[i].playAnimation();
     }
 
     // move the sphere upward 1/2 of its height
     this.sphere.position.y = 1;
-
     //Gravity and Collisions Enabled
     this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
     this.scene.collisionsEnabled = true;
