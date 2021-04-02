@@ -1,4 +1,3 @@
-import { ThrowStmt } from '@angular/compiler';
 import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 @Injectable({ providedIn: 'root' })

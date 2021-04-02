@@ -19,7 +19,8 @@ export class GameImpService extends GameEnemyService {
       [0, 3] //chasing
     ];
     this.setup = (scene: BABYLON.Scene) => {
-      this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/AllImpAnimation.png", 3, {height: 64, width: 64}, scene);
+      //TOCHANGE
+      this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/AllImpAnimation.png", 3, {height: 65, width: 65}, scene);
       this.mesh = BABYLON.MeshBuilder.CreateBox("body", {size: 1, width: 1, height: 1}, scene); 
     }
   }
