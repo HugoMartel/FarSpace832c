@@ -57,6 +57,7 @@ export class GameEnemyService {
         this.sprt.isPickable = true;
         this.mesh.checkCollisions = true;
         this.mesh.material = enemyMat1;
+        this.sprt.playAnimation(0, 23, true, 300);
       }
     }
     //LMAO NOT WORKING
