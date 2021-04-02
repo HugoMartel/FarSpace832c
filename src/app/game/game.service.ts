@@ -15,6 +15,7 @@ import {GameLevelService} from '../services/game/fps/game-level.service';
 //importing enemy
 import {GameImpService} from '../services/game/fps/enemy/game-imp.service'
 import { GameEnemyService } from '../services/game/fps/game-enemy.service';
+import {GameFireballService} from '../services/game/fps/attacks/game-fireball.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -100,6 +101,8 @@ export class GameService {
     //removing the base mesh
     boxx.dispose();
     
+    let tmp = new GameFireballService([5, 5], [-4, -7], this.scene);
+
     //creating the enemy:
     //TODO: create sprite 
     for(let i = 0; i < level.enemy.length; ++i){
@@ -130,6 +133,7 @@ export class GameService {
     });
     this.scene.registerAfterRender(() => {
       // simple rotation along the y axis
+      tmp.move();
       this.sphere.rotate(new BABYLON.Vector3(0, 1, 0), 0.02, BABYLON.Space.LOCAL);
     });
   }

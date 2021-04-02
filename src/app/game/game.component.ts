@@ -18,7 +18,7 @@ export class GameComponent implements OnInit {
   public ngOnInit(): void {
     let enemytest = [
       // [[type], [coordx, coordz, state], etc]
-      [[1], [2, 2, 3]]
+      [[1], [2, 2, 1]]
     ];
     let levelTEST = new GameLevelService([
       [1, 4],

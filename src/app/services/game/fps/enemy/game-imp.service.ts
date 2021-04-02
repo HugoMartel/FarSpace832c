@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { GameEnemyService } from '../game-enemy.service';
+import { GameFireballService } from '../attacks/game-fireball.service';
 import * as BABYLON from '@babylonjs/core';
 
 @Injectable({

@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 @Injectable({ providedIn: 'root' })
 
-//TODO: add a way to change animation in function of the state
 //TODO: add IA
 //TODO: add attacks condition
 //TODO: add pathfinding
@@ -21,6 +20,7 @@ export class GameEnemyService {
   setup: Function;
   stateFrames: Array<Array<number>> | undefined;
   playAnimation : Function;
+  attack : Function;
   //moveThorwardPlayer: Function;
 
   constructor(position: Array<number>, @Inject(Number) private healthbar: number, @Inject(Number) private typeEnemy: number, @Inject(Number) private status: number) { 
@@ -52,7 +52,7 @@ export class GameEnemyService {
         this.mesh.position = new BABYLON.Vector3(this.coord[0], 0.5, this.coord[1]);
         this.mesh.checkCollisions = true;
         this.mesh.material = enemyMat1;
-        this.sprt = new BABYLON.Sprite("lmao", this.sprtMng);
+        this.sprt = new BABYLON.Sprite("enemy", this.sprtMng);
         //TODO: add way to change sprite in function of the state cc Louis
         //for(let i = 0; i < )
         this.sprt.position = this.mesh.position;
@@ -99,6 +99,21 @@ export class GameEnemyService {
           this.playAnimation();
         }
       });
+    }
+
+    this.attack = (enemyCoord : Array<number>) => {
+      if(status == 3){
+        //Far attack
+        if(this.sprtMng === undefined || (status !== 3 && status !== 4)) return;
+        let fireball = new BABYLON.Sprite("lmao", this.sprtMng);
+        let fireballAnimationFrames = [20, 24];      
+      }
+
+      else if(status == 4){
+        //close attack
+      }
+
+      else return;
     }
   }
 }
