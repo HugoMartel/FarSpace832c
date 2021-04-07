@@ -137,14 +137,13 @@ u {
   border-bottom: 0.5px solid #222222;
 }
 
-button {
+button:not(.normal-button) {
   box-sizing: border-box;
   border: none;
   background: var(--surface);
   box-shadow: var(--border-raised-outer), var(--border-raised-inner);
   border-radius: 0;
 
-  min-width: 75px;
   min-height: 23px;
   padding: 0 12px;
 }
@@ -156,21 +155,21 @@ button {
   box-shadow: var(--border-raised-outer), var(--border-raised-inner);
 }
 
-button:not(:disabled):active {
+button:not(:disabled):active:not(.normal-button) {
   box-shadow: var(--border-sunken-outer), var(--border-sunken-inner);
   padding: 2px 11px 0 13px;
 }
 
-button:not(:disabled):hover {
+button:not(:disabled):hover:not(.normal-button) {
   box-shadow: var(--border-sunken-outer), var(--border-sunken-inner);
 }
 
-button:focus {
+button:focus:not(.normal-button) {
   outline: 1px dotted #000000;
   outline-offset: -4px;
 }
 
-button::-moz-focus-inner {
+button::-moz-focus-inner:not(.normal-button) {
   border: 0;
 }
 

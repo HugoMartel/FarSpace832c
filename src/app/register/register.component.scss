@@ -1,0 +1,20 @@
+div.container {
+    min-height: 80%;
+}
+
+div#registerWindow {
+    width: 25%;
+    margin: auto;
+}
+
+form#registerForm {
+    margin:auto;
+}
+
+input#registerEmail, input#registerPassword, input#registerPassword2 {
+    margin-top: 10px;
+}
+
+mat-form-field {
+    width: 100%;
+}

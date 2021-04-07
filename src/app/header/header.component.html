@@ -1,9 +1,26 @@
 <mat-toolbar class="title-bar">
-    <span><img class="toolbarElement" src="../assets/testLogo.png" alt="FarSpace832c" height="50px" /></span>
-    <span><a class="toolbarElement" routerLink="/home" routerLinkActive="active" id="homeLink">Home</a></span>
-    <span><a class="toolbarElement" routerLink="/project" routerLinkActive="active" id="projectLink">Project</a></span>
-    <span><a class="toolbarElement" routerLink="/howtoplay" routerLinkActive="active" id="howToPlayLink">How To Play</a></span>
+    <span>
+        <img class="toolbarElement" src="../assets/testLogo.png" alt="FarSpace832c" height="50px" />
+    </span>
+    <span>
+        <a class="toolbarElement" routerLink="/home" routerLinkActive="active" id="homeLink">Home</a>
+    </span>
+    <span>
+        <a class="toolbarElement" routerLink="/project" routerLinkActive="active" id="projectLink">Project</a>
+    </span>
+    <span>
+        <a class="toolbarElement" routerLink="/howtoplay" routerLinkActive="active" id="howToPlayLink">How To Play</a>
+    </span>
     <span class="filler"></span>
-    <span class="account"><button id="connectButton">Connect</button></span>
+    <span class="account">
+        <a class="toolbarElement" routerLink="/login" routerLinkActive="active" id="loginLink">
+            <button class="connectButton">Login</button>
+        </a>
+    </span>
+    <span class="account">
+        <a class="toolbarElement" routerLink="/register" routerLinkActive="active" id="registerLink">
+            <button class="connectButton">Register</button>
+        </a>
+    </span>
 </mat-toolbar>
 <div class="footer-separator title-bar inactive"></div>

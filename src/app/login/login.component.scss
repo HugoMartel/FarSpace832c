@@ -1,0 +1,20 @@
+div.container {
+    min-height: 80%;
+}
+
+div#loginWindow {
+    width: 25%;
+    margin: auto;
+}
+
+form#loginForm {
+    margin:auto;
+}
+
+input#loginEmail, input#loginPassword {
+    margin-top: 10px;
+}
+
+mat-form-field {
+    width: 100%;
+}

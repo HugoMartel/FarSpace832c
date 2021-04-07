@@ -1,0 +1,41 @@
+<div class="container" 
+    [ngStyle]="{'background-image': 'url(./assets/clouds.png)','background-size': 'cover','background-repeat': 'no-repeat', 'background-position': 'center'}">
+    <div id="loginWindow" class="window">
+        <div class="title-bar">
+            <div class="title-bar-text">Login_Form.exe</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <form (ngSubmit)="onSubmit()" id="loginForm" ngForm #loginForm="ngForm">
+                <mat-form-field appearance="outline">
+                    <mat-label>Enter your email</mat-label>
+                    <input matInput placeholder="john.romero@id-software.com" 
+                        type="email" 
+                        class="form-control" 
+                        id="loginEmail" 
+                        [formControl]="email"
+                        required>
+                    <mat-error *ngIf="email.invalid">{{getEmailErrorMessage()}}</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Enter your password</mat-label>
+                    <input matInput
+                    [type]="hide ? 'password' : 'text'"
+                    class="form-control" 
+                    id="loginPassword"
+                    [formControl]="password"
+                    required>
+                    <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" #togglePassword>
+                        <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="password.invalid">{{getPasswordErrorMessage()}}</mat-error>
+                </mat-form-field>
+                <button class="buttonLogin" type="submit" [disabled]="!loginForm.valid">Login</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -24,6 +24,9 @@
     "@babylonjs/core": "^4.2.0",
     "@babylonjs/materials": "^4.2.0",
     "98.css": "^0.1.16",
+    "express": "^4.17.1",
+    "js-sha256": "^0.9.0",
+    "mysql": "^2.18.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"
