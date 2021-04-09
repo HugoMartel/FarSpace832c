@@ -28,4 +28,8 @@ export class GameComponent implements OnInit {
     this.engServ.createScene(this.gameCanvas, levelTEST);
     this.engServ.animate();
   }
+
+  fullscreen() {
+    this.engServ.fullscreen();
+  }
 }

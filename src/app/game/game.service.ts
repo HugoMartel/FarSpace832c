@@ -3,6 +3,8 @@
 //TODO: creates IA (aled)
 //TODO: change and import imp sprite FIX ITs
 //TODO: change camera borders cause it looks like a fatass rn
+//TODO: check if ground like this isn't breaking everything
+
 
 //TODO: add weapon
 //TODO: add a way to the enemy to talk
@@ -12,31 +14,47 @@ import { ElementRef, Injectable, NgZone } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 //services
 import {GameLevelService} from '../services/game/fps/game-level.service';
-//importing enemy
-import {GameImpService} from '../services/game/fps/enemy/game-imp.service'
-import { GameEnemyService } from '../services/game/fps/game-enemy.service';
-import {GameFireballService} from '../services/game/fps/attacks/game-fireball.service';
+
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
   private canvas!: HTMLCanvasElement;
-  private engine!: BABYLON.Engine;
+  public engine!: BABYLON.Engine;
   private camera!: BABYLON.FreeCamera;
   private scene!: BABYLON.Scene;
   private light!: BABYLON.Light;
-
-  private sphere!: BABYLON.Mesh;
-  private ground!: BABYLON.Mesh;
-
+  public frameCounter: number;
+  private ground!: Array<BABYLON.Mesh>;
+  public fullscreen !: Function;
   public constructor(
     private ngZone: NgZone,
     private windowRef: WindowRefService
-  ) {}
+  ) {
+    this.frameCounter = 0;
+    this.ground = [];
+    this.fullscreen = () => {
+      //true is to lock the mouse inside
+      this.engine.enterFullscreen(true); 
+    }
+  }
 
   public createScene(canvas: ElementRef<HTMLCanvasElement>, level: GameLevelService): void {
+    //this.engine.isPointerLock = true;
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
-
+    //THANSK INTERNET, Locking the pointer down
+    //We start without being locked.
+    let isLocked = false;
+	  // On click event, request pointer lock
+	  this.scene.onPointerDown = (evt) => {
+	  	//true/false check if we're locked, faster than checking pointerlock on each single click.
+	  	if (!isLocked) {
+	  	  this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.msRequestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock || false;
+	  	  if (this.canvas.requestPointerLock) {
+	  		  this.canvas.requestPointerLock();
+	  	  }
+	  	}
+	  };
     // Then, load the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
 
@@ -64,8 +82,6 @@ export class GameService {
       this.scene
     );
     //adding a ground so we can walk on something
-    this.ground = BABYLON.MeshBuilder.CreateGround("ground", {width:100, height:100});
-    //ground depending of envi:
     let groundMat = new BABYLON.StandardMaterial('groundMat', this.scene);
     switch(level.envi){
       case 1:
@@ -74,17 +90,18 @@ export class GameService {
       default:
         groundMat.diffuseTexture = new BABYLON.Texture("assets/textures/error.jpg", this.scene);
     }
-    this.ground.material = groundMat;
-    // create a built-in "sphere" shape; its constructor takes 4 params: name, subdivisions, radius, scene
-    this.sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, this.scene);
-
-    // create the material with its texture for the sphere and assign it to the sphere
-    const spherMaterial = new BABYLON.StandardMaterial('sun_surface', this.scene);
-    spherMaterial.diffuseTexture = new BABYLON.Texture(
-      'assets/textures/sun.jpg',
-      this.scene
-    );
-    this.sphere.material = spherMaterial;
+    let ground = BABYLON.MeshBuilder.CreateGround("ground", {width:1, height:1});
+    ground.material = groundMat;
+    for(let i = -20; i <= 20; ++i){
+      for(let j = -20; j <= 20; ++j){
+        let grouund = ground.clone("ground");
+        grouund.position.x = i;
+        grouund.position.z = j;
+        this.ground.push(grouund);
+      }
+    }
+    ground.dispose();
+    //ground depending of envi:
 
     //creating the walls:
     let boxx = BABYLON.MeshBuilder.CreateBox("box", {size :1, height: 3}, this.scene);
@@ -95,14 +112,26 @@ export class GameService {
       box.position.z = level.walls[i][1];
       box.position.y = 0.5;
       box.checkCollisions = true;
-      box.material = spherMaterial;
+      let wallMaterial =  new BABYLON.StandardMaterial("boxMat", this.scene);
+      //checking env for the texture
+      switch(level.envi) {
+        case 1:
+          wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/Env1/wall.png", this.scene);
+          break;
+        default:
+          wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/error.jpg", this.scene);
+      }
+      box.material = wallMaterial;
       walls.push(box);
     }
+    //TODO: adding map borders (walls)
+    for(let i = -20; i < 20; i++) {
+
+    }
+
     //removing the base mesh
     boxx.dispose();
     
-    let tmp = new GameFireballService([5, 5], [-4, -7], this.scene);
-
     //creating the enemy:
     //TODO: create sprite 
     for(let i = 0; i < level.enemy.length; ++i){
@@ -110,31 +139,32 @@ export class GameService {
       level.enemy[i].playAnimation();
     }
 
-    // move the sphere upward 1/2 of its height
-    this.sphere.position.y = 1;
     //Gravity and Collisions Enabled
     this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
     this.scene.collisionsEnabled = true;
     this.camera.checkCollisions = true;
     this.camera.applyGravity = true;
-    this.ground.checkCollisions = true;
-    this.sphere.checkCollisions = true;
+    for(let i = 0; i < this.ground.length; ++i) this.ground[i].checkCollisions = true;
     this.camera.ellipsoid = new BABYLON.Vector3(1.3, 1, 1.3);
     this.camera.ellipsoidOffset = new BABYLON.Vector3(0, 1, 0); 
     // generates the world x-y-z axis for better understanding
     this.showWorldAxis(8);
-    
     this.scene.registerBeforeRender(() => {
+      this.frameCounter++;
       //locking the camera on x axis (ghetto way)
       this.camera.rotation.x = 0;
-      //todo add a check if the enemy is in the good state
       //TODO: fix this shit
       //for(let i = 0; i < level.enemy.length; ++i) level.enemy[i].moveThorwardPlayer([this.camera.position.x, this.camera.position.z]);
     });
     this.scene.registerAfterRender(() => {
       // simple rotation along the y axis
-      tmp.move();
-      this.sphere.rotate(new BABYLON.Vector3(0, 1, 0), 0.02, BABYLON.Space.LOCAL);
+      //check every enemy if attacked then move the fireball
+      for(let i = 0; i < level.enemy.length; ++i){
+        //if the enemy fire something, then we move it
+        if(level.enemy[i].projectile !== undefined){ 
+          level.enemy[i].projectile.move();
+        }
+      }
     });
   }
 
@@ -242,5 +272,5 @@ export class GameService {
     axisZ.color = new BABYLON.Color3(0, 0, 1);
     const zChar = makeTextPlane('Z', 'blue', size / 10);
     zChar.position = new BABYLON.Vector3(0, 0.05 * size, 0.9 * size);
-  }
+    }
 }

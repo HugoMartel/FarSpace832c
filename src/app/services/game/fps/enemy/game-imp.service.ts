@@ -24,5 +24,19 @@ export class GameImpService extends GameEnemyService {
       this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/AllImpAnimation.png", 3, {height: 65, width: 65}, scene);
       this.mesh = BABYLON.MeshBuilder.CreateBox("body", {size: 1, width: 1, height: 1}, scene); 
     }
+    this.attack = (enemyCoord : Array<number>, scene: BABYLON.Scene) => {
+      //no attacks
+      if(this.sprtMng === undefined || (this.state !== 3 && this.state !== 4)) return;
+      //far attack
+      if(this.state == 3){
+        this.projectile = new GameFireballService([this.coord[0]+1, this.coord[1]+1], enemyCoord,scene);
+      }
+
+      else if(this.state == 4){
+        //close attack
+      }
+
+      else return;
+    }
   }
 }
