@@ -10,14 +10,14 @@
             </div>
         </div>
         <div class="window-body">
-            <form (ngSubmit)="onSubmit()" id="loginForm" ngForm #loginForm="ngForm">
+            <form (ngSubmit)="onSubmit()" id="loginForm" [formGroup]="form">
                 <mat-form-field appearance="outline">
                     <mat-label>Enter your email</mat-label>
                     <input matInput placeholder="john.romero@id-software.com" 
                         type="email" 
                         class="form-control" 
                         id="loginEmail" 
-                        [formControl]="email"
+                        formControlName="email"
                         required>
                     <mat-error *ngIf="email.invalid">{{getEmailErrorMessage()}}</mat-error>
                 </mat-form-field>
@@ -27,14 +27,14 @@
                     [type]="hide ? 'password' : 'text'"
                     class="form-control" 
                     id="loginPassword"
-                    [formControl]="password"
+                    formControlName="password"
                     required>
-                    <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" #togglePassword>
+                    <button mat-icon-button matSuffix (click)="hide = !hide" type="button" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" #togglePassword>
                         <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                     </button>
                     <mat-error *ngIf="password.invalid">{{getPasswordErrorMessage()}}</mat-error>
                 </mat-form-field>
-                <button class="buttonLogin" type="submit" [disabled]="!loginForm.valid">Login</button>
+                <button class="buttonLogin" type="submit" [disabled]="!form.valid">Login</button>
             </form>
         </div>
     </div>

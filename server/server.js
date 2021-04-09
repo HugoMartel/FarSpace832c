@@ -28,7 +28,7 @@ const urlencodedParser = express.urlencoded({ extended: false });
 /** @constant {Object} server https server used to host the project*/
 const server = https.createServer({ key: hsKey, cert: hsCert }, app);
 /** @constant {number} port port used to host the server on*/
-const port = 8888;//SSL Port, 4200 is used by `ng serve`
+const port = 8888;// 4200 is used by `ng serve`
 
 
 //****************************
@@ -46,10 +46,11 @@ app.use(urlencodedParser);
 //*        Requests          *
 //****************************
 // GET
-app.get("/*", (req, res) => {
+app.get("*", (req, res) => {
   console.log(__dirname + "/../dist/FarSpace832c/index.html");
   res.sendFile(__dirname + "/../dist/FarSpace832c/index.html");
 });
+
 // POST
 app.post("/login/", jsonParser, (req, res) => {
     const errors = validationResult(req);
