@@ -34,7 +34,7 @@ export class GameService {
     this.ground = [];
     this.fullscreen = () => {
       //true is to lock the mouse inside
-      this.engine.enterFullscreen(true); 
+      this.engine.enterFullscreen(true);
     }
   }
 
@@ -45,7 +45,15 @@ export class GameService {
     //THANSK INTERNET, Locking the pointer down
     //We start without being locked.
     let isLocked = false;
-	  // On click event, request pointer lock
+
+    // Then, load the Babylon 3D engine:
+    this.engine = new BABYLON.Engine(this.canvas, true);
+
+    // create a basic BJS Scene object
+    this.scene = new BABYLON.Scene(this.engine);
+    this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+    // On click event, request pointer lock
 	  this.scene.onPointerDown = (evt) => {
 	  	//true/false check if we're locked, faster than checking pointerlock on each single click.
 	  	if (!isLocked) {
@@ -55,12 +63,6 @@ export class GameService {
 	  	  }
 	  	}
 	  };
-    // Then, load the Babylon 3D engine:
-    this.engine = new BABYLON.Engine(this.canvas, true);
-
-    // create a basic BJS Scene object
-    this.scene = new BABYLON.Scene(this.engine);
-    this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
     this.camera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 1, -3), this.scene);
@@ -131,9 +133,9 @@ export class GameService {
 
     //removing the base mesh
     boxx.dispose();
-    
+
     //creating the enemy:
-    //TODO: create sprite 
+    //TODO: create sprite
     for(let i = 0; i < level.enemy.length; ++i){
       level.enemy[i].init(this.scene);
       level.enemy[i].playAnimation();
@@ -146,7 +148,7 @@ export class GameService {
     this.camera.applyGravity = true;
     for(let i = 0; i < this.ground.length; ++i) this.ground[i].checkCollisions = true;
     this.camera.ellipsoid = new BABYLON.Vector3(1.3, 1, 1.3);
-    this.camera.ellipsoidOffset = new BABYLON.Vector3(0, 1, 0); 
+    this.camera.ellipsoidOffset = new BABYLON.Vector3(0, 1, 0);
     // generates the world x-y-z axis for better understanding
     this.showWorldAxis(8);
     this.scene.registerBeforeRender(() => {
@@ -161,7 +163,7 @@ export class GameService {
       //check every enemy if attacked then move the fireball
       for(let i = 0; i < level.enemy.length; ++i){
         //if the enemy fire something, then we move it
-        if(level.enemy[i].projectile !== undefined){ 
+        if(level.enemy[i].projectile !== undefined){
           level.enemy[i].projectile.move();
         }
       }
