@@ -14,7 +14,7 @@ import { ElementRef, Injectable, NgZone } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 //services
 import {GameLevelService} from '../services/game/fps/game-level.service';
-
+import {GamePlayerService} from '../services/game/fps/player/game-player.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -42,7 +42,7 @@ export class GameService {
     //this.engine.isPointerLock = true;
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
-    //THANSK INTERNET, Locking the pointer down
+    //THANKS INTERNET, Locking the pointer down
     //We start without being locked.
     let isLocked = false;
 
@@ -63,20 +63,9 @@ export class GameService {
 	  	  }
 	  	}
 	  };
+    let player = new GamePlayerService(this.scene, this.canvas);
+    this.camera = player.camera;
 
-    // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
-    this.camera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 1, -3), this.scene);
-    this.camera.setTarget(new BABYLON.Vector3(0, 1, 1));
-
-    // attach the camera to the canvas and adding a few controls
-    this.camera.attachControl(this.canvas, false);
-    this.camera.keysUp = [90, 38]; // Z or UP Arrow
-    this.camera.keysDown = [83, 40]; // S or DOWN ARROW
-    this.camera.keysLeft = [81]; // Q or LEFT ARROW
-    this.camera.keysRight = [68]; // D or RIGHT ARROW
-    //Add attachment controls
-    //slowing down the camera speed
-    this.camera.speed = 0.3;
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     this.light = new BABYLON.HemisphericLight(
       'light1',
@@ -144,17 +133,13 @@ export class GameService {
     //Gravity and Collisions Enabled
     this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
     this.scene.collisionsEnabled = true;
-    this.camera.checkCollisions = true;
-    this.camera.applyGravity = true;
     for(let i = 0; i < this.ground.length; ++i) this.ground[i].checkCollisions = true;
-    this.camera.ellipsoid = new BABYLON.Vector3(1.3, 1, 1.3);
-    this.camera.ellipsoidOffset = new BABYLON.Vector3(0, 1, 0);
     // generates the world x-y-z axis for better understanding
     this.showWorldAxis(8);
     this.scene.registerBeforeRender(() => {
       this.frameCounter++;
       //locking the camera on x axis (ghetto way)
-      this.camera.rotation.x = 0;
+      player.lockRotation();
       //TODO: fix this shit
       //for(let i = 0; i < level.enemy.length; ++i) level.enemy[i].moveThorwardPlayer([this.camera.position.x, this.camera.position.z]);
     });

@@ -4,13 +4,15 @@ import { GameEnemyService } from '../fps/game-enemy.service'
 import { GameImpService } from '../fps/enemy/game-imp.service'
 @Injectable({providedIn: 'root'})
 
+//TODO: add the creation of the wall
+
 export class GameLevelService {
   walls : Array<Array<number>>;
   enemy: Array<GameEnemyService>; 
   envi : number;
   finished: boolean;
 
-  constructor( wallsC:Array<Array<number>>, e:Array<Array<Array<number>>>,@Inject(Number) private env:number){ 
+  constructor( wallsC:Array<Array<number>>, enemys:Array<Array<Array<number>>>,@Inject(Number) private env:number){ 
     //note:
     //e is like:
     //[
@@ -22,12 +24,12 @@ export class GameLevelService {
     this.enemy = [];
     this.finished = false;
     //setting up the enemy: 
-    for(let i = 0; i < e.length; ++i){
-      switch(e[i][0][0]){
+    for(let i = 0; i < enemys.length; i++){
+      switch(enemys[i][0][0]){
         //imp
         case 1:
-          for(let j = 1; j < e[i].length; ++j){
-            this.enemy.push(new GameImpService([e[i][j][0], e[i][j][1]], e[i][j][2]));
+          for(let j = 1; j < enemys[i].length; ++j){
+            this.enemy.push(new GameImpService([enemys[i][j][0], enemys[i][j][1]], enemys[i][j][2]));
           }
           break
         default:
