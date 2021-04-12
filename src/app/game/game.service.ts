@@ -115,9 +115,33 @@ export class GameService {
       box.material = wallMaterial;
       walls.push(box);
     }
-    //TODO: adding map borders (walls)
+    //TODO: check if there are doubled on the border
     for(let i = -20; i < 20; i++) {
-
+      for(let j of [20, -20]){
+        let box1 = boxx.clone();
+        let box2 = boxx.clone();
+        box1.position.x = i;
+        box1.position.z = j;
+        box1.position.y = 0.5;
+        box2.position.x = j;
+        box2.position.z = i;
+        box2.position.y = 0.5;
+        box1.checkCollisions = true;
+        box2.checkCollisions = true;
+        let wallMaterial =  new BABYLON.StandardMaterial("boxMat", this.scene);
+        //checking env for the texture
+        switch(level.envi) {
+          case 1:
+            wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/Env1/wall.png", this.scene);
+            break;
+          default:
+            wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/error.jpg", this.scene);
+        }
+        box1.material = wallMaterial;
+        box2.material = wallMaterial;
+        walls.push(box1);
+        walls.push(box2);
+      }
     }
 
     //removing the base mesh
