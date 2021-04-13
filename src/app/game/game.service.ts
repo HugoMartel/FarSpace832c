@@ -20,20 +20,31 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
+
+  private size_z: number = 25;
+  private terr2Matrix: any[] = [];
+
   private canvas!: HTMLCanvasElement;
   private engine!: Engine;
   private camera!: FreeCamera;
   private scene!: Scene;
   private light!: Light;
+  private plane!: Mesh;
+  private terrainPlane: Mesh[] = [];
 
-  private sphere!: Mesh;
+  //private sphere!: Mesh;
 
   public constructor(
     private ngZone: NgZone,
-    private windowRef: WindowRefService
+    private windowRef: WindowRefService,
+    private terrainService: TerrainService
   ) {}
 
   public createScene(canvas: ElementRef<HTMLCanvasElement>): void {
+
+    this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 50, 50);
+    console.log(this.terr2Matrix);
+
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
@@ -47,7 +58,7 @@ export class GameService {
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
     this.camera = new FreeCamera(
       'camera1',
-      new Vector3(5, 10, -20),
+      new Vector3(50, 55, 10),
       this.scene
     );
 
@@ -60,14 +71,36 @@ export class GameService {
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     this.light = new HemisphericLight(
       'light1',
-      new Vector3(0, 1, 0),
+      new Vector3(10, 41, 10),
       this.scene
     );
 
+    this.plane = Mesh.CreatePlane("plane", 1, this.scene, true);
+    this.plane.rotation.x = Math.PI/2;
+
+    let testColor: any = new StandardMaterial("testColor", this.scene);
+    let testColorPalette: any[] = [];
+    for (let i = 0; i < this.size_z; i++) {
+      testColorPalette[i] = testColor.clone("tcolor");
+      testColorPalette[i].diffuseColor = new Color3(i/25, 0, 1-(i/25));
+    }
+
+    for (let x = 0; x < this.terr2Matrix.length; x++) {
+      for (let y = 0; y < this.terr2Matrix[x].length; y++) {
+        this.terrainPlane[x*y+y] = this.plane.clone("tplane");
+        this.terrainPlane[x*y+y].position.x = x;
+        this.terrainPlane[x*y+y].position.z = y;
+        this.terrainPlane[x*y+y].position.y = this.terr2Matrix[x][y];
+        this.terrainPlane[x*y+y].material = testColorPalette[this.terr2Matrix[x][y]];
+      }
+
+    }
+
     // create a built-in "sphere" shape; its constructor takes 4 params: name, subdivisions, radius, scene
-    this.sphere = Mesh.CreateSphere('sphere1', 16, 2, this.scene);
+    //this.sphere = Mesh.CreateSphere('sphere1', 16, 2, this.scene);
 
     // create the material with its texture for the sphere and assign it to the sphere
+    /*
     const spherMaterial = new StandardMaterial('sun_surface', this.scene);
     spherMaterial.diffuseTexture = new Texture(
       'assets/textures/sun.jpg',
@@ -82,9 +115,11 @@ export class GameService {
     this.scene.registerAfterRender(() => {
       this.sphere.rotate(new Vector3(0, 1, 0), 0.02, Space.LOCAL);
     });
-
+    */
     // generates the world x-y-z axis for better understanding
+
     this.showWorldAxis(8);
+
   }
 
   public animate(): void {

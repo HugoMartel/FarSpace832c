@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
 import { GameService } from './game.service';
+import { TerrainService } from '../services/game/gestion/terrain.service'
 
 @Component({
   selector: 'app-game',
@@ -12,10 +13,15 @@ export class GameComponent implements OnInit {
   @ViewChild('gameCanvas', { static: true })
   public gameCanvas!: ElementRef<HTMLCanvasElement>;
 
+
   public constructor(private engServ: GameService) {  }
 
   public ngOnInit(): void {
     this.engServ.createScene(this.gameCanvas);
     this.engServ.animate();
+    //let sphere!: Mesh;
+    //sphere = Mesh.CreateSphere('sphere1', 16, 2, this.scene);
+    //var plane = BABYLON.MeshBuilder.CreatePlane("plane", this.gameCanvas, updatable);
+    //console.log(this.terrainService.terrainMatrix);
   }
 }
