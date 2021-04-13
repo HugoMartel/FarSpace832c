@@ -76,7 +76,8 @@
             "ssl": true,
             "sslKey": "ssl/server.key",
             "sslCert": "ssl/server.crt",
-            "browserTarget": "FarSpace832c:build"
+            "browserTarget": "FarSpace832c:build",
+            "port": 8888
           },
           "configurations": {
             "production": {

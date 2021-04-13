@@ -5,13 +5,14 @@ div.container {
 div#registerWindow {
     width: 25%;
     margin: auto;
+    min-width: 300px;
 }
 
 form#registerForm {
     margin:auto;
 }
 
-input#registerEmail, input#registerPassword, input#registerPassword2 {
+input#registerEmail, input#registerPassword, input#registerPassword2, input#registerUsername {
     margin-top: 10px;
 }
 

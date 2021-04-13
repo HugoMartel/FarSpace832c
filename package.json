@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node server/server.js",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -25,6 +25,7 @@
     "@babylonjs/materials": "^4.2.0",
     "98.css": "^0.1.16",
     "express": "^4.17.1",
+    "express-validator": "^6.10.0",
     "js-sha256": "^0.9.0",
     "mysql": "^2.18.1",
     "rxjs": "~6.6.0",

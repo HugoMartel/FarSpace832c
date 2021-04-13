@@ -1,52 +1,49 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { Router } from '@angular/router';
 
-const headers: HttpHeaders = new HttpHeaders().append(
-  'Content-Type',
-  'application/json'
-);
-
+const headers = new HttpHeaders({'Content-Type':'application/json', 'Response-Type': 'application/json'});
 
 interface Login {
-  userEmail: string;
-  userPassword: string;
+  email: string;
+  password: string;
 }
 
 interface Register {
-  userEmail: string;
-  userPassword: string;
-  userName: string;
+  email: string;
+  password: string;
+  username: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountService {
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient, private router: Router, private snackBar: MatSnackBar) {}
 
-  login(userEmail: string, userPassword: string): Observable<any> {
-    return this.http.post<Login>('/home', {
-      title: 'Angular POST Login Request',
-      headers: headers,
-      params: new HttpParams()
-        .append('userEmail', userEmail)
-        .append('userPassword', userPassword),
+  login(email: string, password: string): void {
+    this.http.post<any>(window.location.origin + '/login', {
+      email: email,
+      password: password
+    }, {headers}).subscribe((response) => {
+      this.router.navigate(['/home']);
+      if (response !== undefined && typeof response.message === "string") {
+        this.snackBar.open(response.message, "close", {duration: 3000});
+      }
     });
   }
 
-  register(
-    userEmail: string,
-    userPassword: string,
-    userName: string
-  ): Observable<any> {
-    return this.http.post<Register>('/home', {
-      title: 'Angular POST Register Request',
-      headers: headers,
-      params: new HttpParams()
-        .append('userEmail', userEmail)
-        .append('userPassword', userPassword)
-        .append('userName', userName),
+  register(email: string, password: string, username: string): void {
+    this.http.post<any>(window.location.origin + '/register', {
+      email: email,
+      password: password,
+      username: username
+    }, {headers}).subscribe((response) => {
+      this.router.navigate(['/home']);
+      if (response !== undefined && typeof response.message === "string") {
+        this.snackBar.open(response.message, "close", {duration: 3000});
+      }
     });
   }
 }

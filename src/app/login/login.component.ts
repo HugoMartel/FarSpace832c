@@ -13,17 +13,18 @@ export class LoginComponent implements OnInit {
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required, Validators.minLength(6)]);
 
-  hide = true;
+  hide:boolean = true;
 
   form!: FormGroup;
 
   onSubmit() {
-    console.log(this.form);
     if (this.form.valid) {
-      console.log('form submitted');
-    } else {
-      // validate all form fields
+      this.accountService.login(
+        this.form.value.email,
+        this.form.value.password
+      );
     }
+
   }
 
   constructor(private accountService: AccountService, private formBuilder: FormBuilder){}
@@ -33,7 +34,6 @@ export class LoginComponent implements OnInit {
       email: [null, [Validators.required, Validators.email]],
       password: [null, [Validators.required, Validators.minLength(6)]]
     });
-    console.log(this.form);
   }
 
   getEmailErrorMessage() {
