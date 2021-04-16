@@ -10,6 +10,8 @@
 //TODO: add a way to the enemy to talk
 
 import { WindowRefService } from './../services/window-ref.service';
+import { TerrainService } from './../services/game/gestion/terrain.service';
+
 import { ElementRef, Injectable, NgZone } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
@@ -20,15 +22,22 @@ import {GamePlayerService} from '../services/game/fps/player/game-player.service
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
+
+  private size_z: number = 25;
+  private terr2Matrix: any[] = [];
+
   private canvas!: HTMLCanvasElement;
   public engine!: BABYLON.Engine;
   private scene!: BABYLON.Scene;
   public frameCounter: number;
   private ground!: Array<BABYLON.Mesh>;
   public fullscreen !: Function;
+  private plane!: BABYLON.Mesh;
+
   public constructor(
     private ngZone: NgZone,
-    private windowRef: WindowRefService
+    private windowRef: WindowRefService,
+    private terrainService: TerrainService
   ) {
     this.frameCounter = 0;
     this.ground = [];
@@ -38,7 +47,7 @@ export class GameService {
     }
   }
 
-  public resetScene(canvas: ElementRef<HTMLCanvasElement>):void {
+  public resetScene():void {
     this.scene.dispose();
     this.engine.dispose();
     //It seems from the devs that only disposing from the scene leaves some stuff in the memory
@@ -88,7 +97,7 @@ export class GameService {
     menuUI.addControl(playButton);
 
     playButton.onPointerClickObservable.add((evt) => {
-      this.resetScene(canvas);
+      this.resetScene();
       let enemytest = [
         // [[type], [coordx, coordz, state], etc]
         [[1], [2, 2, 1]]
@@ -98,7 +107,10 @@ export class GameService {
         [1, 3],
         [2, 5],
       ], enemytest,1);
-      this.createFPSScene(canvas, levelTEST);
+
+      //this.createFPSScene(canvas, levelTEST);
+      this.createPlanetScene(canvas);
+
       this.animate();
     });
   }
@@ -233,6 +245,7 @@ export class GameService {
     this.scene.collisionsEnabled = true;
     for(let i = 0; i < this.ground.length; ++i) this.ground[i].checkCollisions = true;
     // generates the world x-y-z axis for better understanding
+
     this.showWorldAxis(8);
     this.scene.registerBeforeRender(() => {
       this.frameCounter++;
@@ -251,6 +264,71 @@ export class GameService {
         }
       }
     });
+  }
+
+  public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>): void {
+
+    this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
+    console.log(this.terr2Matrix);
+
+    // The first step is to get the reference of the canvas element from our HTML document
+    this.canvas = canvas.nativeElement;
+
+    // Then, load the Babylon 3D engine:
+    this.engine = new BABYLON.Engine(this.canvas, true);
+
+    // create a basic BJS Scene object
+    this.scene = new BABYLON.Scene(this.engine);
+    this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+    // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
+    let aboveCamera = new BABYLON.FreeCamera(
+      'camera1',
+      new BABYLON.Vector3(50, 55, 10),
+      this.scene
+    );
+
+    // target the camera to scene origin
+    aboveCamera.setTarget(BABYLON.Vector3.Zero());
+
+    // attach the camera to the canvas
+    aboveCamera.attachControl(this.canvas, false);
+
+    // create a basic light, aiming 0,1,0 - meaning, to the sky
+    let hemisphericLight = new BABYLON.HemisphericLight(
+      'light1',
+      new BABYLON.Vector3(50, 50, 50),
+      this.scene
+    );
+
+    this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
+    this.plane.rotation.x = Math.PI/2;
+
+    let testMat: any = new BABYLON.StandardMaterial("testMat", this.scene);
+    testMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
+    this.plane.material = testMat;
+
+    this.plane.registerInstancedBuffer("color", 4);
+    this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1)
+
+    let testColorPalette: number[] = [];
+    for (let i = 0; i < this.size_z; i++) {
+      testColorPalette[i] = i/this.size_z;
+      testColorPalette[i+this.size_z] = 1-(i/this.size_z);
+    }
+
+    for (let x = 0; x < this.terr2Matrix.length; x++) {
+      for (let y = 0; y < this.terr2Matrix[x].length; y++) {
+        var instanceTest = this.plane.createInstance("tplane " + (x*y+y));
+        instanceTest.position.x = x;
+        instanceTest.position.z = y;
+        instanceTest.position.y = this.terr2Matrix[x][y];
+
+        instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.terr2Matrix[x][y] + this.size_z]);
+      }
+
+    }
+
   }
 
   public animate(): void {
