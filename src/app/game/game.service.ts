@@ -108,8 +108,8 @@ export class GameService {
         [2, 5],
       ], enemytest,1);
 
-      //this.createFPSScene(canvas, levelTEST);
-      this.createPlanetScene(canvas);
+      this.createFPSScene(canvas, levelTEST);
+      //this.createPlanetScene(canvas);
 
       this.animate();
     });
@@ -152,8 +152,11 @@ export class GameService {
 
     let player = new GamePlayerService(this.scene, this.canvas);
 
-    // Create a basic light, aiming 0,1,0 - meaning, to the sky
-    let basicLight = new BABYLON.HemisphericLight(
+    // Add the crosshair to the player camera
+    player.addGunSight();
+
+    // create a basic light, aiming 0,1,0 - meaning, to the sky
+    let hemisphericLight = new BABYLON.HemisphericLight(
       'light1',
       new BABYLON.Vector3(0, 1, 0),
       this.scene
