@@ -16,20 +16,13 @@ export class GameComponent implements OnInit {
   public constructor(private engServ: GameService) {  }
 
   public ngOnInit(): void {
-    let enemytest = [
-      // [[type], [coordx, coordz, state], etc]
-      [[1], [2, 2, 1]]
-    ];
-    let levelTEST = new GameLevelService([
-      [1, 4],
-      [1, 3],
-      [2, 5],
-    ], enemytest,1);
-    this.engServ.createScene(this.gameCanvas, levelTEST);
+    this.engServ.createMenuScene(this.gameCanvas);
+    //this.engServ.createFPSScene(this.gameCanvas, levelTEST);
     this.engServ.animate();
   }
 
   fullscreen() {
     this.engServ.fullscreen();
+    this.gameCanvas.nativeElement.requestPointerLock();
   }
 }

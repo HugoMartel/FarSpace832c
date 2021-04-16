@@ -12,6 +12,8 @@
 import { WindowRefService } from './../services/window-ref.service';
 import { ElementRef, Injectable, NgZone } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
+import * as GUI from '@babylonjs/gui';
+
 //services
 import {GameLevelService} from '../services/game/fps/game-level.service';
 import {GamePlayerService} from '../services/game/fps/player/game-player.service';
@@ -20,9 +22,7 @@ import {GamePlayerService} from '../services/game/fps/player/game-player.service
 export class GameService {
   private canvas!: HTMLCanvasElement;
   public engine!: BABYLON.Engine;
-  private camera!: BABYLON.FreeCamera;
   private scene!: BABYLON.Scene;
-  private light!: BABYLON.Light;
   public frameCounter: number;
   private ground!: Array<BABYLON.Mesh>;
   public fullscreen !: Function;
@@ -38,8 +38,72 @@ export class GameService {
     }
   }
 
-  public createScene(canvas: ElementRef<HTMLCanvasElement>, level: GameLevelService): void {
-    //this.engine.isPointerLock = true;
+  public resetScene(canvas: ElementRef<HTMLCanvasElement>):void {
+    this.scene.dispose();
+    this.engine.dispose();
+    //It seems from the devs that only disposing from the scene leaves some stuff in the memory
+  }
+
+  public createMenuScene(canvas: ElementRef<HTMLCanvasElement>):void {
+    // The first step is to get the reference of the canvas element from our HTML document
+    this.canvas = canvas.nativeElement;
+
+    // Then, load the Babylon 3D engine:
+    this.engine = new BABYLON.Engine(this.canvas, true);
+
+    // create a basic BJS Scene object
+    this.scene = new BABYLON.Scene(this.engine);
+    this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+    // Create the view
+    let menuCamera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/2, Math.PI / 3, 25, BABYLON.Vector3.Zero(), this.scene);
+    menuCamera.attachControl(this.canvas, true);
+
+    // Create the UI object
+    let menuUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI(
+      "menuUI", true, this.scene
+    );
+
+    /*
+    let grid = new GUI.Grid();
+    grid.addColumnDefinition(1 / 3);
+    grid.addColumnDefinition(1 / 3);
+    grid.addColumnDefinition(1 / 3);
+    advancedTexture.addControl(grid);
+      */
+
+    let image = new GUI.Image("but", "assets/menu/Gliese_832c-ArtistImpression.png");
+    image.width = "330px";
+    image.height = "330px";
+    image.populateNinePatchSlicesFromImage = true;
+    image.stretch = GUI.Image.STRETCH_NINE_PATCH;
+    menuUI.addControl(image);
+    //grid.addControl(image, 0, 0);
+
+    let playButton = GUI.Button.CreateSimpleButton("but", "PLAY");
+    playButton.width = 0.2;
+    playButton.height = "40px";
+    playButton.color = "white";
+    playButton.background = "green";
+    menuUI.addControl(playButton);
+
+    playButton.onPointerClickObservable.add((evt) => {
+      this.resetScene(canvas);
+      let enemytest = [
+        // [[type], [coordx, coordz, state], etc]
+        [[1], [2, 2, 1]]
+      ];
+      let levelTEST = new GameLevelService([
+        [1, 4],
+        [1, 3],
+        [2, 5],
+      ], enemytest,1);
+      this.createFPSScene(canvas, levelTEST);
+      this.animate();
+    });
+  }
+
+  public createFPSScene(canvas: ElementRef<HTMLCanvasElement>, level: GameLevelService): void {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
     //THANKS INTERNET, Locking the pointer down
@@ -54,36 +118,35 @@ export class GameService {
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     // On click event, request pointer lock
-	  this.scene.onPointerDown = (evt) => {
+    this.scene.onPointerDown = (evt) => {
 	  	//true/false check if we're locked, faster than checking pointerlock on each single click.
-	  	if (!isLocked) {
-	  	  this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.msRequestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock || false;
-	  	  if (this.canvas.requestPointerLock) {
-	  		  this.canvas.requestPointerLock();
-	  	  }
-	  	}
-	  };
+      if (!isLocked) {
+        this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.msRequestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock || false;
+        if (this.canvas.requestPointerLock) {
+          this.canvas.requestPointerLock();
+        }
+      }
+    };
 
     // Skybox
-	  let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
-	  let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-	  skyboxMaterial.backFaceCulling = false;
-	  skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/cubemapDebug/", this.scene);
-	  skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-	  skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-	  skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-	  skybox.material = skyboxMaterial;
+    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
+    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/cubemapDebug/", this.scene);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
 
     let player = new GamePlayerService(this.scene, this.canvas);
-    this.camera = player.camera;
 
-    // create a basic light, aiming 0,1,0 - meaning, to the sky
-    this.light = new BABYLON.HemisphericLight(
+    // Create a basic light, aiming 0,1,0 - meaning, to the sky
+    let basicLight = new BABYLON.HemisphericLight(
       'light1',
       new BABYLON.Vector3(0, 1, 0),
       this.scene
     );
-    //adding a ground so we can walk on something
+    // Adding a ground so we can walk on something
     let groundMat = new BABYLON.StandardMaterial('groundMat', this.scene);
     switch(level.envi){
       case 1:
