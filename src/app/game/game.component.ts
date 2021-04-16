@@ -20,11 +20,16 @@ export class GameComponent implements OnInit {
       // [[type], [coordx, coordz, state], etc]
       [[1], [2, 2, 1]]
     ];
+    //testing powerup
+    let tmp = [[22, 7, 7], [17, 5, 5]];
     let levelTEST = new GameLevelService([
       [1, 4],
       [1, 3],
       [2, 5],
-    ], enemytest,1);
+    ], 
+    enemytest,
+    tmp,
+    1);
     this.engServ.createScene(this.gameCanvas, levelTEST);
     this.engServ.animate();
   }

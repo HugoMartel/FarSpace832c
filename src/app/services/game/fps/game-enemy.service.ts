@@ -62,8 +62,6 @@ export class GameEnemyService {
         this.sprt.isPickable = true;
         this.mesh.checkCollisions = true;
         this.mesh.material = enemyMat1;
-        //defining the frames to play in function of the state:
-        //this.sprt.playAnimation(0, 23, true, 300);
       }
     }
     //LMAO NOT WORKING

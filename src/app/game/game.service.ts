@@ -5,6 +5,7 @@
 //TODO: change camera borders cause it looks like a fatass rn
 //TODO: check if ground like this isn't breaking everything
 
+//TODO ++++: add player death check
 
 //TODO: add weapon
 //TODO: add a way to the enemy to talk
@@ -154,12 +155,14 @@ export class GameService {
         walls.push(box2);
       }
     }
-
     //removing the base mesh
     boxx.dispose();
 
+    //adding the pickeable items:
+    for(let i of level.pickups) i.init(); 
+
     //creating the enemy:
-    //TODO: create sprite
+    //TODO: move the animation into init
     for(let i = 0; i < level.enemy.length; ++i){
       level.enemy[i].init(this.scene);
       level.enemy[i].playAnimation();
@@ -175,6 +178,8 @@ export class GameService {
       this.frameCounter++;
       //locking the camera on x axis (ghetto way)
       player.lockRotation();
+      //checking if a pickup has to be removed:
+      level.pickups.filter(pick => !pick.remove);
       //TODO: fix this shit
       //for(let i = 0; i < level.enemy.length; ++i) level.enemy[i].moveThorwardPlayer([this.camera.position.x, this.camera.position.z]);
     });
@@ -186,6 +191,9 @@ export class GameService {
         if(level.enemy[i].projectile !== undefined){
           level.enemy[i].projectile.move();
         }
+      }
+      for(let i of level.pickups){
+        i.check(player, this.scene);
       }
     });
   }
