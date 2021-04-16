@@ -285,7 +285,7 @@ export class GameService {
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
-    let aboveCamera = new BABYLON.FreeCamera(
+    let aboveCamera:BABYLON.FreeCamera = new BABYLON.FreeCamera(
       'camera1',
       new BABYLON.Vector3(50, 55, 10),
       this.scene
@@ -298,7 +298,7 @@ export class GameService {
     aboveCamera.attachControl(this.canvas, false);
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
-    let hemisphericLight = new BABYLON.HemisphericLight(
+    let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
       'light1',
       new BABYLON.Vector3(50, 50, 50),
       this.scene
@@ -307,12 +307,12 @@ export class GameService {
     this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
     this.plane.rotation.x = Math.PI/2;
 
-    let testMat: any = new BABYLON.StandardMaterial("testMat", this.scene);
+    let testMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial("testMat", this.scene);
     testMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
     this.plane.material = testMat;
 
     this.plane.registerInstancedBuffer("color", 4);
-    this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1)
+    this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
 
     let testColorPalette: number[] = [];
     for (let i = 0; i < this.size_z; i++) {
@@ -322,14 +322,13 @@ export class GameService {
 
     for (let x = 0; x < this.terr2Matrix.length; x++) {
       for (let y = 0; y < this.terr2Matrix[x].length; y++) {
-        var instanceTest = this.plane.createInstance("tplane " + (x*y+y));
+        let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
         instanceTest.position.x = x;
         instanceTest.position.z = y;
         instanceTest.position.y = this.terr2Matrix[x][y];
 
         instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.terr2Matrix[x][y] + this.size_z]);
       }
-
     }
 
   }
