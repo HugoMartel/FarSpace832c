@@ -77,6 +77,9 @@ export class GameService {
     let player = new GamePlayerService(this.scene, this.canvas);
     this.camera = player.camera;
 
+    // Add the crosshair to the player camera
+    player.addGunSight();
+
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     this.light = new BABYLON.HemisphericLight(
       'light1',
