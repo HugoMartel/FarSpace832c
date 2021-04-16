@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { GameLevelService } from '../services/game/fps/game-level.service';
 import { GameEnemyService } from '../services/game/fps/game-enemy.service';
 import { GameService } from './game.service';
+import { TerrainService } from '../services/game/gestion/terrain.service'
 
 @Component({
   selector: 'app-game',
@@ -13,28 +14,17 @@ export class GameComponent implements OnInit {
   @ViewChild('gameCanvas', { static: true })
   public gameCanvas!: ElementRef<HTMLCanvasElement>;
 
+
   public constructor(private engServ: GameService) {  }
 
   public ngOnInit(): void {
-    let enemytest = [
-      // [[type], [coordx, coordz, state], etc]
-      [[1], [2, 2, 1]]
-    ];
-    //testing powerup
-    let tmp = [[22, 7, 7], [17, 5, 5]];
-    let levelTEST = new GameLevelService([
-      [1, 4],
-      [1, 3],
-      [2, 5],
-    ], 
-    enemytest,
-    tmp,
-    1);
-    this.engServ.createScene(this.gameCanvas, levelTEST);
+    this.engServ.createMenuScene(this.gameCanvas);
+    
     this.engServ.animate();
   }
 
   fullscreen() {
     this.engServ.fullscreen();
+    this.gameCanvas.nativeElement.requestPointerLock();
   }
 }

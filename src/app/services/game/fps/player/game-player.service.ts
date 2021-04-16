@@ -22,6 +22,7 @@ export class GamePlayerService {
   ammos: Array<number>;
   lockRotation: Function;
   shoot: Function;
+  addGunSight: Function;
 
   constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement){ 
     this.health = 100;
@@ -103,12 +104,84 @@ export class GamePlayerService {
     this.camera.ellipsoid = new BABYLON.Vector3(1.3, 1, 1.3);
     this.camera.ellipsoidOffset = new BABYLON.Vector3(0, 1, 0);
 
+    // Add the camera to the active cameras
+    if (scene.activeCameras !== null) {
+      scene.activeCameras.push(this.camera);
+    }
+
     /******FUNCTIONS******/
     //locking the ability to look up
     this.lockRotation = () => {
       this.camera.rotation.x = 0;
       return;
     }
+
+    //FUNCTION  to add a crosshair in the middle of the camera
+    this.addGunSight = () => {
+      if (scene.activeCameras === null) {
+        console.log('Cameras aren\'t active...');
+        return;
+      }
+
+      //we create a second camera on top of the first one where we will see only the crosshair
+      let crosshairCamera = new BABYLON.FreeCamera("GunSightCamera", new BABYLON.Vector3(0, 0, -50), scene);
+      crosshairCamera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+      crosshairCamera.layerMask = 0x20000000;
+    
+      //Pushing the second camera on the scene
+      scene.activeCameras.push(crosshairCamera);
+
+      //this meshes is for us to display the crosshair it will take every parts of the crosshair
+      let meshes = [];
+      let h = 250;
+      let w = 250;
+
+      let y = BABYLON.Mesh.CreateBox("y", h * 0.2, scene);
+      y.scaling = new BABYLON.Vector3(0.05, 0.5, 0.5);
+      y.position = new BABYLON.Vector3(0, 0, 0);
+      meshes.push(y);
+
+      let x = BABYLON.Mesh.CreateBox("x", h * 0.2, scene);
+      x.scaling = new BABYLON.Vector3(0.5, 0.05, 0.5);
+      x.position = new BABYLON.Vector3(0, 0, 0);
+      meshes.push(x);
+
+      let lineTop = BABYLON.Mesh.CreateBox("lineTop", w * 0.8, scene);
+      lineTop.scaling = new BABYLON.Vector3(0.5, 0.005, 0.5);
+      lineTop.position = new BABYLON.Vector3(0, h * 0.5, 0);
+      meshes.push(lineTop);
+
+      let lineBottom = BABYLON.Mesh.CreateBox("lineBottom", w * 0.8, scene);
+      lineBottom.scaling = new BABYLON.Vector3(0.5, 0.005, 0.5);
+      lineBottom.position = new BABYLON.Vector3(0, h * -0.5, 0);
+      meshes.push(lineBottom);
+
+      let lineLeft = BABYLON.Mesh.CreateBox("lineLeft", h, scene);
+      lineLeft.scaling = new BABYLON.Vector3(0.01, 0.5, 0.5);
+      lineLeft.position = new BABYLON.Vector3(w * -0.4, 0, 0);
+      meshes.push(lineLeft);
+
+      let lineRight = BABYLON.Mesh.CreateBox("lineRight", h, scene);
+      lineRight.scaling = new BABYLON.Vector3(0.01, 0.5, 0.5);
+      lineRight.position = new BABYLON.Vector3(w * 0.4, 0, 0);
+      meshes.push(lineRight);
+
+      //merging all the meshes to create the crosshair
+      let gunSight = BABYLON.Mesh.MergeMeshes(meshes) as BABYLON.Mesh;
+      gunSight.name = "gunSight";
+      //this allow us to display only a crosshair on top of the first camera
+      gunSight.layerMask = 0x20000000;
+      gunSight.freezeWorldMatrix();
+
+      //adding color for the crosshair
+      let mat = new BABYLON.StandardMaterial("emissive mat", scene);
+      mat.checkReadyOnlyOnce = true;
+      mat.emissiveColor = new BABYLON.Color3(1, 1, 0);
+      gunSight.material = mat;
+
+      return;
+    }
+
     //checking if the player can shoot the weapon he's using
     this.shoot = () => {
       //fist/chainsaw
