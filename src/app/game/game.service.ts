@@ -48,12 +48,20 @@ export class GameService {
     }
   }
 
+
+  //**********************
+  //*       Reset        *
+  //**********************
   public resetScene():void {
     this.scene.dispose();
     this.engine.dispose();
     //It seems from the devs that only disposing from the scene leaves some stuff in the memory
   }
 
+
+  //**********************
+  //*       Menu         *
+  //**********************
   public createMenuScene(canvas: ElementRef<HTMLCanvasElement>):void {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
@@ -123,6 +131,10 @@ export class GameService {
     });
   }
 
+
+  //**********************
+  //*      Shooter       *
+  //**********************
   public createFPSScene(canvas: ElementRef<HTMLCanvasElement>, level: GameLevelService): void {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
@@ -148,7 +160,10 @@ export class GameService {
       }
     };
 
-    // Skybox
+
+    //**********************
+    //*       SKYBOX       *
+    //**********************
     let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
     let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
     skyboxMaterial.backFaceCulling = false;
@@ -169,8 +184,13 @@ export class GameService {
       new BABYLON.Vector3(0, 1, 0),
       this.scene
     );
-    // Adding a ground so we can walk on something
+
+    //**********************
+    //*     MATERIALS      *
+    //**********************
+    // GROUND
     let groundMat = new BABYLON.StandardMaterial('groundMat', this.scene);
+    //checking env for the texture
     switch(level.envi){
       case 1:
         groundMat.diffuseTexture = new BABYLON.Texture("assets/textures/Env1/ground.jpeg", this.scene);
@@ -178,72 +198,77 @@ export class GameService {
       default:
         groundMat.diffuseTexture = new BABYLON.Texture("assets/textures/error.jpg", this.scene);
     }
-    let ground = BABYLON.MeshBuilder.CreateGround("ground", {width:1, height:1});
-    ground.material = groundMat;
+    // WALL
+    let wallMaterial =  new BABYLON.StandardMaterial("wallMat", this.scene);
+    //checking env for the texture
+    switch(level.envi) {
+      case 1:
+        wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/Env1/wall.png", this.scene);
+        break;
+      default:
+        wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/error.jpg", this.scene);
+    }
+
+    //**********************
+    //*       GROUND       *
+    //**********************
+    // Adding a ground so we can walk on something
+    let groundMesh = BABYLON.MeshBuilder.CreateGround("ground", {width:1, height:1});
+    groundMesh.material = groundMat;
+    groundMesh.isVisible = false;
+    groundMesh.isPickable = false;
+    groundMesh.checkCollisions = true;
+    groundMesh.alwaysSelectAsActiveMesh = true;
+
     for(let i = -20; i <= 20; ++i){
       for(let j = -20; j <= 20; ++j){
-        let grouund = ground.clone("ground");
-        grouund.position.x = i;
-        grouund.position.z = j;
-        this.ground.push(grouund);
+        let groundInstance:BABYLON.InstancedMesh = groundMesh.createInstance("groundInstance"+i);
+        groundInstance.position.x = i;
+        groundInstance.position.z = j;
+        groundInstance.isVisible = true;
+        groundInstance.isPickable = false;
+        groundInstance.checkCollisions = true;
+        groundInstance.alwaysSelectAsActiveMesh = false;
       }
     }
-    ground.dispose();
-    //ground depending of envi:
 
-    //TODO: optimize walls generation
-    //creating the walls:
-    let boxx = BABYLON.MeshBuilder.CreateBox("box", {size :1, height: 3}, this.scene);
-    let walls = [];
+    //**********************
+    //*       WALLS        *
+    //**********************
+    let wallMesh = BABYLON.MeshBuilder.CreateBox("wall", {size :1, height: 3}, this.scene);
+    wallMesh.material = wallMaterial;
+    
+    wallMesh.isVisible = false;
+    wallMesh.isPickable = false;
+    wallMesh.checkCollisions = false;
+    wallMesh.alwaysSelectAsActiveMesh = false;
+
     for(let i = 0; i < level.walls.length; ++i){
-      //let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y)); //! maybe use something like Louis's code ?
-      let box = boxx.clone();
-      box.position.x = level.walls[i][0];
-      box.position.z = level.walls[i][1];
-      box.position.y = 0.5;
-      box.checkCollisions = true;
-      let wallMaterial =  new BABYLON.StandardMaterial("boxMat", this.scene);
-      //checking env for the texture
-      switch(level.envi) {
-        case 1:
-          wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/Env1/wall.png", this.scene);
-          break;
-        default:
-          wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/error.jpg", this.scene);
-      }
-      box.material = wallMaterial;
-      walls.push(box);
+      let wallInstance:BABYLON.InstancedMesh = wallMesh.createInstance("wallInstance"+i);
+      wallInstance.position.x = level.walls[i][0];
+      wallInstance.position.x = level.walls[i][1];
+      wallInstance.position.y = 0.5;
+      wallInstance.alwaysSelectAsActiveMesh = true;
+      wallInstance.checkCollisions = true;
     }
+
     //TODO: check if there are doubled on the border
     for(let i = -20; i < 20; i++) {
       for(let j of [20, -20]){
-        let box1 = boxx.clone();
-        let box2 = boxx.clone();
-        box1.position.x = i;
-        box1.position.z = j;
-        box1.position.y = 0.5;
-        box2.position.x = j;
-        box2.position.z = i;
-        box2.position.y = 0.5;
-        box1.checkCollisions = true;
-        box2.checkCollisions = true;
-        let wallMaterial =  new BABYLON.StandardMaterial("boxMat", this.scene);
-        //checking env for the texture
-        switch(level.envi) {
-          case 1:
-            wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/Env1/wall.png", this.scene);
-            break;
-          default:
-            wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/error.jpg", this.scene);
-        }
-        box1.material = wallMaterial;
-        box2.material = wallMaterial;
-        walls.push(box1);
-        walls.push(box2);
+        let wall1:BABYLON.InstancedMesh = wallMesh.createInstance("box1");
+        let wall2:BABYLON.InstancedMesh = wallMesh.createInstance("box2");
+        wall1.position.x = i;
+        wall1.position.z = j;
+        wall1.position.y = 0.5;
+        wall2.position.x = j;
+        wall2.position.z = i;
+        wall2.position.y = 0.5;
+        wall1.checkCollisions = true;
+        wall2.checkCollisions = true;
       }
     }
-    //removing the base mesh
-    boxx.dispose();
+    
+    
 
     //adding the pickeable items:
     for(let i of level.pickups) i.init(); 
@@ -286,6 +311,10 @@ export class GameService {
     });
   }
 
+
+  //********************
+  //*     Terrain      *
+  //********************
   public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>): void {
 
     this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
@@ -350,6 +379,9 @@ export class GameService {
 
   }
 
+  //**********************
+  //*    Render Loop     *
+  //**********************
   public animate(): void {
     // We have to run this outside angular zones,
     // because it could trigger heavy changeDetection cycles.
@@ -372,6 +404,9 @@ export class GameService {
     });
   }
 
+  //**********************
+  //*       Debug        *
+  //**********************
   /**
    * creates the world axes
    *
