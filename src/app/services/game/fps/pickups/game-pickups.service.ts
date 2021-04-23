@@ -40,6 +40,9 @@ export class GamePickupsService {
   * |   22 | BERSERK         | +100 health & bersek on                                      |
   * |   23 | Immunity        | immune to damage for 30Sec                                   |
   * |   24 | backpack        | +10bullets, 4shotgun shells, 1 rocket & 20 cells, + backpack |
+  * |   25 | Red Key         | Give the player the red key                                  |
+  * |   26 | Blue Key        | Give the player the blue key                                 |
+  * |   27 | Yellow Key      | Give the player the Yellow key                               |        
   * +------+-----------------+--------------------------------------------------------------+
   */
   coord : Array<number>;
@@ -265,6 +268,18 @@ export class GamePickupsService {
           if((!player.hasBackPack && player.ammos[4] + 20 <=300) || (player.hasBackPack && player.ammos[4] + 20 <= 600)) player.ammos[4] += 20;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;
+          break;
+        //red key
+        case 25:
+          player.inventory[0] = true;
+          break;
+        //blue key
+        case 26:
+          player.inventory[1] = true;
+          break;
+        //yellow key
+        case 27:
+          player.inventory[2] = true;
           break;
         default:
           //do nothing

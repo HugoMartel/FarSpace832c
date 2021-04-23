@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
+import { GameDoorsService} from '../fps/levelEnv/game-doors.service';
 import { GameEnemyService } from '../fps/game-enemy.service'
 import { GameImpService } from '../fps/enemy/game-imp.service'
-import { GameArmorService } from '../fps/pickups/game-armor.service'
 import {GamePickupsService } from '../fps/pickups/game-pickups.service'
 
 @Injectable({providedIn: 'root'})
@@ -14,9 +14,8 @@ export class GameLevelService {
   enemy: Array<GameEnemyService>; 
   envi : number;
   finished: boolean;
-  pickups!: Array<GamePickupsService>
-  armors !: Array<GameArmorService>
-
+  pickups: Array<GamePickupsService>;
+  doors: Array<GameDoorsService>
   constructor( 
     wallsC:Array<Array<number>>,
     enemys:Array<Array<Array<number>>>, 
@@ -31,6 +30,18 @@ export class GameLevelService {
     * |     2 | coord Z |
     * +-------+---------+  
     */ 
+    doorsC: Array<Array<number>>,
+    /* Doors give:
+    * +--------------------+--------------------------+
+    * | array number given |         content          |
+    * +--------------------+--------------------------+
+    * |                  0 | coordX                   |
+    * |                  1 | coordZ                   |
+    * |                  2 | key Needed (-1, 0, 1, 2) |
+    * |                  3 | rotate, 0 or 1           |
+    * |                  4 | switchNeeded, 0 or 1     |
+    * +--------------------+--------------------------+
+    */
     @Inject(Number) private env:number){ 
     /*
     * enemy[j][j][k] gives:
@@ -54,6 +65,7 @@ export class GameLevelService {
     this.envi = env;
     this.enemy = [];
     this.pickups = [];
+    this.doors =  [];
     this.finished = false;
     //setting up the enemy: 
     for(let i = 0; i < enemys.length; i++){
@@ -70,6 +82,7 @@ export class GameLevelService {
     }
     //adding the pickups:
     for(let i = 0; i < pickupC.length; ++i) this.pickups.push(new GamePickupsService(pickupC[i]));
-    console.log(this.pickups);
+    //adding the doors:
+    for(let i = 0; i < doorsC.length; ++i) this.doors.push(new GameDoorsService([doorsC[i][0], doorsC[i][1]], doorsC[i][2], doorsC[i][3] ? true : false, doorsC[i][4] ? true : false, this.env));
   }
 }

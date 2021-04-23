@@ -1,19 +1,15 @@
 //TODO: change the cone to a realy player model ?
-//TODO: add a player class ?
 //TODO: creates IA (aled)
-//TODO: change and import imp sprite FIX ITs
 //TODO: change camera borders cause it looks like a fatass rn
-//TODO: check if ground like this isn't breaking everything
-
 //TODO ++++: add player death check
-
-//TODO: add weapon
 //TODO: add a way to the enemy to talk
+
+//TODO: check if the doors are in the right place
 
 import { WindowRefService } from './../services/window-ref.service';
 import { TerrainService } from './../services/game/gestion/terrain.service';
 
-import { ElementRef, Injectable, NgZone } from '@angular/core';
+import { ElementRef, Injectable, NgZone, HostListener } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
 
@@ -34,6 +30,7 @@ export class GameService {
   private ground!: Array<BABYLON.Mesh>;
   public fullscreen !: Function;
   private plane!: BABYLON.Mesh;
+  public keyPressed: Array<String>;
 
   public constructor(
     private ngZone: NgZone,
@@ -42,6 +39,7 @@ export class GameService {
   ) {
     this.frameCounter = 0;
     this.ground = [];
+    this.keyPressed = [];
     this.fullscreen = () => {
       //true is to lock the mouse inside
       this.engine.enterFullscreen(true);
@@ -90,19 +88,21 @@ export class GameService {
     advancedTexture.addControl(grid);
       */
 
-    let image = new GUI.Image("but", "assets/menu/Gliese_832c-ArtistImpression.png");
+    let image = new GUI.Image("planetImage", "assets/menu/Gliese_832c-ArtistImpression.png");
     image.width = "330px";
     image.height = "330px";
+    image.top = -this.canvas.height / 4;
     image.populateNinePatchSlicesFromImage = true;
     image.stretch = GUI.Image.STRETCH_NINE_PATCH;
     menuUI.addControl(image);
     //grid.addControl(image, 0, 0);
 
-    let playButton = GUI.Button.CreateSimpleButton("but", "PLAY");
+    let playButton = GUI.Button.CreateImageWithCenterTextButton("playButton", "PLAY", "assets/menu/buttonGradient.png");
     playButton.width = 0.2;
     playButton.height = "40px";
+    playButton.fontFamily = "Pixelated MS Sans Serif"
+
     playButton.color = "white";
-    playButton.background = "green";
     menuUI.addControl(playButton);
 
     playButton.onPointerClickObservable.add((evt) => {
@@ -113,14 +113,18 @@ export class GameService {
       ];
 
       let objectsTEST = [[22, 7, 7], [17, 5, 5]];
+      let doorTEST = [[14, 13, -1, 0, 0], [-14, -13, -1, 0, 1]];
       let levelTEST = new GameLevelService(
         [
           [1, 4],
           [1, 3],
           [2, 5],
+          [12, 13],
+          [16, 13]
         ],
         enemyTEST,
         objectsTEST,
+        doorTEST,
         1
       );
 
@@ -141,7 +145,6 @@ export class GameService {
     //THANKS INTERNET, Locking the pointer down
     //We start without being locked.
     let isLocked = false;
-
     // Then, load the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
 
@@ -158,6 +161,30 @@ export class GameService {
           this.canvas.requestPointerLock();
         }
       }
+      this.scene.onKeyboardObservable.add((kbInfo) => {
+        switch (kbInfo.type) {
+        case BABYLON.KeyboardEventTypes.KEYDOWN:
+            switch (kbInfo.event.key) {  
+              case "e":
+                this.keyPressed.push("e");
+                break;
+              case 'Shift':
+                this.keyPressed.push('Shift');
+                break;
+            }                
+            break;
+
+        case BABYLON.KeyboardEventTypes.KEYUP:
+            switch (kbInfo.event.key) {   
+              case "e":
+                  if(this.keyPressed.includes('e')) this.keyPressed = this.keyPressed.filter(l => l !== 'e');
+                  break;
+              case 'Shift':
+                if(this.keyPressed.includes('Shift')) this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
+                break;           
+            }     
+        }
+    });
     };
 
 
@@ -246,8 +273,8 @@ export class GameService {
     for(let i = 0; i < level.walls.length; ++i){
       let wallInstance:BABYLON.InstancedMesh = wallMesh.createInstance("wallInstance"+i);
       wallInstance.position.x = level.walls[i][0];
-      wallInstance.position.x = level.walls[i][1];
-      wallInstance.position.y = 0.5;
+      wallInstance.position.z = level.walls[i][1];
+      wallInstance.position.y = 1;
       wallInstance.alwaysSelectAsActiveMesh = true;
       wallInstance.checkCollisions = true;
     }
@@ -259,10 +286,10 @@ export class GameService {
         let wall2:BABYLON.InstancedMesh = wallMesh.createInstance("box2");
         wall1.position.x = i;
         wall1.position.z = j;
-        wall1.position.y = 0.5;
+        wall1.position.y = 1;
         wall2.position.x = j;
         wall2.position.z = i;
-        wall2.position.y = 0.5;
+        wall2.position.y = 1;
         wall1.checkCollisions = true;
         wall2.checkCollisions = true;
       }
@@ -272,6 +299,8 @@ export class GameService {
 
     //adding the pickeable items:
     for(let i of level.pickups) i.init(); 
+    //adding the doors
+    for(let i of level.doors) i.init(this.scene, -1);
 
     //creating the enemy:
     //TODO: move the animation into init
@@ -293,8 +322,50 @@ export class GameService {
       player.lockRotation();
       //checking if a pickup has to be removed:
       level.pickups.filter(pick => !pick.remove);
+      //checking if sprinting:
+      if(this.keyPressed.includes('Shift')) player.camera.speed = 0.5;
+      else player.camera.speed = 0.3;
       //TODO: fix this shit
       //for(let i = 0; i < level.enemy.length; ++i) level.enemy[i].moveThorwardPlayer([this.camera.position.x, this.camera.position.z]);
+      //checking if e is pressed:
+      if(this.keyPressed.includes('e')){
+        //shooting a ray
+        let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);	
+        let hit = this.scene.pickWithRay(ray);
+        //TODO: add switches too
+        for(let i of level.doors){
+          if(i.mesh == hit?.pickedMesh){
+            i.open(player, this.scene);
+            break; 
+          } 
+        }
+      }
+      //checking to open or close doors
+      for(let i of level.doors){
+        if(i.toOpen){
+          if(i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene);
+          if(i.mesh.position.y <= 4) i.mesh.position.y += 0.1;
+          else{ 
+            i.toOpen = false;
+            i.state = true;
+            i.mesh.position.y = 4;
+            i.counterSinceOpened = this.frameCounter;
+          }
+        }
+        else if(!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500 && 3 > (Math.sqrt(Math.pow(i.mesh.position.x - player.camera.position.x, 2) + Math.pow(i.mesh.position.z - player.camera.position.z , 2)))){
+          i.closeSound(this.scene);
+          i.toClose = true;
+        }
+        else if(i.toClose){
+          if(i.mesh.position.y >= 1) i.mesh.position.y -= 0.1;
+          else{
+            i.toClose = false;
+            i.state = false;
+            i.mesh.position.y = 1;
+            i.counterSinceOpened = 0;
+          }
+        }
+      }
     });
     this.scene.registerAfterRender(() => {
       // simple rotation along the y axis
@@ -305,6 +376,7 @@ export class GameService {
           level.enemy[i].projectile.move();
         }
       }
+      //checking if player taking pickup
       for(let i of level.pickups){
         i.check(player, this.scene);
       }
@@ -318,7 +390,6 @@ export class GameService {
   public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>): void {
 
     this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
-    console.log(this.terr2Matrix);
 
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
