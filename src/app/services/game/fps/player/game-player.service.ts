@@ -1,5 +1,7 @@
-import { Inject ,Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
+
+import { GameUIService } from '../game-ui.service';
 
 //TODO: add imunty & bersek
 
@@ -23,8 +25,11 @@ export class GamePlayerService {
   lockRotation: Function;
   shoot: Function;
   addGunSight: Function;
+  gameUIService:GameUIService;
 
   constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement){ 
+    this.gameUIService = new GameUIService;
+
     this.health = 100;
     this.hasBackPack = false;
     this.onBerserk = false;
@@ -75,7 +80,7 @@ export class GamePlayerService {
     * |     7 | BFG ??        |        4 |            60 |
     * |     8 | chainsaw      |        0 |             0 |
     * +-------+---------------+----------+---------------+
-     
+
     * +----------+----------+--------------+-------------------+
     * | ammoName | ammoPool | max Capacity | max with backpack |
     * +----------+----------+--------------+-------------------+
@@ -108,6 +113,10 @@ export class GamePlayerService {
     if (scene.activeCameras !== null) {
       scene.activeCameras.push(this.camera);
     }
+
+
+    /******    UI   ******/
+    this.gameUIService.displayUI(scene, this.camera, 1);
 
     /******FUNCTIONS******/
     //locking the ability to look up
@@ -182,6 +191,8 @@ export class GamePlayerService {
       return;
     }
 
+
+
     //checking if the player can shoot the weapon he's using
     this.shoot = () => {
       //fist/chainsaw
@@ -193,7 +204,7 @@ export class GamePlayerService {
         //the shoot can be done
         return true;
       }
-      //shotung
+      //shotgun
       else if(this.equipedWeapon == 2 && this.ammos[2] > 0){
         this.ammos[2] -=1;
         return true;

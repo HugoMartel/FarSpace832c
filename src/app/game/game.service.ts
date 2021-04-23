@@ -18,8 +18,8 @@ import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
 
 //services
-import {GameLevelService} from '../services/game/fps/game-level.service';
-import {GamePlayerService} from '../services/game/fps/player/game-player.service';
+import { GameLevelService } from '../services/game/fps/game-level.service';
+import { GamePlayerService } from '../services/game/fps/player/game-player.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
