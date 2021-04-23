@@ -88,19 +88,21 @@ export class GameService {
     advancedTexture.addControl(grid);
       */
 
-    let image = new GUI.Image("but", "assets/menu/Gliese_832c-ArtistImpression.png");
+    let image = new GUI.Image("planetImage", "assets/menu/Gliese_832c-ArtistImpression.png");
     image.width = "330px";
     image.height = "330px";
+    image.top = -this.canvas.height / 4;
     image.populateNinePatchSlicesFromImage = true;
     image.stretch = GUI.Image.STRETCH_NINE_PATCH;
     menuUI.addControl(image);
     //grid.addControl(image, 0, 0);
 
-    let playButton = GUI.Button.CreateSimpleButton("but", "PLAY");
+    let playButton = GUI.Button.CreateImageWithCenterTextButton("playButton", "PLAY", "assets/menu/buttonGradient.png");
     playButton.width = 0.2;
     playButton.height = "40px";
+    playButton.fontFamily = "Pixelated MS Sans Serif"
+
     playButton.color = "white";
-    playButton.background = "green";
     menuUI.addControl(playButton);
 
     playButton.onPointerClickObservable.add((evt) => {
