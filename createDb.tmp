@@ -1,5 +1,0 @@
-format: utf8_general_ci
-name: farspace
-
-"js-sha256": "^0.9.0",
-"mysql": "^2.18.1",

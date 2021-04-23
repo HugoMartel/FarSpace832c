@@ -68,9 +68,11 @@ let Query = (function () {
     // Check if the user already exists
     connection.query(
       "SELECT email, username FROM accounts WHERE email=? AND password=?;",
-      [email, password],
+      [email, sha256(password)],
       (err, result) => {
         if (err) throw err;
+
+        console.log(result[0]);
 
         callback(result[0] !== undefined ? { username: result[0].username, email: result[0].email } : undefined);
         
@@ -107,7 +109,7 @@ let Query = (function () {
   //=================================================================================
   return {
     insertUser: (email, username, password, callback) => insertUser(email, username, password, callback),
-    getUser: (email, callback, password) => getUser(email, password, callback),
+    getUser: (email, password, callback) => getUser(email, password, callback),
     hasUser: (email, callback) => hasUser(email, callback),
   }
 })();

@@ -27,9 +27,16 @@ export class AccountService {
       email: email,
       password: password
     }, {headers}).subscribe((response) => {
-      this.router.navigate(['/home']);
-      if (response !== undefined && typeof response.message === "string") {
-        this.snackBar.open(response.message, "close", {duration: 3000});
+      if (response !== undefined) {
+        if (typeof response.message === "string") {
+          this.router.navigate(['/home']);
+          this.snackBar.open(response.message, "close", {duration: 3000});
+        }else if (typeof response.fail === "string") {
+            this.snackBar.open(response.fail, "close", {duration: 3000});
+        } else if (response.error !== undefined) {
+          console.error(response.error);
+          this.snackBar.open("An error occurred during your register...", "close", {duration: 3000});
+        }
       }
     });
   }
@@ -40,9 +47,14 @@ export class AccountService {
       password: password,
       username: username
     }, {headers}).subscribe((response) => {
-      this.router.navigate(['/home']);
-      if (response !== undefined && typeof response.message === "string") {
-        this.snackBar.open(response.message, "close", {duration: 3000});
+      if (response !== undefined) {
+        if (typeof response.message === "string") {
+          this.router.navigate(['/home']);
+          this.snackBar.open(response.message, "close", {duration: 3000});
+        } else if (response.error !== undefined) {
+          console.error(response.error);
+          this.snackBar.open("An error occurred during your register...", "close", {duration: 3000});
+        }
       }
     });
   }

@@ -21,7 +21,7 @@ const hsCert = fs.readFileSync(__dirname + "/../ssl/server.crt").toString();
 // Request handling requires
 const jsonParser = express.json();
 const urlencodedParser = express.urlencoded({ extended: false });
-const { validationResult } = require("express-validator");
+const { body, validationResult } = require("express-validator");
 
 // Setup server and socket
 /** @constant {Object} server https server used to host the project*/
@@ -58,90 +58,76 @@ app.get("*", (req, res) => {
 //!     POST        !
 //*******************
 //? LOGIN
-app.post("/login/", jsonParser, (req, res) => {
+app.post("/login/", 
+  body("email").trim().isLength({min: 3}).escape(), 
+  body("password").trim().isLength({min: 8}).escape(), 
+  (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log(errors);
+    console.error(errors);
     res.json({ error: "Your request couldn't be processed..." });
     return res.status(400).json({ errors: errors.array() });
   } else {
     //console.log(req.body);//! DEBUG
-    if (
-      req.body !== undefined &&
-      typeof req.body.email === "string" &&
-      typeof req.body.password === "string" &&
-      typeof req.body.username === "string"
-    ) {
-      //Check if the user is already in the database
-      query.getUser(emailChecked, (user) => {
-        // if the user isn't already in the database
+
+    //Check if the user is already in the database
+    query.getUser(req.body.email, req.body.password, (user) => {
+      // if the user isn't already in the database
+      if (user !== undefined) {
         console.log(user);
         //TODO: connect the user and modify the display
 
         // Success message to the frontend
-        res.json({ success: "You were successfully logged in!" });
-      });
-    } else {
-      res.json({ error: "The request was missing arguments..." });
-    }
+        res.json({ message: "You were successfully logged in!" });
+      } else {
+        res.json({ fail: "Wrong credentials..." });
+      }
+    });
   }
 });
 //? REGISTER
-app.post("/register/", jsonParser, (req, res) => {
+app.post("/register/", 
+  body("email").trim().isLength({min: 3}).escape(),
+  body("password").trim().isLength({min: 8}).escape(), 
+  body("username").trim().isLength({min: 3}).escape(), 
+  (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log(errors);
+    console.error(errors);
     res.json({ message: "Your request couldn't be processed..." });
     return res.status(400).json({ errors: errors.array() });
   } else {
+    // Check if the credentials are correct
     if (
-      req.body !== undefined &&
-      typeof req.body.email === "string" &&
-      typeof req.body.password === "string" &&
-      typeof req.body.username === "string"
+      /[@]/.test(req.body.email) &&
+      /\d/.test(req.body.password) &&
+      /[A-Z]/.test(req.body.password) &&
+      /[a-z]/.test(req.body.password)
     ) {
-      let emailChecked = escape(req.body.email.trim());
-      let passwordChecked = req.body.password;
-      let usernameChecked = escape(req.body.username.trim());
+      //Check if the user is already in the database
+      query.hasUser(req.body.email, (hasUser) => {
+        // if the user isn't already in the database
+        if (!hasUser) {
+          // then insert the user !
+          query.insertUser(req.body.email, req.body.username, req.body.password, (response) => {
+              if (response === 1) {
+                //TODO: connect the user and update the display
 
-      //console.log(emailChecked, usernameChecked, passwordChecked);//! DEBUG
-
-      // Check if the credentials are correct
-      if (
-        usernameChecked.length > 3 &&
-        emailChecked.length > 3 &&
-        /[@]/.test(emailChecked) &&
-        passwordChecked.length > 8 &&
-        /\d/.test(passwordChecked) &&
-        /[A-Z]/.test(passwordChecked) &&
-        /[a-z]/.test(passwordChecked)
-      ) {
-        //Check if the user is already in the database
-        query.hasUser(emailChecked, (hasUser) => {
-          // if the user isn't already in the database
-          if (!hasUser) {
-            // then insert the user !
-            query.insertUser(emailChecked, usernameChecked, passwordChecked, (response) => {
-                if (response === 1) {
-                  //TODO: connect the user and update the display
-
-                  res.json({ message: "Your account was successfully added to the database!" });
-                } else {
-                  res.json({ message: "The request to the database was unsuccessful..." });
-                }
+                res.json({ message: "Your account was successfully added to the database!" });
+              } else {
+                res.json({ message: "The request to the database was unsuccessful..." });
               }
-            );
-          } else {
-            res.json({ message: "The email is already registered for an account..." });
-          }
-        });
-      }
-    } else {
-      res.json({ message: "The request was missing arguments..." });
+            }
+          );
+        } else {
+          res.json({ message: "The email is already registered for an account..." });
+        }
+      });
     }
   }
+
 });
 
 //****************************
