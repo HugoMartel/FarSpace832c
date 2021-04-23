@@ -60,6 +60,15 @@ export class GamePlayerService {
     this.equipedWeapon = 1;
     //the player has no keys at the begining
     this.inventory = [false, false, false];
+    /*
+    * +-------+-----------+
+    * | index | key color |
+    * +-------+-----------+
+    * |     0 | Red       |
+    * |     1 | Blue      |
+    * |     2 | Yellow    |
+    * +-------+-----------+
+    */
     //weapons:
     /*
     * +-------+---------------+----------+---------------+
