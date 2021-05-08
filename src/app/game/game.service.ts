@@ -16,6 +16,9 @@ import * as GUI from '@babylonjs/gui';
 //services
 import {GameLevelService} from '../services/game/fps/game-level.service';
 import {GamePlayerService} from '../services/game/fps/player/game-player.service';
+//tmp
+import {GameFireballService} from '../services/game/fps/attacks/game-fireball.service'
+
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -314,7 +317,7 @@ export class GameService {
     this.scene.collisionsEnabled = true;
     for(let i = 0; i < this.ground.length; ++i) this.ground[i].checkCollisions = true;
     // generates the world x-y-z axis for better understanding
-
+    let test = new GameFireballService([-7, -7], [19, 19], this.scene);
     this.showWorldAxis(8);
     this.scene.registerBeforeRender(() => {
       this.frameCounter++;
@@ -352,7 +355,7 @@ export class GameService {
             i.counterSinceOpened = this.frameCounter;
           }
         }
-        else if(!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500 && 3 > (Math.sqrt(Math.pow(i.mesh.position.x - player.camera.position.x, 2) + Math.pow(i.mesh.position.z - player.camera.position.z , 2)))){
+        else if(!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500 && 3 <= (Math.sqrt(Math.pow(i.mesh.position.x - player.camera.position.x, 2) + Math.pow(i.mesh.position.z - player.camera.position.z , 2)))){
           i.closeSound(this.scene);
           i.toClose = true;
         }
@@ -373,9 +376,10 @@ export class GameService {
       for(let i = 0; i < level.enemy.length; ++i){
         //if the enemy fire something, then we move it
         if(level.enemy[i].projectile !== undefined){
-          level.enemy[i].projectile.move();
+          level.enemy[i].projectile.move(this.scene, player);
         }
       }
+      test.move(this.scene, player);
       //checking if player taking pickup
       for(let i of level.pickups){
         i.check(player, this.scene);
@@ -400,7 +404,7 @@ export class GameService {
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
-
+    
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
     let aboveCamera:BABYLON.FreeCamera = new BABYLON.FreeCamera(
       'camera1',
