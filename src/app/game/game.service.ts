@@ -20,6 +20,12 @@ import {GamePlayerService} from '../services/game/fps/player/game-player.service
 import {GameFireballService} from '../services/game/fps/attacks/game-fireball.service'
 
 
+// Types defines
+type enemyArray = Array<Array<Array<number>>>;
+type pickupArray = Array<Array<number>>;
+type wallArray = Array<Array<number>>;
+type doorArray = Array<Array<number>>;
+
 @Injectable({ providedIn: 'root' })
 export class GameService {
 
@@ -75,56 +81,70 @@ export class GameService {
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     // Create the view
-    let menuCamera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/2, Math.PI / 3, 25, BABYLON.Vector3.Zero(), this.scene);
+    let menuCamera:BABYLON.ArcRotateCamera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/2, Math.PI / 3, 25, BABYLON.Vector3.Zero(), this.scene);
     menuCamera.attachControl(this.canvas, true);
 
     // Create the UI object
-    let menuUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI(
+    let menuUI:GUI.AdvancedDynamicTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI(
       "menuUI", true, this.scene
     );
+    menuUI.idealWidth = 1800;
+    menuUI.idealHeight = 900;
 
-    /*
+    /* //?  maybe to use if the ui become more complex ?
     let grid = new GUI.Grid();
     grid.addColumnDefinition(1 / 3);
     grid.addColumnDefinition(1 / 3);
     grid.addColumnDefinition(1 / 3);
     advancedTexture.addControl(grid);
-      */
+    */
 
-    let image = new GUI.Image("planetImage", "assets/menu/Gliese_832c-ArtistImpression.png");
-    image.width = "330px";
-    image.height = "330px";
-    image.top = -this.canvas.height / 4;
-    image.populateNinePatchSlicesFromImage = true;
-    image.stretch = GUI.Image.STRETCH_NINE_PATCH;
+    // Planet Image
+    let image:GUI.Image = new GUI.Image("planetImage", "assets/menu/Gliese_832c-ArtistImpression.png");
+    image.width = "300px";
+    image.height = "300px";
+    image.top = "-200px";
+    image.stretch = GUI.Image.STRETCH_UNIFORM;
     menuUI.addControl(image);
     //grid.addControl(image, 0, 0);
 
-    let playButton = GUI.Button.CreateImageWithCenterTextButton("playButton", "PLAY", "assets/menu/buttonGradient.png");
-    playButton.width = 0.2;
-    playButton.height = "40px";
-    playButton.fontFamily = "Pixelated MS Sans Serif"
+    // PLAY button
+    let playButton:GUI.Button = GUI.Button.CreateImageWithCenterTextButton("playButton", "PLAY", "assets/menu/buttonGradient.png");
+    playButton.width = "240px";
+    playButton.height = "80px";
+    playButton.fontFamily = "Pixelated MS Sans Serif";
+    playButton.fontSize = "35px";
 
     playButton.color = "white";
     menuUI.addControl(playButton);
 
-    playButton.onPointerClickObservable.add((evt) => {
+    playButton.onPointerClickObservable.add((eventData: GUI.Vector2WithInfo, eventState: BABYLON.EventState):void => {
       this.resetScene();
-      let enemyTEST = [
+      let enemyTEST:enemyArray = [
         // [[type], [coordx, coordz, state], etc]
         [[1], [2, 2, 1]]
       ];
+      let objectsTEST:pickupArray = [
+        // [type, coordx, coordz]
+        [22, 7, 7], 
+        [17, 5, 5]
+      ];
+      let doorTEST:doorArray = [
+        // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
+        [14, 13, -1, 0, 0], 
+        [-14, -13, -1, 0, 1]
+      ];
+      let wallTEST:wallArray = [
+        // coordX, coordZ
+        [1, 4],
+        [1, 3],
+        [2, 5],
+        [12, 13],
+        [16, 13]
+      ];
 
-      let objectsTEST = [[22, 7, 7], [17, 5, 5]];
-      let doorTEST = [[14, 13, -1, 0, 0], [-14, -13, -1, 0, 1]];
-      let levelTEST = new GameLevelService(
-        [
-          [1, 4],
-          [1, 3],
-          [2, 5],
-          [12, 13],
-          [16, 13]
-        ],
+      let levelTEST:GameLevelService = new GameLevelService(
+        wallTEST,
         enemyTEST,
         objectsTEST,
         doorTEST,
