@@ -143,11 +143,16 @@ export class GameService {
         [16, 13]
       ];
 
+      let switchesTest = [
+        [11, 11, 0]
+      ];
+
       let levelTEST:GameLevelService = new GameLevelService(
         wallTEST,
         enemyTEST,
         objectsTEST,
         doorTEST,
+        switchesTest,
         1
       );
 
@@ -324,6 +329,8 @@ export class GameService {
     for(let i of level.pickups) i.init(); 
     //adding the doors
     for(let i of level.doors) i.init(this.scene, -1);
+    //adding the switches
+    for(let i of level.switches) i.init(this.scene);
 
     //creating the enemy:
     //TODO: move the animation into init
@@ -355,12 +362,17 @@ export class GameService {
         //shooting a ray
         let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);	
         let hit = this.scene.pickWithRay(ray);
-        //TODO: add switches too
         for(let i of level.doors){
           if(i.mesh == hit?.pickedMesh){
             i.open(player, this.scene);
             break; 
           } 
+        }
+        for(let i of level.switches){
+          if(i.mesh == hit?.pickedMesh){
+            i.on();
+            break; 
+          }
         }
       }
       //checking to open or close doors

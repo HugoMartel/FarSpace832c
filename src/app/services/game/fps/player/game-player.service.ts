@@ -4,7 +4,7 @@ import * as BABYLON from '@babylonjs/core';
 import { GameUIService } from '../game-ui.service';
 
 //TODO: add imunty & bersek
-
+//TODO: add a function to end the the game when no health 
 @Injectable({
   providedIn: 'root'
 })
@@ -158,6 +158,9 @@ export class GamePlayerService {
           this.armor -= 1/2 * damage;
           this.health -= 1/2 * damage;
         }
+      }
+      else{
+        this.health -= damage;
       }
     }
 
