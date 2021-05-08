@@ -11,12 +11,13 @@ import { GameComponent } from './game/game.component';
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
 import { ProjectComponent } from './project/project.component';
-
-import {WindowRefService} from './services/window-ref.service';
 import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 
-import {MatrixService} from './services/game/gestion/matrix.service';
-import {TerrainService} from './services/game/gestion/terrain.service';
+
+import { WindowRefService } from './services/window-ref.service';
+import { MenuService } from './services/menu/menu.service';
+import { MatrixService } from './services/game/gestion/matrix.service';
+import { TerrainService } from './services/game/gestion/terrain.service';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import {TerrainService} from './services/game/gestion/terrain.service';
   providers: [
     WindowRefService,
     MatrixService,
-    TerrainService
+    TerrainService,
+    MenuService
   ],
   bootstrap: [AppComponent]
 })

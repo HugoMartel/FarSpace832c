@@ -9,6 +9,8 @@
 import { WindowRefService } from './../services/window-ref.service';
 import { TerrainService } from './../services/game/gestion/terrain.service';
 
+import { MenuService } from './../services/menu/menu.service';
+
 import { ElementRef, Injectable, NgZone, HostListener } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
@@ -40,6 +42,7 @@ export class GameService {
 
   public constructor(
     private ngZone: NgZone,
+    private menuService: MenuService,
     private windowRef: WindowRefService,
     private terrainService: TerrainService
   ) {
@@ -85,34 +88,324 @@ export class GameService {
     let menuUI:GUI.AdvancedDynamicTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI(
       "menuUI", true, this.scene
     );
-    menuUI.idealWidth = 1800;
-    menuUI.idealHeight = 900;
+    menuUI.idealWidth = 1795;
+    menuUI.idealHeight = 897;
+    menuUI.background = "teal";
 
-    /* //?  maybe to use if the ui become more complex ?
-    let grid = new GUI.Grid();
-    grid.addColumnDefinition(1 / 3);
-    grid.addColumnDefinition(1 / 3);
-    grid.addColumnDefinition(1 / 3);
-    advancedTexture.addControl(grid);
-    */
+    // Create the Grid object
+    let mainGrid:GUI.Grid = new GUI.Grid();
+    mainGrid.addRowDefinition(.1);
+    mainGrid.addRowDefinition(.1);
+    mainGrid.addRowDefinition(.1);
+    mainGrid.addRowDefinition(.1);
+    mainGrid.addRowDefinition(.1);
+    mainGrid.addRowDefinition(.1);
+    mainGrid.addRowDefinition(.4);// Empty part
+    mainGrid.addColumnDefinition(.08);
+    mainGrid.addColumnDefinition(.92);// Empty part
+    menuUI.addControl(mainGrid);
+
+    //******************
+    //*  FAKE TASKBAR  *
+    //******************
+    // Taskbar background
+    let taskbarRectLeft:GUI.Rectangle = new GUI.Rectangle("taskbarRect");
+    taskbarRectLeft.background = "#c0c0c0";
+    taskbarRectLeft.width = 100;
+    taskbarRectLeft.height= "50px";
+    taskbarRectLeft.top = 1;
+    taskbarRectLeft.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    mainGrid.addControl(taskbarRectLeft, 6, 0);
+    let taskbarRectRight:GUI.Rectangle = new GUI.Rectangle("taskbarRect");
+    taskbarRectRight.background = "#c0c0c0";
+    taskbarRectRight.width = 100;
+    taskbarRectRight.height= "50px";
+    taskbarRectRight.top = 1;
+    taskbarRectRight.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    mainGrid.addControl(taskbarRectRight, 6, 1);
+
+    // Start button
+    let windowsButton:GUI.Button = GUI.Button.CreateImageButton("windowsButton", "Start", "assets/menu/windows.ico");
+    windowsButton.width = "100px";
+    windowsButton.height = "40px";
+    if (windowsButton.image) {
+      windowsButton.image.height = "40px";
+      windowsButton.image.width = "40px";
+      windowsButton.image.left = "5px";
+    }
+    if (windowsButton.textBlock) {
+      windowsButton.textBlock.left = "12px";
+      windowsButton.textBlock.color = "black";
+    }
+    windowsButton.thickness = 1;
+    this.menuService.addShadow(windowsButton);
+    windowsButton.fontFamily = "Pixelated MS Sans Serif";
+    windowsButton.fontSize = "20px";
+    windowsButton.fontWeight = "bold";
+    windowsButton.color = "white";
+    windowsButton.background = "#c0c0c0";
+    windowsButton.top = "-4px";
+    windowsButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    windowsButton.left = "6px";
+    windowsButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    mainGrid.addControl(windowsButton, 6);
+
+    // Taskbar Separators 0
+    let taskbarSeparator1:GUI.Rectangle = new GUI.Rectangle("taskbarRect");
+    taskbarSeparator1.background = "#c0c0c0";
+    taskbarSeparator1.width = "5px";
+    taskbarSeparator1.height= "40px";
+    taskbarSeparator1.top = "-5px";
+    taskbarSeparator1.left = "55px";
+    taskbarSeparator1.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    this.menuService.addReverseShadow(taskbarSeparator1);
+    mainGrid.addControl(taskbarSeparator1, 6, 0);
+    let taskbarSeparator2:GUI.Rectangle = new GUI.Rectangle("taskbarRect");
+    taskbarSeparator2.background = "black";
+    taskbarSeparator2.thickness = 0;
+    taskbarSeparator2.width = "2px";
+    taskbarSeparator2.height= "50px";
+    taskbarSeparator2.left = "43px";
+    taskbarSeparator2.top = "1px";
+    taskbarSeparator2.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    mainGrid.addControl(taskbarSeparator2, 6, 0);
+
+
+    //**************************
+    //*   FAKE TASKBAR ICONS   *
+    //**************************
+    let taskbarIcon0:GUI.Image = new GUI.Image("desktopIcon", "assets/menu/desktop.ico");
+    taskbarIcon0.width = "30px";
+    taskbarIcon0.height = "30px";
+    taskbarIcon0.top = "-8px";
+    taskbarIcon0.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarIcon0.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    taskbarIcon0.stretch = GUI.Image.STRETCH_UNIFORM;
+    this.menuService.addShadow(taskbarIcon0);
+    mainGrid.addControl(taskbarIcon0, 6, 1);
+
+    let taskbarIcon1:GUI.Image = new GUI.Image("ieIcon", "assets/menu/ie.ico");
+    taskbarIcon1.width = "30px";
+    taskbarIcon1.height = "30px";
+    taskbarIcon1.top = "-8px";
+    taskbarIcon1.left = "40px";
+    taskbarIcon1.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarIcon1.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    taskbarIcon1.stretch = GUI.Image.STRETCH_UNIFORM;
+    this.menuService.addShadow(taskbarIcon1);
+    mainGrid.addControl(taskbarIcon1, 6, 1);
+
+    let taskbarIcon2:GUI.Image = new GUI.Image("mailIcon", "assets/menu/mail.ico");
+    taskbarIcon2.width = "30px";
+    taskbarIcon2.height = "30px";
+    taskbarIcon2.top = "-8px";
+    taskbarIcon2.left = "80px";
+    taskbarIcon2.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarIcon2.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    taskbarIcon2.stretch = GUI.Image.STRETCH_UNIFORM;
+    this.menuService.addShadow(taskbarIcon2);
+    mainGrid.addControl(taskbarIcon2, 6, 1);
+
+    // Taskbar Separators 1
+    let taskbarSeparator3:GUI.Rectangle = new GUI.Rectangle("taskbarRect");
+    taskbarSeparator3.background = "#c0c0c0";
+    taskbarSeparator3.width = "5px";
+    taskbarSeparator3.height= "40px";
+    taskbarSeparator3.top = "-5px";
+    taskbarSeparator3.left = "120px";
+    taskbarSeparator3.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarSeparator3.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    this.menuService.addReverseShadow(taskbarSeparator3);
+    mainGrid.addControl(taskbarSeparator3, 6, 1);
+    let taskbarSeparator4:GUI.Rectangle = new GUI.Rectangle("taskbarRect");
+    taskbarSeparator4.background = "black";
+    taskbarSeparator4.thickness = 0;
+    taskbarSeparator4.width = "2px";
+    taskbarSeparator4.height= "50px";
+    taskbarSeparator4.left = "135px";
+    taskbarSeparator4.top = "1px";
+    taskbarSeparator4.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarSeparator4.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    mainGrid.addControl(taskbarSeparator4, 6, 1);
+
+    //**************************
+    //*    FAKE TASKBAR APPS   *
+    //**************************
+    // Game window
+    let taskbarGameWindowRect:GUI.Rectangle = new GUI.Rectangle("taskbarGameWindowRect");
+    taskbarGameWindowRect.background = "#cecece";
+    taskbarGameWindowRect.thickness = 0;
+    taskbarGameWindowRect.width = "300px";
+    taskbarGameWindowRect.height= "38px";
+    taskbarGameWindowRect.top = "-5px";
+    taskbarGameWindowRect.left = "150px";
+    taskbarGameWindowRect.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarGameWindowRect.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    taskbarGameWindowRect.shadowColor = "black";
+    this.menuService.addReverseShadow(taskbarGameWindowRect);
+    mainGrid.addControl(taskbarGameWindowRect, 6, 1);
+    let taskbarGameBackgroundImage:GUI.Image = new GUI.Image("taskbarGameBackgroundImage", "assets/menu/selectedWindowBackground.png");
+    taskbarGameBackgroundImage.width = "290px";
+    taskbarGameBackgroundImage.height= "34px";
+    taskbarGameBackgroundImage.top = "-7px";
+    taskbarGameBackgroundImage.left = "155px";
+    taskbarGameBackgroundImage.stretch = GUI.Image.STRETCH_NONE;
+    taskbarGameBackgroundImage.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarGameBackgroundImage.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    mainGrid.addControl(taskbarGameBackgroundImage, 6, 1);
+    let taskbarGameIcon:GUI.Image = new GUI.Image("taskbarGameBackgroundImage", "assets/menu/Gliese_832c-ArtistImpression.png");
+    taskbarGameIcon.width = "30px";
+    taskbarGameIcon.height= "30px";
+    taskbarGameIcon.top = "-9px";
+    taskbarGameIcon.left = "160px";
+    taskbarGameIcon.stretch = GUI.Image.STRETCH_NONE;
+    taskbarGameIcon.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarGameIcon.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    mainGrid.addControl(taskbarGameIcon, 6, 1);
+    let taskbarGameText:GUI.TextBlock = new GUI.TextBlock("taskbarGameText", "FarSpace832c.exe");
+    taskbarGameText.color = "black";
+    taskbarGameText.width = "300px";
+    taskbarGameText.height = "30px";
+    taskbarGameText.top = "-9px";
+    taskbarGameText.left = "200px";
+    taskbarGameText.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarGameText.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    taskbarGameText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarGameText.fontFamily = "Pixelated  MS Sans Serif";
+    taskbarGameText.fontSize = "15px";
+    mainGrid.addControl(taskbarGameText, 6, 1);
+
+    // Word window
+    let taskbarWordWindowRect:GUI.Rectangle = new GUI.Rectangle("taskbarWordWindowRect");
+    taskbarWordWindowRect.background = "#cecece";
+    taskbarWordWindowRect.thickness = 0;
+    taskbarWordWindowRect.width = "300px";
+    taskbarWordWindowRect.height= "38px";
+    taskbarWordWindowRect.top = "-5px";
+    taskbarWordWindowRect.left = "460px";
+    taskbarWordWindowRect.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarWordWindowRect.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    taskbarWordWindowRect.shadowColor = "black";
+    taskbarWordWindowRect.shadowOffsetX = 1;
+    taskbarWordWindowRect.shadowOffsetY = 1;
+    taskbarWordWindowRect.shadowBlur = 1;
+    mainGrid.addControl(taskbarWordWindowRect, 6, 1);
+    let taskbarWordIcon:GUI.Image = new GUI.Image("taskbarGameBackgroundImage", "assets/menu/MSWord.ico");
+    taskbarWordIcon.width = "30px";
+    taskbarWordIcon.height= "30px";
+    taskbarWordIcon.top = "-9px";
+    taskbarWordIcon.left = "470px";
+    taskbarWordIcon.stretch = GUI.Image.STRETCH_NONE;
+    taskbarWordIcon.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarWordIcon.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    mainGrid.addControl(taskbarWordIcon, 6, 1);
+    let taskbarWordText:GUI.TextBlock = new GUI.TextBlock("taskbarGameText", "Document 1 - Microsoft Word");
+    taskbarWordText.color = "black";
+    taskbarWordText.width = "300px";
+    taskbarWordText.height = "30px";
+    taskbarWordText.top = "-9px";
+    taskbarWordText.left = "510px";
+    taskbarWordText.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarWordText.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    taskbarWordText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    taskbarWordText.fontFamily = "Pixelated  MS Sans Serif";
+    taskbarWordText.fontSize = "15px";
+    mainGrid.addControl(taskbarWordText, 6, 1);
+
+
+    //**************************
+    //*   FAKE DESKTOP ICONS   *
+    //**************************
+    // 0 - Computer
+    let icon0:GUI.Image = new GUI.Image("computerIcon", "assets/menu/computer_explorer.ico");
+    this.menuService.setupMenuIcon(icon0);
+    mainGrid.addControl(icon0, 0, 0);
+    let text0:GUI.TextBlock = new GUI.TextBlock("computerText", "My Computer");
+    this.menuService.setupMenuText(text0);
+    mainGrid.addControl(text0, 0, 0);
+
+    // 1 - Trash
+    let icon1:GUI.Image = new GUI.Image("trashIcon", "assets/menu/recycle_bin_file.ico");
+    this.menuService.setupMenuIcon(icon1);
+    mainGrid.addControl(icon1, 1, 0);
+    let text1:GUI.TextBlock = new GUI.TextBlock("trashText", "Recycle Bin");
+    this.menuService.setupMenuText(text1);
+    mainGrid.addControl(text1, 1, 0);
+
+    // 2 - Netscape
+    let icon2:GUI.Image = new GUI.Image("netscapeIcon", "assets/menu/netscape.ico");
+    this.menuService.setupMenuIcon(icon2);
+    mainGrid.addControl(icon2, 2, 0);
+    let text2:GUI.TextBlock = new GUI.TextBlock("netscapeText", "Netscape");
+    this.menuService.setupMenuText(text2);
+    mainGrid.addControl(text2, 2, 0);
+
+    // 3 - Mail
+    let icon3:GUI.Image = new GUI.Image("mailIcon", "assets/menu/mail.ico");
+    this.menuService.setupMenuIcon(icon3);
+    mainGrid.addControl(icon3, 3, 0);
+    let text3:GUI.TextBlock = new GUI.TextBlock("mailText", "Mail");
+    this.menuService.setupMenuText(text3);
+    mainGrid.addControl(text3, 3, 0);
+
+    // 4 - MS Word
+    let icon4:GUI.Image = new GUI.Image("wordIcon", "assets/menu/MSWord.ico");
+    this.menuService.setupMenuIcon(icon4);
+    mainGrid.addControl(icon4, 4, 0);
+    let text4:GUI.TextBlock = new GUI.TextBlock("wordText", "MS Word");
+    this.menuService.setupMenuText(text4);
+    mainGrid.addControl(text4, 4, 0);
+
+    // 5 - Notepad
+    let icon5:GUI.Image = new GUI.Image("notepadIcon", "assets/menu/notepad.ico");
+    this.menuService.setupMenuIcon(icon5);
+    mainGrid.addControl(icon5, 5, 0);
+    let text5:GUI.TextBlock = new GUI.TextBlock("notepadText", "Notepad");
+    this.menuService.setupMenuText(text5);
+    mainGrid.addControl(text5, 5, 0);
+
+
+    //******************
+    //*    FAKE WORD   *
+    //******************
+    let wordWindow:GUI.Image = new GUI.Image("wordWindow", "assets/menu/wordExample.png");
+    wordWindow.width = "550px";
+    wordWindow.height = "576px";
+    wordWindow.left = "600px";
+    wordWindow.top = "100px";
+    this.menuService.addShadow(wordWindow);
+    menuUI.addControl(wordWindow);
+
+    //******************
+    //*  PLAY WINDOW   *
+    //******************
+    // Background window
+    let window:GUI.Image = new GUI.Image("window", "assets/menu/gameBackground.png");
+    window.width = "503px";
+    window.height = "542px";
+    window.top = "-100px";
+    window.stretch = GUI.Image.STRETCH_UNIFORM;
+    this.menuService.addShadow(window);
+    menuUI.addControl(window);
 
     // Planet Image
-    let image:GUI.Image = new GUI.Image("planetImage", "assets/menu/Gliese_832c-ArtistImpression.png");
-    image.width = "300px";
-    image.height = "300px";
-    image.top = "-200px";
-    image.stretch = GUI.Image.STRETCH_UNIFORM;
-    menuUI.addControl(image);
-    //grid.addControl(image, 0, 0);
+    let planet:GUI.Image = new GUI.Image("planetImage", "assets/menu/Gliese_832c-ArtistImpression.png");
+    planet.width = "300px";
+    planet.height = "300px";
+    planet.top = "-100px";
+    this.menuService.addShadow(planet);
+    planet.stretch = GUI.Image.STRETCH_UNIFORM;
+    menuUI.addControl(planet);
 
     // PLAY button
     let playButton:GUI.Button = GUI.Button.CreateImageWithCenterTextButton("playButton", "PLAY", "assets/menu/buttonGradient.png");
     playButton.width = "240px";
     playButton.height = "80px";
+    playButton.top = "100px";
     playButton.fontFamily = "Pixelated MS Sans Serif";
     playButton.fontSize = "35px";
-
     playButton.color = "white";
+    this.menuService.addShadow(playButton);
     menuUI.addControl(playButton);
 
     playButton.onPointerClickObservable.add((eventData: GUI.Vector2WithInfo, eventState: BABYLON.EventState):void => {
