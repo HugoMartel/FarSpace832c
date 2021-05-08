@@ -63,7 +63,6 @@ export class GameDoorsService {
           break;
       }
       this.mesh.material = material;
-      console.log(this.coord);
       this.mesh.position.x = this.coord[0];
       this.mesh.position.z = this.coord[1];
       this.mesh.position.y = 1;

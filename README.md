@@ -1,28 +1,63 @@
+
 # FarSpace832c
 
 Just an end of the year project for our second year in Junia ISEN.
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.2.3.
 
-## Development server
+**TODO** better desc
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Code scaffolding
+![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+    
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
-## Build
+  
+## Authors
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+- [Jean Barbet](https://www.github.com/jbeaarn)
+- [Louis Ducrocq](https://www.github.com/Louis-duc)
+- [Louis Manouvrier](https://www.github.com/Spac3Drunk)
+- [Hugo Martel](https://www.github.com/HugoMartel)
+- [Théodore Martin](https://www.github.com/TT-txt)
+- [Pierre Mazure](https://www.github.com/pierremaz)
 
-## Running unit tests
+  
+## Tech Used
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+**Client:** [Angular](https://angular.io/), [Babylonjs](https://www.babylonjs.com/), [98.css](https://jdan.github.io/98.css/)
 
-## Running end-to-end tests
+**Server:** [Node](https://nodejs.org/en/), [Express](https://expressjs.com/), [MySQL](https://www.mysql.com/)
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+  
+## Installation 
 
-## Further help
+Install the project
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+```bash 
+  git clone https://github.com/HugoMartel/FarSpace832c
+  cd FarSpace832c
+  npm install
+  npm run build
+```
+    
+## Run the project
+
+To run the server :
+
+```bash
+  npm start
+```
+Then, simply connect to `https://localhost:4200` or your custom hostname!
+
+
+  
+## Documentation
+
+[Documentation](./TODO)
+
+  
+## Demo
+
+**Add screenshots or gifs**
+
+  

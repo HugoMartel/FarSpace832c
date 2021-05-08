@@ -16,8 +16,11 @@ import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
 
 //services
-import { GameLevelService } from '../services/game/fps/game-level.service';
-import { GamePlayerService } from '../services/game/fps/player/game-player.service';
+import {GameLevelService} from '../services/game/fps/game-level.service';
+import {GamePlayerService} from '../services/game/fps/player/game-player.service';
+//tmp
+import {GameFireballService} from '../services/game/fps/attacks/game-fireball.service'
+
 
 // Types defines
 type enemyArray = Array<Array<Array<number>>>;
@@ -433,11 +436,16 @@ export class GameService {
         [16, 13]
       ];
 
+      let switchesTest = [
+        [11, 11, 0]
+      ];
+
       let levelTEST:GameLevelService = new GameLevelService(
         wallTEST,
         enemyTEST,
         objectsTEST,
         doorTEST,
+        switchesTest,
         1
       );
 
@@ -614,6 +622,8 @@ export class GameService {
     for(let i of level.pickups) i.init(); 
     //adding the doors
     for(let i of level.doors) i.init(this.scene, -1);
+    //adding the switches
+    for(let i of level.switches) i.init(this.scene);
 
     //creating the enemy:
     //TODO: move the animation into init
@@ -627,7 +637,7 @@ export class GameService {
     this.scene.collisionsEnabled = true;
     for(let i = 0; i < this.ground.length; ++i) this.ground[i].checkCollisions = true;
     // generates the world x-y-z axis for better understanding
-
+    let test = new GameFireballService([-7, -7], [19, 19], this.scene);
     this.showWorldAxis(8);
     this.scene.registerBeforeRender(() => {
       this.frameCounter++;
@@ -645,12 +655,17 @@ export class GameService {
         //shooting a ray
         let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);	
         let hit = this.scene.pickWithRay(ray);
-        //TODO: add switches too
         for(let i of level.doors){
           if(i.mesh == hit?.pickedMesh){
             i.open(player, this.scene);
             break; 
           } 
+        }
+        for(let i of level.switches){
+          if(i.mesh == hit?.pickedMesh){
+            i.on();
+            break; 
+          }
         }
       }
       //checking to open or close doors
@@ -665,7 +680,7 @@ export class GameService {
             i.counterSinceOpened = this.frameCounter;
           }
         }
-        else if(!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500 && 3 > (Math.sqrt(Math.pow(i.mesh.position.x - player.camera.position.x, 2) + Math.pow(i.mesh.position.z - player.camera.position.z , 2)))){
+        else if(!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500 && 3 <= (Math.sqrt(Math.pow(i.mesh.position.x - player.camera.position.x, 2) + Math.pow(i.mesh.position.z - player.camera.position.z , 2)))){
           i.closeSound(this.scene);
           i.toClose = true;
         }
@@ -686,9 +701,10 @@ export class GameService {
       for(let i = 0; i < level.enemy.length; ++i){
         //if the enemy fire something, then we move it
         if(level.enemy[i].projectile !== undefined){
-          level.enemy[i].projectile.move();
+          level.enemy[i].projectile.move(this.scene, player);
         }
       }
+      test.move(this.scene, player);
       //checking if player taking pickup
       for(let i of level.pickups){
         i.check(player, this.scene);
@@ -713,7 +729,7 @@ export class GameService {
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
-
+    
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
     let aboveCamera:BABYLON.FreeCamera = new BABYLON.FreeCamera(
       'camera1',

@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
+import {GamePlayerService} from '../player/game-player.service';
+//import { SSL_OP_NO_QUERY_MTU } from 'node:constants';
 //TODO: create this shit
 
 @Injectable({
@@ -12,6 +14,7 @@ export class GameFireballService {
   xdiff: number;
   ydiff: number;
   angle: number;
+  toMove: Boolean;
   //note:
   //States:
   //  1 = moving
@@ -26,11 +29,13 @@ export class GameFireballService {
   constructor(spawnCoord: Array<number>, target: Array<number>, scene: BABYLON.Scene) {
     this.coord = spawnCoord;
     this.state = 1;
+    this.toMove = true;
     this.target = target;
     this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/AllImpAnimation.png", 3, {height: 65, width: 65}, scene);
     this.sprt = new BABYLON.Sprite("fire", this.sprtMng);
+    this.sprt.disposeWhenFinishedAnimating = false;
     this.sprt.position = new BABYLON.Vector3(spawnCoord[0], 1, spawnCoord[1]);
-    this.sprt.playAnimation(19, 20, true, 300);
+    this.sprt.playAnimation(19, 20, true, 100);
     //calculating angle;
     this.xdiff = target[0] - spawnCoord[0];
     this.ydiff = target[1] - spawnCoord[1];
@@ -39,13 +44,37 @@ export class GameFireballService {
     this.angle = Math.acos(this.xdiff / d);
     if(Math.asin(this.ydiff / d) < 0) this.angle *= -1;
 
-    this.move = () => {
-      //TODO: add a way to check if collision and a stop etc
-      let speed = 0.1;
-      this.coord[0] += speed * Math.cos(this.angle);
-      this.coord[1] += speed * Math.sin(this.angle);
-      //updating sprite coord:
-      this.sprt.position = new BABYLON.Vector3(this.coord[0], 1, this.coord[1]);
+    this.move = (scene: BABYLON.Scene, player: GamePlayerService) => {
+      if(!this.toMove) return;
+      //checking collision:
+      //if moving the sprite, and hitting the player
+      else if(Math.sqrt(Math.pow(this.coord[0] - player.camera.position.x, 2) + Math.pow(this.coord[1] - player.camera.position.z, 2)) < 1.2){
+        player.applyDamage(20);
+        this.toMove = false;
+        this.sprt.stopAnimation();
+        this.sprt.disposeWhenFinishedAnimating = true;
+        this.sprt.playAnimation(20, 23, false, 100,);
+      }
+      else{
+        let direction = new BABYLON.Vector3(Math.cos(this.angle), 0, Math.sin(this.angle))
+        let ray = new BABYLON.Ray(this.sprt.position, direction, 100);	
+        let hit = scene.pickWithRay(ray);
+        //if touching a wall 
+        if(hit?.pickedMesh != null && hit?.pickedMesh.position.x != null && Math.sqrt(Math.pow(this.coord[0] - hit?.pickedMesh?.position.x, 2) + Math.pow(this.coord[1] - hit?.pickedMesh?.position.z, 2)) < 0.1){
+          this.toMove = false;
+          this.sprt.stopAnimation();
+          this.sprt.disposeWhenFinishedAnimating = true;
+          this.sprt.playAnimation(20, 23, false, 100,);
+        }
+        //moving the mesh
+        else{
+          let speed = 0.1;
+          this.coord[0] += speed * Math.cos(this.angle);
+          this.coord[1] += speed * Math.sin(this.angle);
+          //updating sprite coord:
+          this.sprt.position = new BABYLON.Vector3(this.coord[0], 1, this.coord[1]);
+        }
+      }
       return;
     }
    }

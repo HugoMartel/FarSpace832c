@@ -4,7 +4,7 @@ import * as BABYLON from '@babylonjs/core';
 import { GameUIService } from '../game-ui.service';
 
 //TODO: add imunty & bersek
-
+//TODO: add a function to end the the game when no health 
 @Injectable({
   providedIn: 'root'
 })
@@ -20,11 +20,13 @@ export class GamePlayerService {
   equipedWeapon: number;
   //note: we're using the camera position as player coord
   camera!:BABYLON.FreeCamera;
+  sphere!: BABYLON.Mesh;
   inventory: Array<boolean>; //keys
   ammos: Array<number>;
   lockRotation: Function;
   shoot: Function;
   addGunSight: Function;
+  applyDamage: Function;
   gameUIService:GameUIService;
 
   constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement){ 
@@ -118,6 +120,12 @@ export class GamePlayerService {
     this.camera.ellipsoid = new BABYLON.Vector3(1.3, 1, 1.3);
     this.camera.ellipsoidOffset = new BABYLON.Vector3(0, 1, 0);
 
+    this.sphere = BABYLON.MeshBuilder.CreateSphere("player", {diameterX: 0.5, diameterY: 1, diameterZ: 0.5});
+    this.sphere.position.x = this.camera.position.x;
+    this.sphere.position.z = this.camera.position.z;
+    this.sphere.position.y = 0.5;
+    this.sphere.isPickable = true;
+    this.sphere.setEnabled(false);
     // Add the camera to the active cameras
     if (scene.activeCameras !== null) {
       scene.activeCameras.push(this.camera);
@@ -131,7 +139,29 @@ export class GamePlayerService {
     //locking the ability to look up
     this.lockRotation = () => {
       this.camera.rotation.x = 0;
+      this.sphere.position.x = this.camera.position.x;
+      this.sphere.position.y = this.camera.position.y;
+      this.sphere.position.z = this.camera.position.z;
       return;
+    }
+
+    this.applyDamage = (damage: number) => {
+      //checking the armor
+      if(this.armor > 0){
+        //if green or only pickups, it absorbds 1/3 of the damage
+        if(this.lastArmor == 0 || this.lastArmor == 1){
+          this.armor -= 1/3 * damage;
+          this.health -= 2/3 * damage;
+        }
+        else{
+          //else mega armor
+          this.armor -= 1/2 * damage;
+          this.health -= 1/2 * damage;
+        }
+      }
+      else{
+        this.health -= damage;
+      }
     }
 
     //FUNCTION  to add a crosshair in the middle of the camera
