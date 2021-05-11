@@ -16,10 +16,10 @@ import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
 
 //services
-import {GameLevelService} from '../services/game/fps/game-level.service';
-import {GamePlayerService} from '../services/game/fps/player/game-player.service';
+import { GameLevelService } from '../services/game/fps/game-level.service';
+import { GamePlayerService } from '../services/game/fps/player/game-player.service';
 //tmp
-import {GameFireballService} from '../services/game/fps/attacks/game-fireball.service'
+import { GameFireballService } from '../services/game/fps/attacks/game-fireball.service';
 
 
 // Types defines
@@ -34,7 +34,7 @@ export class GameService {
   private size_z: number = 25;
   private terr2Matrix: any[] = [];
 
-  private canvas!: HTMLCanvasElement;
+  public canvas!: HTMLCanvasElement;
   public engine!: BABYLON.Engine;
   private scene!: BABYLON.Scene;
   public frameCounter: number;
@@ -378,6 +378,8 @@ export class GameService {
     wordWindow.top = "100px";
     this.menuService.addShadow(wordWindow);
     menuUI.addControl(wordWindow);
+
+    
 
     //******************
     //*  PLAY WINDOW   *

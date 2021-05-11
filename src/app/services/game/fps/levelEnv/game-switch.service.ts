@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
+
 //TODO: add clean texture
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,13 @@ export class GameSwitchService {
   mesh!: BABYLON.Mesh;
   init: Function;
   on: Function;
-  constructor(coordC: Array<number>, @Inject(Number) private typeC: number){
+
+  constructor(
+    coordC: Array<number>, 
+    @Inject(Number) private typeC: number
+  ) {
+    
+    
     this.coord = coordC;
     this.state = false;
     this.type = typeC;
@@ -30,7 +37,7 @@ export class GameSwitchService {
         switch (this.type){
           //end of level:
           case 0:
-            console.log("huwugo");
+            console.log("alo comment je return un truc la ?");
             break;
           default:
             break;

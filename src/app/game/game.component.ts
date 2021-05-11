@@ -1,8 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { GameLevelService } from '../services/game/fps/game-level.service';
-import { GameEnemyService } from '../services/game/fps/game-enemy.service';
 import { GameService } from './game.service';
-import { TerrainService } from '../services/game/gestion/terrain.service'
 
 @Component({
   selector: 'app-game',
