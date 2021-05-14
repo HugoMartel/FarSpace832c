@@ -20,7 +20,7 @@ import { GamePlayerService } from '../services/game/fps/player/game-player.servi
 @Injectable({ providedIn: 'root' })
 export class GameService {
 
-  private size_z: number = 25;
+  private size_z: number = 30;
   private terr2Matrix: any[] = [];
 
   private canvas!: HTMLCanvasElement;
@@ -30,6 +30,7 @@ export class GameService {
   private ground!: Array<BABYLON.Mesh>;
   public fullscreen !: Function;
   private plane!: BABYLON.Mesh;
+  private GroundBoxes!: BABYLON.Mesh;
   public keyPressed: Array<String>;
 
   public constructor(
@@ -128,8 +129,12 @@ export class GameService {
         1
       );
 
-      this.createFPSScene(canvas, levelTEST);
-      //this.createPlanetScene(canvas);
+      //************************************************************************
+      //                            FPS or Gestion
+      //************************************************************************
+
+      //this.createFPSScene(canvas, levelTEST);
+      this.createPlanetScene(canvas);
 
       this.animate();
     });
@@ -164,25 +169,25 @@ export class GameService {
       this.scene.onKeyboardObservable.add((kbInfo) => {
         switch (kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
-            switch (kbInfo.event.key) {  
+            switch (kbInfo.event.key) {
               case "e":
                 this.keyPressed.push("e");
                 break;
               case 'Shift':
                 this.keyPressed.push('Shift');
                 break;
-            }                
+            }
             break;
 
         case BABYLON.KeyboardEventTypes.KEYUP:
-            switch (kbInfo.event.key) {   
+            switch (kbInfo.event.key) {
               case "e":
                   if(this.keyPressed.includes('e')) this.keyPressed = this.keyPressed.filter(l => l !== 'e');
                   break;
               case 'Shift':
                 if(this.keyPressed.includes('Shift')) this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
-                break;           
-            }     
+                break;
+            }
         }
     });
     };
@@ -264,7 +269,7 @@ export class GameService {
     //**********************
     let wallMesh = BABYLON.MeshBuilder.CreateBox("wall", {size :1, height: 3}, this.scene);
     wallMesh.material = wallMaterial;
-    
+
     wallMesh.isVisible = false;
     wallMesh.isPickable = false;
     wallMesh.checkCollisions = false;
@@ -294,11 +299,11 @@ export class GameService {
         wall2.checkCollisions = true;
       }
     }
-    
-    
+
+
 
     //adding the pickeable items:
-    for(let i of level.pickups) i.init(); 
+    for(let i of level.pickups) i.init();
     //adding the doors
     for(let i of level.doors) i.init(this.scene, -1);
 
@@ -330,14 +335,14 @@ export class GameService {
       //checking if e is pressed:
       if(this.keyPressed.includes('e')){
         //shooting a ray
-        let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);	
+        let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);
         let hit = this.scene.pickWithRay(ray);
         //TODO: add switches too
         for(let i of level.doors){
           if(i.mesh == hit?.pickedMesh){
             i.open(player, this.scene);
-            break; 
-          } 
+            break;
+          }
         }
       }
       //checking to open or close doors
@@ -345,7 +350,7 @@ export class GameService {
         if(i.toOpen){
           if(i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene);
           if(i.mesh.position.y <= 4) i.mesh.position.y += 0.1;
-          else{ 
+          else{
             i.toOpen = false;
             i.state = true;
             i.mesh.position.y = 4;
@@ -404,7 +409,7 @@ export class GameService {
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
     let aboveCamera:BABYLON.FreeCamera = new BABYLON.FreeCamera(
       'camera1',
-      new BABYLON.Vector3(50, 55, 10),
+      new BABYLON.Vector3(0, 55, 10),
       this.scene
     );
 
@@ -421,30 +426,39 @@ export class GameService {
       this.scene
     );
 
-    this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
-    this.plane.rotation.x = Math.PI/2;
+    //this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
+    //this.plane.rotation.x = Math.PI/2;
+    this.GroundBoxes = BABYLON.MeshBuilder.CreateBox("GroundBoxes", {width: 1, height: 1, depth: 1}, this.scene);
 
     let testMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial("testMat", this.scene);
     testMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
-    this.plane.material = testMat;
+    //this.plane.material = testMat;
+    this.GroundBoxes.material = testMat;
 
-    this.plane.registerInstancedBuffer("color", 4);
-    this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
+    //this.plane.registerInstancedBuffer("color", 4);
+    //this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
+    this.GroundBoxes.registerInstancedBuffer("color", 4);
+    this.GroundBoxes.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
 
     let testColorPalette: number[] = [];
     for (let i = 0; i < this.size_z; i++) {
-      testColorPalette[i] = i/this.size_z;
-      testColorPalette[i+this.size_z] = 1-(i/this.size_z);
+      testColorPalette[i] = (i)/(this.size_z-1);
     }
+    console.log(testColorPalette);
 
-    for (let x = 0; x < this.terr2Matrix.length; x++) {
-      for (let y = 0; y < this.terr2Matrix[x].length; y++) {
-        let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
+
+    for (let x = 1; x < this.terr2Matrix.length-1; x++) {
+      for (let y = 1; y < this.terr2Matrix[x].length-1; y++) {
+        //let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
+        let instanceTest:BABYLON.InstancedMesh = this.GroundBoxes.createInstance("tplane " + (x*y+y));
         instanceTest.position.x = x;
         instanceTest.position.z = y;
-        instanceTest.position.y = this.terr2Matrix[x][y];
-
-        instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.terr2Matrix[x][y] + this.size_z]);
+        //instanceTest.position.y = this.terr2Matrix[x][y];
+        instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
+        if (this.terr2Matrix[x][y] == 0) {
+          console.log("test RGB : ", testColorPalette[this.terr2Matrix[x][y]], " 0 ", testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
+        }
+        instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
       }
     }
 
