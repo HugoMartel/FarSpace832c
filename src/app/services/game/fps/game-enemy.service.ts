@@ -42,6 +42,7 @@ export class GameEnemyService {
     this.setup = (scene: BABYLON.Scene) => {
       this.mesh = BABYLON.MeshBuilder.CreateBox("body", {size: 1, width: 1, height: 1}, scene);
       this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/error.jpg", 3, {height: 64, width: 40}, scene);
+      this.sprtMng.isPickable = true;
     }
     //init the mesh and adding missing sprite:
     this.init = (scene : BABYLON.Scene) => {

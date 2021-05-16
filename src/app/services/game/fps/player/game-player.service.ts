@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 
 import { GameUIService } from '../game-ui.service';
+import { GameLevelService } from '../game-level.service';
 
 //TODO: add imunty & bersek
 //TODO: add a function to end the the game when no health 
@@ -27,10 +28,8 @@ export class GamePlayerService {
   shoot: Function;
   addGunSight: Function;
   applyDamage: Function;
-  gameUIService:GameUIService;
 
-  constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement){ 
-    this.gameUIService = new GameUIService;
+  constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement, gameUIService: GameUIService){ 
 
     this.health = 100;
     this.hasBackPack = false;
@@ -120,6 +119,7 @@ export class GamePlayerService {
     this.camera.ellipsoid = new BABYLON.Vector3(1.3, 1, 1.3);
     this.camera.ellipsoidOffset = new BABYLON.Vector3(0, 1, 0);
 
+    //hitbox mesh
     this.sphere = BABYLON.MeshBuilder.CreateSphere("player", {diameterX: 0.5, diameterY: 1, diameterZ: 0.5});
     this.sphere.position.x = this.camera.position.x;
     this.sphere.position.z = this.camera.position.z;
@@ -133,7 +133,7 @@ export class GamePlayerService {
 
 
     /******    UI   ******/
-    this.gameUIService.displayUI(scene, this.camera, 1);
+    gameUIService.displayUI(scene, this.camera, 1);
 
     /******FUNCTIONS******/
     //locking the ability to look up
@@ -233,14 +233,32 @@ export class GamePlayerService {
 
 
     //checking if the player can shoot the weapon he's using
-    this.shoot = () => {
+    this.shoot = (scene:BABYLON.Scene, level:GameLevelService) => {
+      if (gameUIService.hasShot) 
+        return false;// The gun is already firing
+
       //fist/chainsaw
       if(this.equipedWeapon == 0) return true;
       //shooting the pistol or the chaingun
       else if((this.equipedWeapon == 1 || this.equipedWeapon == 3) && this.ammos[1] > 0){ 
         //minus the ammo shooted
         this.ammos[1] -=1;
-        //the shoot can be done
+
+        //the shot is doable
+        gameUIService.hasShot = true;
+
+        //Check if the shot did hit something eventually
+        let bulletRay = scene.createPickingRay(scene.pointerX, scene.pointerY, BABYLON.Matrix.Identity(), this.camera);
+        let bulletRayHelper = new BABYLON.RayHelper(bulletRay);
+        bulletRayHelper.show(scene)
+        /* 
+        TODO 
+        //let hit = scene.pickWithRay(bulletRay);
+        for (let enemy of level.enemy) {
+          console.log(enemy.sprtMng.intersects(bulletRay, ))
+        }
+        */
+
         return true;
       }
       //shotgun
@@ -266,7 +284,10 @@ export class GamePlayerService {
         return true
       }
       //can't shoot
-      else return false;
+      else {
+        //TODO: play click sound (no bullets)
+        return false;
+      }
     }
   }
 }

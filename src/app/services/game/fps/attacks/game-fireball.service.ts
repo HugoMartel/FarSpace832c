@@ -53,7 +53,7 @@ export class GameFireballService {
         this.toMove = false;
         this.sprt.stopAnimation();
         this.sprt.disposeWhenFinishedAnimating = true;
-        this.sprt.playAnimation(20, 23, false, 100,);
+        this.sprt.playAnimation(20, 23, false, 100);
       }
       else{
         let direction = new BABYLON.Vector3(Math.cos(this.angle), 0, Math.sin(this.angle))

@@ -4,7 +4,7 @@ import { GameDoorsService} from '../fps/levelEnv/game-doors.service';
 import { GameSwitchService} from '../fps/levelEnv/game-switch.service';
 import { GameEnemyService } from '../fps/game-enemy.service'
 import { GameImpService } from '../fps/enemy/game-imp.service'
-import {GamePickupsService } from '../fps/pickups/game-pickups.service'
+import { GamePickupsService } from '../fps/pickups/game-pickups.service'
 
 @Injectable({providedIn: 'root'})
 
@@ -18,6 +18,8 @@ export class GameLevelService {
   pickups: Array<GamePickupsService>;
   doors: Array<GameDoorsService>
   switches: Array<GameSwitchService>
+
+
   constructor( 
     wallsC:Array<Array<number>>,
     enemys:Array<Array<Array<number>>>,
@@ -64,13 +66,13 @@ export class GameLevelService {
     */
     switchesC: Array<Array<number>>,
     /* 
-    +-------+--------+
-    | index |  arg   |
-    +-------+--------+
-    |     0 | coordX |
-    |     1 | coordZ |
-    |     2 | type   |
-    +-------+--------+
+    * +-------+--------+
+    * | index |  arg   |
+    * +-------+--------+
+    * |     0 | coordX |
+    * |     1 | coordZ |
+    * |     2 | type   |
+    * +-------+--------+
     */
     @Inject(Number) private env:number)
     { 

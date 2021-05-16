@@ -18,6 +18,7 @@ import * as GUI from '@babylonjs/gui';
 //services
 import { GameLevelService } from '../services/game/fps/game-level.service';
 import { GamePlayerService } from '../services/game/fps/player/game-player.service';
+import { GameUIService } from '../services/game/fps/game-ui.service';
 //tmp
 import { GameFireballService } from '../services/game/fps/attacks/game-fireball.service';
 
@@ -39,7 +40,7 @@ export class GameService {
   private scene!: BABYLON.Scene;
   public frameCounter: number;
   private ground!: Array<BABYLON.Mesh>;
-  public fullscreen !: Function;
+  public fullscreen: Function;
   private plane!: BABYLON.Mesh;
   public keyPressed: Array<String>;
 
@@ -47,7 +48,8 @@ export class GameService {
     private ngZone: NgZone,
     private menuService: MenuService,
     private windowRef: WindowRefService,
-    private terrainService: TerrainService
+    private terrainService: TerrainService, 
+    private uiService: GameUIService
   ) {
     this.frameCounter = 0;
     this.ground = [];
@@ -55,6 +57,10 @@ export class GameService {
     this.fullscreen = () => {
       //true is to lock the mouse inside
       this.engine.enterFullscreen(true);
+      if (document.pointerLockElement !== this.canvas) {
+        this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.msRequestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock || false;
+        this.canvas.requestPointerLock();
+      }
     }
   }
 
@@ -65,7 +71,7 @@ export class GameService {
   public resetScene():void {
     this.scene.dispose();
     this.engine.dispose();
-    //It seems from the devs that only disposing from the scene leaves some stuff in the memory
+    //It appears from the devs that only disposing from the scene leaves some stuff in the memory
   }
 
 
@@ -463,53 +469,73 @@ export class GameService {
   //*      Shooter       *
   //**********************
   public createFPSScene(canvas: ElementRef<HTMLCanvasElement>, level: GameLevelService): void {
-    // The first step is to get the reference of the canvas element from our HTML document
-    this.canvas = canvas.nativeElement;
-    //THANKS INTERNET, Locking the pointer down
-    //We start without being locked.
-    let isLocked = false;
-    // Then, load the Babylon 3D engine:
+    // Create the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
+    this.engine.displayLoadingUI();
 
-    // create a basic BJS Scene object
+    // Create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
-    // On click event, request pointer lock
-    this.scene.onPointerDown = (evt) => {
-	  	//true/false check if we're locked, faster than checking pointerlock on each single click.
-      if (!isLocked) {
-        this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.msRequestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock || false;
-        if (this.canvas.requestPointerLock) {
-          this.canvas.requestPointerLock();
-        }
-      }
-      this.scene.onKeyboardObservable.add((kbInfo) => {
-        switch (kbInfo.type) {
-        case BABYLON.KeyboardEventTypes.KEYDOWN:
-            switch (kbInfo.event.key) {  
-              case "e":
-                this.keyPressed.push("e");
-                break;
-              case 'Shift':
-                this.keyPressed.push('Shift');
-                break;
-            }                
-            break;
+    let player = new GamePlayerService(this.scene, this.canvas, this.uiService);
 
+    // Add the crosshair to the player camera
+    player.addGunSight();
+
+    //**********************
+    //*       EVENTS       *
+    //**********************
+    let mouseEvent = (e:Event) => {
+      //Shoot case
+      player.shoot(this.scene, level);
+    };
+    let keyboardEvent = (kbInfo:BABYLON.KeyboardInfo) => {
+      console.log(kbInfo.event.key);
+      switch (kbInfo.type) {
+        case BABYLON.KeyboardEventTypes.KEYDOWN:
+          switch (kbInfo.event.key) {  
+            case "e":
+              this.keyPressed.push("e");
+              break;
+            case 'Shift':
+              this.keyPressed.push('Shift');
+              break;
+          }
+          break;
+
+        /* One time trigger events */
         case BABYLON.KeyboardEventTypes.KEYUP:
-            switch (kbInfo.event.key) {   
-              case "e":
-                  if(this.keyPressed.includes('e')) this.keyPressed = this.keyPressed.filter(l => l !== 'e');
-                  break;
-              case 'Shift':
-                if(this.keyPressed.includes('Shift')) this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
-                break;           
-            }     
-        }
-    });
+          switch (kbInfo.event.key) {
+            case "e":
+              if (this.keyPressed.includes('e')) 
+                this.keyPressed = this.keyPressed.filter(l => l !== 'e');
+              break;
+            case 'Shift':
+              if (this.keyPressed.includes('Shift')) 
+                this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
+              break;
+          }
+      }
     };
 
+    // On click event, request pointer lock
+    this.scene.onPointerDown = (evt:Event) => {
+      evt.preventDefault();
+	  	//true/false check if we're locked, faster than checking pointerlock on each single click.
+      if (document.pointerLockElement !== this.canvas) {
+        this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.msRequestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock || false;
+        this.canvas.requestPointerLock();
+
+        /* Add the mouse events */
+        this.canvas.addEventListener('click', mouseEvent);
+
+        /* Add the keyboard events */
+        this.scene.onKeyboardObservable.add(keyboardEvent);
+
+      } else {
+        
+      }
+    };
 
     //**********************
     //*       SKYBOX       *
@@ -523,13 +549,8 @@ export class GameService {
     skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
     skybox.material = skyboxMaterial;
 
-    let player = new GamePlayerService(this.scene, this.canvas);
-
-    // Add the crosshair to the player camera
-    player.addGunSight();
-
     // create a basic light, aiming 0,1,0 - meaning, to the sky
-    let hemisphericLight = new BABYLON.HemisphericLight(
+    let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
       'light1',
       new BABYLON.Vector3(0, 1, 0),
       this.scene
@@ -593,13 +614,14 @@ export class GameService {
     wallMesh.checkCollisions = false;
     wallMesh.alwaysSelectAsActiveMesh = false;
 
-    for(let i = 0; i < level.walls.length; ++i){
+    for (let i = 0; i < level.walls.length; ++i) {
       let wallInstance:BABYLON.InstancedMesh = wallMesh.createInstance("wallInstance"+i);
       wallInstance.position.x = level.walls[i][0];
       wallInstance.position.z = level.walls[i][1];
       wallInstance.position.y = 1;
       wallInstance.alwaysSelectAsActiveMesh = true;
       wallInstance.checkCollisions = true;
+      wallInstance.isPickable = false;
     }
 
     //TODO: check if there are doubled on the border
@@ -641,6 +663,10 @@ export class GameService {
     // generates the world x-y-z axis for better understanding
     let test = new GameFireballService([-7, -7], [19, 19], this.scene);
     this.showWorldAxis(8);
+
+    //**************************
+    //* REGISTER BEFORE RENDER *
+    //**************************
     this.scene.registerBeforeRender(() => {
       this.frameCounter++;
       //locking the camera on x axis (ghetto way)
@@ -651,38 +677,42 @@ export class GameService {
       if(this.keyPressed.includes('Shift')) player.camera.speed = 0.5;
       else player.camera.speed = 0.3;
       //TODO: fix this shit
+
+      //* Pathfinding
       //for(let i = 0; i < level.enemy.length; ++i) level.enemy[i].moveThorwardPlayer([this.camera.position.x, this.camera.position.z]);
-      //checking if e is pressed:
-      if(this.keyPressed.includes('e')){
+      
+      //* checking if e is pressed:
+      if (this.keyPressed.includes('e')) {
         //shooting a ray
         let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);	
         let hit = this.scene.pickWithRay(ray);
-        for(let i of level.doors){
-          if(i.mesh == hit?.pickedMesh){
+        for (let i of level.doors) {
+          if (i.mesh == hit?.pickedMesh) {
             i.open(player, this.scene);
-            break; 
+            break;
           } 
         }
-        for(let i of level.switches){
-          if(i.mesh == hit?.pickedMesh){
+        for (let i of level.switches) {
+          if (i.mesh == hit?.pickedMesh) {
             i.on();
             break; 
           }
         }
       }
-      //checking to open or close doors
-      for(let i of level.doors){
-        if(i.toOpen){
-          if(i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene);
-          if(i.mesh.position.y <= 4) i.mesh.position.y += 0.1;
-          else{ 
+
+      //* Checking to open or close doors
+      for (let i of level.doors){
+        if (i.toOpen){
+          if (i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene);
+          if (i.mesh.position.y <= 4) i.mesh.position.y += 0.1;
+          else { 
             i.toOpen = false;
             i.state = true;
             i.mesh.position.y = 4;
             i.counterSinceOpened = this.frameCounter;
           }
         }
-        else if(!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500 && 3 <= (Math.sqrt(Math.pow(i.mesh.position.x - player.camera.position.x, 2) + Math.pow(i.mesh.position.z - player.camera.position.z , 2)))){
+        else if (!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500 && 3 <= (Math.sqrt(Math.pow(i.mesh.position.x - player.camera.position.x, 2) + Math.pow(i.mesh.position.z - player.camera.position.z , 2)))){
           i.closeSound(this.scene);
           i.toClose = true;
         }
@@ -696,10 +726,8 @@ export class GameService {
           }
         }
       }
-    });
-    this.scene.registerAfterRender(() => {
-      // simple rotation along the y axis
-      //check every enemy if attacked then move the fireball
+
+      //* check every enemy if attacked then move the fireball
       for(let i = 0; i < level.enemy.length; ++i){
         //if the enemy fire something, then we move it
         if(level.enemy[i].projectile !== undefined){
@@ -711,7 +739,18 @@ export class GameService {
       for(let i of level.pickups){
         i.check(player, this.scene);
       }
+
+      //* Weapon firing checks
+      if (this.uiService.hasShot && this.uiService.currentWeapon.cellId <= this.uiService.currentWeaponAnimationFrames) {
+        if (this.uiService.currentWeapon.cellId + 1 > this.uiService.currentWeaponAnimationFrames) {
+          this.uiService.hasShot = false;
+          this.uiService.currentWeapon.cellId = 0;//! will be changed when multiple weapons will be implemented
+        } else 
+          ++this.uiService.currentWeapon.cellId;
+      }
     });
+
+    this.engine.hideLoadingUI();
   }
 
 

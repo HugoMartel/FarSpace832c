@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
 import * as BABYLON from '@babylonjs/core';
-import { Scene } from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
 
 
@@ -9,24 +8,45 @@ import * as GUI from '@babylonjs/gui';
   providedIn: 'root'
 })
 export class GameUIService {
+  currentWeapon:GUI.Image;
+  currentWeaponId:number;
+  currentWeaponAnimationFrames:number;
+  hasShot:boolean;
   displayUI:Function;
-  displayPistol:Function;
+  changeWeapon:Function;
 
-  constructor() { 
+  constructor() {
+    this.hasShot = false;
+    this.currentWeapon = new GUI.Image("but", "assets/textures/weapons/weapons.png");
+    //width and height of the sprite
+    this.currentWeapon.width = "350px";
+    this.currentWeapon.height = "350px";
+    //postion on the screen (don't forget that a part of the hand is under the interface)
+    this.currentWeapon.top = "20%";
+    this.currentWeapon.left = "10%";
+    //select the cell in the animation we want to display when not shooting
+    this.currentWeapon.cellId = 0;//! Will be replaced by width*weaponId
+    //setting the height and width of cells (usually in 128 px)
+    this.currentWeapon.cellHeight = 128;
+    this.currentWeapon.cellWidth = 128;
+
+    this.currentWeaponId = 1;
+    this.currentWeaponAnimationFrames = 5;
 
     this.displayUI = (scene: BABYLON.Scene, camera: BABYLON.Camera, weaponId: number) => {
       let ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-      //this will display the chosen weapon
+      //this will init the chosen weapon
       //TODO: add the texture for all weapon and create display function
-      switch (weaponId) {
+      switch (this.currentWeaponId) {
         /*
         case 0:
           this.displayFist(scene, camera, ui);
           break;
           */
         case 1:
-          this.displayPistol(scene, camera, ui);
+          this.currentWeapon.cellId = 0;//! Will be replaced by width*weaponId
+          this.currentWeaponAnimationFrames = 5;
           break;
           /*
         case 2:
@@ -56,33 +76,56 @@ export class GameUIService {
           break;
           */
       }
+
+      //add the weapon to the ui
+      ui.addControl(this.currentWeapon);
     } 
 
     // function to display the pistol need to create a new one for every weapon in particular for one handed weapon and two handed weapon
-    this.displayPistol = (scene : BABYLON.Scene, camera: BABYLON.Camera, ui: GUI.AdvancedDynamicTexture) => {
-      let pistol = new GUI.Image("but", "assets/textures/weapons/firstPistol.png");
-      //width and height of the sprite
-      pistol.width = "350px";
-      pistol.height = "350px";
-      //postion on the screen (don't forget that a part of the hand is under the interface)
-      pistol.top = "20%";
-      pistol.left = "10%";
-      //select the cell in the animation we want to display when not shooting
-      pistol.cellId = 0;
-      //setting the height and width of cells (usually in 128 px)
-      pistol.cellHeight = 128;
-      pistol.cellWidth = 128;
+    this.changeWeapon = (id:number) => {
+      //select the line in the file we want to display
+      this.currentWeaponId = id;
+      switch (id) {
+        /*
+        case 0:
+          this.displayFist(scene, camera, ui);
+          break;
+          */
+        case 1:
+          this.currentWeapon.cellId = 0;//! Will be replaced by width*weaponId
+          this.currentWeaponAnimationFrames = 5;
+          break;
+          /*
+        case 2:
+          this.displayShotgun(scene, camera, ui);
+          break;
+        case 3:
+          this.displaySuperShotgun(scene, camera, ui);
+          break;
+        case 4:
+          this.displayChaingun(scene, camera, ui);
+          break;
+        case 5:
+          this.displayRocket(scene, camera, ui);
+          break;
+        case 6:
+          this.displayPlasma(scene, camera, ui);
+          break;
+        case 7:
+          this.displayBFG(scene, camera, ui);
+          break;
+        case 8:
+          this.displayPlasma(scene, camera, ui);
+          break;
+  
+          default:
+            this.displayFist(scene, camera, ui);
+            break;
+            */
+      }
 
-      //add the pistol to the ui
-      ui.addControl(pistol);
+    };
 
-      //This fonction is to play animation 
-      /*  
-      scene.registerBeforeRender(() => {
-        if (pistol.cellId < 5) pistol.cellId++;
-        else pistol.cellId = 0;
-      })*/
-    }
   }
 
 }
