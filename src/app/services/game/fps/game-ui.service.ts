@@ -19,17 +19,16 @@ export class GameUIService {
     this.hasShot = false;
     this.currentWeapon = new GUI.Image("but", "assets/textures/weapons.png");
     //width and height of the sprite
-    this.currentWeapon.width = "350px";
+    this.currentWeapon.width = "700px";
     this.currentWeapon.height = "350px";
     //postion on the screen (don't forget that a part of the hand is under the interface)
-    this.currentWeapon.top = "20%";
-    this.currentWeapon.left = "10%";
+    this.currentWeapon.top = "10%";
     //setting the height and width of cells height:192 width:384
     this.currentWeapon.cellHeight = 192;
     this.currentWeapon.cellWidth = 384;
 
     this.currentWeaponId = 0;
-    this.currentWeaponAnimationFrames = 2;
+    this.currentWeaponAnimationFrames = 3;
     //select the cell in the animation we want to display when not shooting
     this.currentWeapon.cellId = this.currentWeaponId * 18;
 
@@ -39,36 +38,38 @@ export class GameUIService {
       //this will init the chosen weapon
       //TODO: add the texture for all weapon and create display function
       switch (this.currentWeaponId) {
-        /*
         case 0:
-          this.displayFist(scene, camera, ui);
+          this.currentWeapon.cellId = 0;
+          this.currentWeaponAnimationFrames = 3;
           break;
-          */
         case 1:
-          this.currentWeapon.cellId = 0;//! Will be replaced by width*weaponId
+          this.currentWeapon.cellId = 18;
           this.currentWeaponAnimationFrames = 5;
           break;
-          /*
         case 2:
-          this.displayShotgun(scene, camera, ui);
+          this.currentWeapon.cellId = 36;
+          this.currentWeaponAnimationFrames = 5;
           break;
         case 3:
-          this.displaySuperShotgun(scene, camera, ui);
+          this.currentWeapon.cellId = 54;
+          this.currentWeaponAnimationFrames = 9;
           break;
         case 4:
-          this.displayChaingun(scene, camera, ui);
+          this.currentWeapon.cellId = 72;
+          this.currentWeaponAnimationFrames = 2;
           break;
         case 5:
-          this.displayPlasma(scene, camera, ui);
+          this.currentWeapon.cellId = 90;
+          this.currentWeaponAnimationFrames = 2;
           break;
         case 6:
-          this.displayBFG(scene, camera, ui);
+          this.currentWeapon.cellId = 108;
+          this.currentWeaponAnimationFrames = 3;
           break;
-
         default:
-          this.displayFist(scene, camera, ui);
+          this.currentWeapon.cellId = 0;
+          this.currentWeaponAnimationFrames = 3;
           break;
-          */
       }
 
       //add the weapon to the ui
