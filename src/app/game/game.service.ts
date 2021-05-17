@@ -740,11 +740,13 @@ export class GameService {
         i.check(player, this.scene);
       }
 
-      //* Weapon firing checks
-      if (this.uiService.hasShot && this.uiService.currentWeapon.cellId <= this.uiService.currentWeaponAnimationFrames) {
-        if (this.uiService.currentWeapon.cellId + 1 > this.uiService.currentWeaponAnimationFrames) {
+      //* Weapon firing checks (a weapon has a maximum of 21 animation frames)
+      if (this.uiService.hasShot && 
+        this.uiService.currentWeapon.cellId <= this.uiService.currentWeaponAnimationFrames + this.uiService.currentWeaponId * 18
+        ) {
+        if (this.uiService.currentWeapon.cellId + 1 > this.uiService.currentWeaponAnimationFrames + this.uiService.currentWeaponId * 18) {
           this.uiService.hasShot = false;
-          this.uiService.currentWeapon.cellId = 0;//! will be changed when multiple weapons will be implemented
+          this.uiService.currentWeapon.cellId = this.uiService.currentWeaponId * 18;
         } else 
           ++this.uiService.currentWeapon.cellId;
       }

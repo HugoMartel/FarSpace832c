@@ -17,21 +17,21 @@ export class GameUIService {
 
   constructor() {
     this.hasShot = false;
-    this.currentWeapon = new GUI.Image("but", "assets/textures/weapons/weapons.png");
+    this.currentWeapon = new GUI.Image("but", "assets/textures/weapons.png");
     //width and height of the sprite
     this.currentWeapon.width = "350px";
     this.currentWeapon.height = "350px";
     //postion on the screen (don't forget that a part of the hand is under the interface)
     this.currentWeapon.top = "20%";
     this.currentWeapon.left = "10%";
-    //select the cell in the animation we want to display when not shooting
-    this.currentWeapon.cellId = 0;//! Will be replaced by width*weaponId
-    //setting the height and width of cells (usually in 128 px)
-    this.currentWeapon.cellHeight = 128;
-    this.currentWeapon.cellWidth = 128;
+    //setting the height and width of cells height:192 width:384
+    this.currentWeapon.cellHeight = 192;
+    this.currentWeapon.cellWidth = 384;
 
-    this.currentWeaponId = 1;
-    this.currentWeaponAnimationFrames = 5;
+    this.currentWeaponId = 0;
+    this.currentWeaponAnimationFrames = 2;
+    //select the cell in the animation we want to display when not shooting
+    this.currentWeapon.cellId = this.currentWeaponId * 18;
 
     this.displayUI = (scene: BABYLON.Scene, camera: BABYLON.Camera, weaponId: number) => {
       let ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
