@@ -59,16 +59,10 @@ export class GameUIService {
           this.displayChaingun(scene, camera, ui);
           break;
         case 5:
-          this.displayRocket(scene, camera, ui);
+          this.displayPlasma(scene, camera, ui);
           break;
         case 6:
-          this.displayPlasma(scene, camera, ui);
-          break;
-        case 7:
           this.displayBFG(scene, camera, ui);
-          break;
-        case 8:
-          this.displayPlasma(scene, camera, ui);
           break;
 
         default:
