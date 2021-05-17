@@ -469,6 +469,9 @@ export class GameService {
   //*      Shooter       *
   //**********************
   public createFPSScene(canvas: ElementRef<HTMLCanvasElement>, level: GameLevelService): void {
+    // The first step is to get the reference of the canvas element from our HTML document
+    this.canvas = canvas.nativeElement;
+
     // Create the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
     this.engine.displayLoadingUI();
@@ -479,18 +482,15 @@ export class GameService {
 
     let player = new GamePlayerService(this.scene, this.canvas, this.uiService);
 
-    // Add the crosshair to the player camera
-    player.addGunSight();
-
     //**********************
     //*       EVENTS       *
     //**********************
     let mouseEvent = (e:Event) => {
+      e.preventDefault();
       //Shoot case
-      player.shoot(this.scene, level);
+      player.shoot(this.scene, level, this.canvas);
     };
     let keyboardEvent = (kbInfo:BABYLON.KeyboardInfo) => {
-      console.log(kbInfo.event.key);
       switch (kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
           switch (kbInfo.event.key) {  
@@ -621,10 +621,10 @@ export class GameService {
       wallInstance.position.y = 1;
       wallInstance.alwaysSelectAsActiveMesh = true;
       wallInstance.checkCollisions = true;
-      wallInstance.isPickable = false;
+      wallInstance.isPickable = true;
     }
 
-    //TODO: check if there are doubled on the border
+    //TODO: check if there are doubles on the border
     for(let i = -20; i < 20; i++) {
       for(let j of [20, -20]){
         let wall1:BABYLON.InstancedMesh = wallMesh.createInstance("box1");

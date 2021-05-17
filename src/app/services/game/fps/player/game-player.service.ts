@@ -3,6 +3,7 @@ import * as BABYLON from '@babylonjs/core';
 
 import { GameUIService } from '../game-ui.service';
 import { GameLevelService } from '../game-level.service';
+import { Ray } from '@babylonjs/core';
 
 //TODO: add imunty & bersek
 //TODO: add a function to end the the game when no health 
@@ -26,7 +27,6 @@ export class GamePlayerService {
   ammos: Array<number>;
   lockRotation: Function;
   shoot: Function;
-  addGunSight: Function;
   applyDamage: Function;
 
   constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement, gameUIService: GameUIService){ 
@@ -74,9 +74,7 @@ export class GamePlayerService {
     * |     1 | Blue      |
     * |     2 | Yellow    |
     * +-------+-----------+
-    */
-    //weapons:
-    /*
+    weapons:
     * +-------+---------------+----------+---------------+
     * | index |    weapon     | ammoPool | used per shot |
     * +-------+---------------+----------+---------------+
@@ -133,7 +131,7 @@ export class GamePlayerService {
 
 
     /******    UI   ******/
-    gameUIService.displayUI(scene, this.camera, 1);
+    gameUIService.displayUI();
 
     /******FUNCTIONS******/
     //locking the ability to look up
@@ -164,126 +162,69 @@ export class GamePlayerService {
       }
     }
 
-    //FUNCTION  to add a crosshair in the middle of the camera
-    this.addGunSight = () => {
-      if (scene.activeCameras === null) {
-        console.log('Cameras aren\'t active...');
-        return;
-      }
 
-      //we create a second camera on top of the first one where we will see only the crosshair
-      let crosshairCamera = new BABYLON.FreeCamera("GunSightCamera", new BABYLON.Vector3(0, 0, -50), scene);
-      crosshairCamera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
-      crosshairCamera.layerMask = 0x20000000;
-    
-      //Pushing the second camera on the scene
-      scene.activeCameras.push(crosshairCamera);
-
-      //this meshes is for us to display the crosshair it will take every parts of the crosshair
-      let meshes = [];
-      let h = 250;
-      let w = 250;
-
-      let y = BABYLON.Mesh.CreateBox("y", h * 0.2, scene);
-      y.scaling = new BABYLON.Vector3(0.05, 0.5, 0.5);
-      y.position = new BABYLON.Vector3(0, 0, 0);
-      meshes.push(y);
-
-      let x = BABYLON.Mesh.CreateBox("x", h * 0.2, scene);
-      x.scaling = new BABYLON.Vector3(0.5, 0.05, 0.5);
-      x.position = new BABYLON.Vector3(0, 0, 0);
-      meshes.push(x);
-
-      let lineTop = BABYLON.Mesh.CreateBox("lineTop", w * 0.8, scene);
-      lineTop.scaling = new BABYLON.Vector3(0.5, 0.005, 0.5);
-      lineTop.position = new BABYLON.Vector3(0, h * 0.5, 0);
-      meshes.push(lineTop);
-
-      let lineBottom = BABYLON.Mesh.CreateBox("lineBottom", w * 0.8, scene);
-      lineBottom.scaling = new BABYLON.Vector3(0.5, 0.005, 0.5);
-      lineBottom.position = new BABYLON.Vector3(0, h * -0.5, 0);
-      meshes.push(lineBottom);
-
-      let lineLeft = BABYLON.Mesh.CreateBox("lineLeft", h, scene);
-      lineLeft.scaling = new BABYLON.Vector3(0.01, 0.5, 0.5);
-      lineLeft.position = new BABYLON.Vector3(w * -0.4, 0, 0);
-      meshes.push(lineLeft);
-
-      let lineRight = BABYLON.Mesh.CreateBox("lineRight", h, scene);
-      lineRight.scaling = new BABYLON.Vector3(0.01, 0.5, 0.5);
-      lineRight.position = new BABYLON.Vector3(w * 0.4, 0, 0);
-      meshes.push(lineRight);
-
-      //merging all the meshes to create the crosshair
-      let gunSight = BABYLON.Mesh.MergeMeshes(meshes) as BABYLON.Mesh;
-      gunSight.name = "gunSight";
-      //this allow us to display only a crosshair on top of the first camera
-      gunSight.layerMask = 0x20000000;
-      gunSight.freezeWorldMatrix();
-
-      //adding color for the crosshair
-      let mat = new BABYLON.StandardMaterial("emissive mat", scene);
-      mat.checkReadyOnlyOnce = true;
-      mat.emissiveColor = new BABYLON.Color3(1, 1, 0);
-      gunSight.material = mat;
-
-      return;
-    }
-
-
-
-    //checking if the player can shoot the weapon he's using
-    this.shoot = (scene:BABYLON.Scene, level:GameLevelService) => {
+    /**
+     * Function to use when the player shoots his gun
+     * @param scene Babylon scene
+     * @param level GameLevelService used to store the current level (especially the enemies)
+     * @param canvas HTML Canvas to get the center point to shoot the picking ray
+     */
+    this.shoot = (scene:BABYLON.Scene, level:GameLevelService, canvas:HTMLCanvasElement) => {
       if (gameUIService.hasShot) 
         return false;// The gun is already firing
 
       //fist/chainsaw
-      if(this.equipedWeapon == 0) return true;
+      if (this.equipedWeapon == 0) {
+        //the shot is doable
+        gameUIService.hasShot = true;
+        return true;
+      }
       //shooting the pistol or the chaingun
-      else if((this.equipedWeapon == 1 || this.equipedWeapon == 3) && this.ammos[1] > 0){ 
+      else if ((this.equipedWeapon == 1 || this.equipedWeapon == 3) && this.ammos[1] > 0) { 
         //minus the ammo shooted
         this.ammos[1] -=1;
 
         //the shot is doable
         gameUIService.hasShot = true;
-
         //Check if the shot did hit something eventually
-        let bulletRay = scene.createPickingRay(scene.pointerX, scene.pointerY, BABYLON.Matrix.Identity(), this.camera);
-        let bulletRayHelper = new BABYLON.RayHelper(bulletRay);
-        bulletRayHelper.show(scene)
-        /* 
-        TODO 
-        //let hit = scene.pickWithRay(bulletRay);
-        for (let enemy of level.enemy) {
-          console.log(enemy.sprtMng.intersects(bulletRay, ))
-        }
-        */
+        let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
 
+        if (pickInfo !== null && pickInfo.hit) {
+          level.enemy.forEach(enemy => {
+            if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt) {
+              console.log("G TOUCHÉ!!!");
+            }
+          });
+        }
+        
         return true;
       }
       //shotgun
-      else if(this.equipedWeapon == 2 && this.ammos[2] > 0){
+      else if (this.equipedWeapon == 2 && this.ammos[2] > 0){
         this.ammos[2] -=1;
         return true;
       }
       //super shotgun
-      else if(this.equipedWeapon == 4 && this.ammos[2] > 1){
+      else if (this.equipedWeapon == 4 && this.ammos[2] > 1) {
         this.ammos[2] -=2;
         return true;
       }
-      else if(this.equipedWeapon == 5 && this.ammos[3] > 0){
+      //rocket
+      else if (this.equipedWeapon == 5 && this.ammos[3] > 0) {
         this.ammos[3] -= 1;
         return true;
       }
-      else if(this.equipedWeapon == 6 && this.ammos[4] > 0){
+      //plasma
+      else if (this.equipedWeapon == 6 && this.ammos[4] > 0) {
         this.ammos[4] -= 1;
         return true
       }
-      else if(this.equipedWeapon == 7 && this.ammos[4] > 59){
+      //BFG
+      else if (this.equipedWeapon == 7 && this.ammos[4] > 59) {
         this.ammos[4] -= 60;
         return true
       }
-      //can't shoot
+      //no ammo (or unknown weapon (shouldn't happen))
       else {
         //TODO: play click sound (no bullets)
         return false;
