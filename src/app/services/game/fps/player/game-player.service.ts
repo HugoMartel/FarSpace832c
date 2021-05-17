@@ -3,7 +3,6 @@ import * as BABYLON from '@babylonjs/core';
 
 import { GameUIService } from '../game-ui.service';
 import { GameLevelService } from '../game-level.service';
-import { Ray } from '@babylonjs/core';
 
 //TODO: add imunty & bersek
 //TODO: add a function to end the the game when no health 
@@ -20,6 +19,16 @@ export class GamePlayerService {
   frameSinceImmune: number;
   weaponList: Array<boolean>;
   equipedWeapon: number;
+  fistSound: BABYLON.Sound;
+  pistolSound: BABYLON.Sound;
+  /*
+  shotgunSound: BABYLON.Sound;
+  SSGSound: BABYLON.Sound;
+  chaingunSound: BABYLON.Sound;
+  rocketSound: BABYLON.Sound;
+  plasmaSound: BABYLON.Sound;
+  BFGSound: BABYLON.Sound;
+  */
   //note: we're using the camera position as player coord
   camera!:BABYLON.FreeCamera;
   sphere!: BABYLON.Mesh;
@@ -100,6 +109,20 @@ export class GamePlayerService {
     * +----------+----------+--------------+-------------------+
     */
     this.ammos = [127, 20, 0, 0, 0];
+
+    // Sounds
+    this.fistSound = new BABYLON.Sound("fistSound", "assets/sound/fps/weapon/item.wav", scene, null, {
+      loop: false,
+      autoplay: false,
+      volume: .5
+    });
+    this.pistolSound = new BABYLON.Sound("pistolSound", "assets/sound/fps/weapon/item.wav", scene, null, {
+      loop: false,
+      autoplay: false,
+      volume: .5
+    });
+    
+
     this.camera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 1, -3), scene);
     this.camera.setTarget(new BABYLON.Vector3(0, 1, 1));
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
@@ -177,6 +200,7 @@ export class GamePlayerService {
       if (this.equipedWeapon == 0) {
         //the shot is doable
         gameUIService.hasShot = true;
+        
         return true;
       }
       //shooting the pistol or the chaingun

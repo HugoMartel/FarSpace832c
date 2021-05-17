@@ -17,7 +17,7 @@ export class GameUIService {
 
   constructor() {
     this.hasShot = false;
-    this.currentWeapon = new GUI.Image("but", "assets/textures/weapons.png");
+    this.currentWeapon = new GUI.Image("weapons", "assets/textures/weapons.png");
     //width and height of the sprite
     this.currentWeapon.width = "700px";
     this.currentWeapon.height = "350px";
@@ -70,27 +70,27 @@ export class GameUIService {
           this.currentWeaponAnimationFrames = 3;
           break;
         case 1:
-          this.currentWeapon.cellId = 18;
+          this.currentWeapon.cellId = 10;
           this.currentWeaponAnimationFrames = 5;
           break;
         case 2:
-          this.currentWeapon.cellId = 36;
+          this.currentWeapon.cellId = 20;
           this.currentWeaponAnimationFrames = 5;
           break;
         case 3:
-          this.currentWeapon.cellId = 54;
+          this.currentWeapon.cellId = 30;
           this.currentWeaponAnimationFrames = 9;
           break;
         case 4:
-          this.currentWeapon.cellId = 72;
+          this.currentWeapon.cellId = 40;
           this.currentWeaponAnimationFrames = 2;
           break;
         case 5:
-          this.currentWeapon.cellId = 90;
+          this.currentWeapon.cellId = 50;
           this.currentWeaponAnimationFrames = 2;
           break;
         case 6:
-          this.currentWeapon.cellId = 108;
+          this.currentWeapon.cellId = 60;
           this.currentWeaponAnimationFrames = 3;
           break;
         default:
@@ -111,42 +111,38 @@ export class GameUIService {
       //select the line in the file we want to display
       this.currentWeaponId = id;
       switch (id) {
-        /*
         case 0:
-          this.displayFist(scene, camera, ui);
+          this.currentWeapon.cellId = 0;
+          this.currentWeaponAnimationFrames = 3;
           break;
-          */
         case 1:
-          this.currentWeapon.cellId = 0;//! Will be replaced by width*weaponId
+          this.currentWeapon.cellId = 10;
           this.currentWeaponAnimationFrames = 5;
           break;
-          /*
         case 2:
-          this.displayShotgun(scene, camera, ui);
+          this.currentWeapon.cellId = 20;
+          this.currentWeaponAnimationFrames = 5;
           break;
         case 3:
-          this.displaySuperShotgun(scene, camera, ui);
+          this.currentWeapon.cellId = 30;
+          this.currentWeaponAnimationFrames = 9;
           break;
         case 4:
-          this.displayChaingun(scene, camera, ui);
+          this.currentWeapon.cellId = 40;
+          this.currentWeaponAnimationFrames = 2;
           break;
         case 5:
-          this.displayRocket(scene, camera, ui);
+          this.currentWeapon.cellId = 50;
+          this.currentWeaponAnimationFrames = 2;
           break;
         case 6:
-          this.displayPlasma(scene, camera, ui);
+          this.currentWeapon.cellId = 60;
+          this.currentWeaponAnimationFrames = 3;
           break;
-        case 7:
-          this.displayBFG(scene, camera, ui);
+        default:
+          this.currentWeapon.cellId = 0;
+          this.currentWeaponAnimationFrames = 3;
           break;
-        case 8:
-          this.displayPlasma(scene, camera, ui);
-          break;
-  
-          default:
-            this.displayFist(scene, camera, ui);
-            break;
-            */
       }
 
     };
