@@ -490,14 +490,15 @@ export class GameService {
       //Shoot case
       player.shoot(this.scene, level, this.canvas);
     };
+    
     let keyboardEvent = (kbInfo:BABYLON.KeyboardInfo) => {
       switch (kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
-          switch (kbInfo.event.key) {  
-            case "e":
+          switch (kbInfo.event.code) {  
+            case "KeyE":
               this.keyPressed.push("e");
               break;
-            case 'Shift':
+            case 'ShiftLeft':
               this.keyPressed.push('Shift');
               break;
           }
@@ -505,14 +506,40 @@ export class GameService {
 
         /* One time trigger events */
         case BABYLON.KeyboardEventTypes.KEYUP:
-          switch (kbInfo.event.key) {
-            case "e":
+          switch (kbInfo.event.code) {
+            case "KeyE":
               if (this.keyPressed.includes('e')) 
                 this.keyPressed = this.keyPressed.filter(l => l !== 'e');
               break;
-            case 'Shift':
+            case 'ShiftLeft':
               if (this.keyPressed.includes('Shift')) 
                 this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
+              break;
+            case 'Digit1':
+              if (this.uiService.currentWeaponId !== 0)
+                this.uiService.changeWeapon(0);
+              break;
+            case 'Digit2':
+              if (this.uiService.currentWeaponId !== 1)
+                this.uiService.changeWeapon(1);
+              break;
+            case 'Digit3':
+              if (this.uiService.currentWeaponId !== 2) 
+                this.uiService.changeWeapon(2);
+              else 
+                this.uiService.changeWeapon(3);
+              break;
+            case 'Digit4':
+              if (this.uiService.currentWeaponId !== 4)
+                this.uiService.changeWeapon(4);
+              break;
+            case 'Digit5':
+              if (this.uiService.currentWeaponId !== 5)
+                this.uiService.changeWeapon(5);
+              break;
+            case 'Digit6':
+              if (this.uiService.currentWeaponId !== 6)
+                this.uiService.changeWeapon(6);
               break;
           }
       }
@@ -532,8 +559,6 @@ export class GameService {
         /* Add the keyboard events */
         this.scene.onKeyboardObservable.add(keyboardEvent);
 
-      } else {
-        
       }
     };
 
@@ -669,16 +694,20 @@ export class GameService {
     //**************************
     this.scene.registerBeforeRender(() => {
       this.frameCounter++;
+      //* Player actions
       //locking the camera on x axis (ghetto way)
       player.lockRotation();
       //checking if a pickup has to be removed:
       level.pickups.filter(pick => !pick.remove);
       //checking if sprinting:
-      if(this.keyPressed.includes('Shift')) player.camera.speed = 0.5;
-      else player.camera.speed = 0.3;
-      //TODO: fix this shit
+      if (this.keyPressed.includes('Shift')) 
+        player.camera.speed = 0.5;
+      else 
+        player.camera.speed = 0.3;
+
 
       //* Pathfinding
+      //TODO: fix this shit
       //for(let i = 0; i < level.enemy.length; ++i) level.enemy[i].moveThorwardPlayer([this.camera.position.x, this.camera.position.z]);
       
       //* checking if e is pressed:

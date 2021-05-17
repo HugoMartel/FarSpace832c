@@ -65,30 +65,37 @@ export class GameUIService {
       //this will init the chosen weapon
       //TODO: add the texture for all weapon and create display function
       switch (this.currentWeaponId) {
+        // Fist
         case 0:
           this.currentWeapon.cellId = 0;
           this.currentWeaponAnimationFrames = 3;
           break;
+        // Pistol
         case 1:
           this.currentWeapon.cellId = 10;
           this.currentWeaponAnimationFrames = 5;
           break;
+        // Shotgun
         case 2:
           this.currentWeapon.cellId = 20;
           this.currentWeaponAnimationFrames = 5;
           break;
+        // SSG
         case 3:
           this.currentWeapon.cellId = 30;
           this.currentWeaponAnimationFrames = 9;
           break;
+        // Chaingun
         case 4:
           this.currentWeapon.cellId = 40;
           this.currentWeaponAnimationFrames = 2;
           break;
+        // Plasma
         case 5:
           this.currentWeapon.cellId = 50;
           this.currentWeaponAnimationFrames = 2;
           break;
+        // BFG
         case 6:
           this.currentWeapon.cellId = 60;
           this.currentWeaponAnimationFrames = 3;
