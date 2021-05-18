@@ -207,19 +207,19 @@ export class GamePickupsService {
       this.remove = true;
       this.sprt.dispose();
       //loading the sound:
-      if(this.type < 5 || (this.type > 6 && this.type < 15) || this.type == 24) this.sound = new BABYLON.Sound("music", "../../../assets/sound/fps/pickup/item.wav", scene,  () => {
+      if(this.type < 5 || (this.type > 6 && this.type < 15) || this.type == 24) this.sound = new BABYLON.Sound("itemPickupSound", "../../../assets/sound/fps/pickup/item.wav", scene,  () => {
         this.sound.play();
       }, {
         loop: false,
         autoplay: false
       });
-      else if(this.type == 5 || this.type == 6 || this.type == 22 || this.type == 23) this.sound = new BABYLON.Sound("music", "../../../assets/sound/fps/pickup/powerup.wav", scene, () => {
+      else if(this.type == 5 || this.type == 6 || this.type == 22 || this.type == 23) this.sound = new BABYLON.Sound("powerupPickupSound", "../../../assets/sound/fps/pickup/powerup.wav", scene, () => {
         this.sound.play();
       }, {
         loop: false,
         autoplay: false
       });
-      else this.sound = new BABYLON.Sound("music", "../../../assets/sound/fps/pickup/weapon.wav", scene, () => {
+      else this.sound = new BABYLON.Sound("weaponPickupSound", "../../../assets/sound/fps/pickup/weapon.wav", scene, () => {
         this.sound.play();
       }, {
         loop: false,
