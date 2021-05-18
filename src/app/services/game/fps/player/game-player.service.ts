@@ -222,9 +222,8 @@ export class GamePlayerService {
 
         if (pickInfo !== null && pickInfo.hit) {
           level.enemy.forEach(enemy => {
-            console.log(Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z))
             if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt && 
-                Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= 2.5) {
+                Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= 3.) {
               console.log("Fist hit at " + enemy.coord + ", hp: " + enemy.health);
             }
           });
@@ -261,7 +260,18 @@ export class GamePlayerService {
         this.ammos[2] -=1;
         gameUIService.hasShot = true;
 
-        //TODO
+        //Check if the shots (5 line) did hit something eventually
+        let pick = (x:number,y:number) => scene.pickSprite(x, y, undefined, false, this.camera);
+        for (let i = -20; i <= 20; i+=10) {
+          let pickInfo = pick(Math.round(i + canvas.width / 2), Math.round(canvas.height / 2));
+          if (pickInfo !== null && pickInfo.hit) {
+            level.enemy.forEach(enemy => {
+              if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt) {
+                console.log("Shotgun hit at " + enemy.coord + ", hp: " + enemy.health);
+              }
+            });
+          }
+        }
 
         this.shotgunSound.play();
 
@@ -273,7 +283,25 @@ export class GamePlayerService {
         this.ammos[2] -=2;
         gameUIService.hasShot = true;
 
-        //TODO
+         //Check if the shots (5 square) did hit something eventually
+        let pick = (x:number,y:number):void => {
+          let pickInfo = scene.pickSprite(x, y, undefined, false, this.camera);
+          if (pickInfo !== null && pickInfo.hit) {
+            level.enemy.forEach(enemy => {
+              if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt) {
+                console.log("SSG hit at " + enemy.coord + ", hp: " + enemy.health);
+              }
+            });
+          }
+        }
+        //Actual shots
+        pick(Math.round(-10 + canvas.width / 2), Math.round(-10 + canvas.height / 2));
+        pick(Math.round(-10 + canvas.width / 2), Math.round(+10 + canvas.height / 2));
+        pick(Math.round(10 + canvas.width / 2), Math.round(-10 + canvas.height / 2));
+        pick(Math.round(10 + canvas.width / 2), Math.round(10 + canvas.height / 2));
+        pick(Math.round(canvas.width / 2), Math.round(canvas.height / 2));
+        
+        
 
         this.ssgSound.play();
 
