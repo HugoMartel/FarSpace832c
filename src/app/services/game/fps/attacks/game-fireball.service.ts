@@ -66,10 +66,10 @@ export class GameFireballService {
       }
       else{
         let direction = new BABYLON.Vector3(Math.cos(this.angle), 0, Math.sin(this.angle))
-        let ray = new BABYLON.Ray(this.sprt.position, direction, 100);	
+        let ray = new BABYLON.Ray(new BABYLON.Vector3(this.coord[0], 0.5, this.coord[1]), direction, 100);	
         let hit = scene.pickWithRay(ray);
         //if touching a wall 
-        if(hit?.pickedMesh != null && hit?.pickedMesh.position.x != null && Math.sqrt(Math.pow(this.coord[0] - hit?.pickedMesh?.position.x, 2) + Math.pow(this.coord[1] - hit?.pickedMesh?.position.z, 2)) < 0.1){
+        if(hit?.pickedMesh != null && hit?.pickedMesh.position.x != null && stuff.distance(hit?.pickedMesh.position, new BABYLON.Vector3(this.coord[0], 0.5, this.coord[1])) < 0.75){
           this.toMove = false;
           let volume = 1 / stuff.distance(hit?.pickedMesh?.position, this.sprt.position);
           let sound = new BABYLON.Sound("music", "assets/sound/fps/enemies/imp/fireballHit.wav", scene, () => {

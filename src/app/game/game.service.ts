@@ -491,7 +491,6 @@ export class GameService {
       player.shoot(this.scene, level);
     };
     let keyboardEvent = (kbInfo:BABYLON.KeyboardInfo) => {
-      console.log(kbInfo.event.key);
       switch (kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
           switch (kbInfo.event.key) {  
@@ -720,7 +719,7 @@ export class GameService {
         }
         else{
           let isAyoneUnderTheDoor = false;
-          if (!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500){
+          if (!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 300){
             for(let j of level.enemy){
               if(stuff.distance(i.mesh.position, j.mesh.position) <= 3) isAyoneUnderTheDoor = true; 
             }
@@ -844,7 +843,6 @@ export class GameService {
       const rendererLoopCallback = () => {
         this.scene.render();
       };
-
       if (this.windowRef.document.readyState !== 'loading') {
         this.engine.runRenderLoop(rendererLoopCallback);
       } else {

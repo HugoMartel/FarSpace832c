@@ -85,13 +85,12 @@ export class GameEnemyService {
       let ray = new BABYLON.Ray(new BABYLON.Vector3(this.sprt.position.x, 0.5, this.sprt.position.z) ,direction, 100000);	
       let hit = scene.pickWithRay(ray);
       //if a wall or something else is between the player and the awaken enemy
-      if(hit != undefined && hit.pickedMesh != undefined && this.state == 5 && (hit.pickedMesh.metadata == "door" || hit.pickedMesh.metadata == "switch" || hit.pickedMesh.metadata == "wall")){
-        console.log("picked no shit");
+      if(hit != undefined && hit.pickedMesh != undefined && this.state == 5 && hit.pickedMesh.metadata != "Player" && (hit.pickedMesh.metadata == "door" || hit.pickedMesh.metadata == "switch" || hit.pickedMesh.metadata == "wall")){
         //if nothing is between the player and the enemy
         if(stuff.distance(player.camera.position, this.sprt.position) < stuff.distance(this.sprt.position, hit.pickedMesh.position)){
           //if the distance is inferior to 2: then near attack
           let distanceFromPlayer = stuff.distance(player.camera.position, this.sprt.position);
-          if(distanceFromPlayer <= 3){
+          if(distanceFromPlayer <= 2){
             if(frames - this.framesinceNearAttack >= 300){
               this.framesinceNearAttack = frames;
               this.state = 4;
@@ -109,11 +108,9 @@ export class GameEnemyService {
                 this.mesh.position.z += 0.01 * Math.sin(this.angle);
                 this.coord[1] += 0.01 * Math.sin(this.angle);
               }
-              else if(!this.projectile.toMove){
+              else if (this.attackFar(player, scene)){
                 this.frameSinceFarAttack = frames;
                 //attack far;
-                //tochange for other enemy
-                this.attackFar(player, scene);
                 this.state = 3;
                 this.sprt.stopAnimation();
                 this.playAnimation();
@@ -145,11 +142,32 @@ export class GameEnemyService {
             this.coord[1] += 0.01 * Math.sin(this.angle);
           }
         }*/
-        //if no mesh picked
+        //if mesh is before the player
+        else{
+          //if mesh near
+          if (stuff.distance(hit.pickedMesh.position, this.sprt.position) < 2){
+            this.angle = this.angle + Math.PI / 4;
+            this.sprt.position.x += 0.01 * Math.cos(this.angle);
+            this.mesh.position.x += 0.01 * Math.cos(this.angle);
+            this.coord[0] += 0.01 * Math.cos(this.angle); 
+            this.sprt.position.z += 0.01 * Math.sin(this.angle);
+            this.mesh.position.z += 0.01 * Math.sin(this.angle);
+            this.coord[1] += 0.01 * Math.sin(this.angle);
+          }
+          else{
+            this.sprt.position.x += 0.01 * Math.cos(this.angle);
+            this.mesh.position.x += 0.01 * Math.cos(this.angle);
+            this.coord[0] += 0.01 * Math.cos(this.angle); 
+            this.sprt.position.z += 0.01 * Math.sin(this.angle);
+            this.mesh.position.z += 0.01 * Math.sin(this.angle);
+            this.coord[1] += 0.01 * Math.sin(this.angle);
+          }
+        }
       }
+      //if no mesh picked
       else{
         let distanceFromPlayer = stuff.distance(player.camera.position, this.sprt.position);
-        if(distanceFromPlayer < 3){
+        if(distanceFromPlayer <= 2){
           if(frames - this.framesinceNearAttack >= 200){
             this.framesinceNearAttack = frames;
             this.state = 4;
@@ -169,11 +187,9 @@ export class GameEnemyService {
               this.coord[1] += 0.01 * Math.sin(this.angle);
             }
             //shooting (working)
-            else if((this.projectile != undefined && !this.projectile.toMove) || this.projectile == undefined){
+            else if (this.attackFar(player, scene)){
               this.frameSinceFarAttack = frames;
               //attack far;
-              //tochange for other enemy
-              this.attackFar(player, scene);
               this.state = 3;
               this.sprt.stopAnimation();
               this.playAnimation();
@@ -199,11 +215,11 @@ export class GameEnemyService {
 
     this.attackNear = (player: GamePlayerService, scene: BABYLON.Scene) => {
       //no general definition for now
-      return;
+      return false;
     }
     this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene) => {
       //no general definition for now
-      return;
+      return false;
     }
   }
 }
