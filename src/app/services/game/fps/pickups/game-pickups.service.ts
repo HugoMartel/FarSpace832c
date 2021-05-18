@@ -65,14 +65,133 @@ export class GamePickupsService {
   */
   constructor(content: Array<number>){ 
     //setting up the sprite and the coordinates
-    this.type = content[0]
+    this.type = content[0];
     this.coord = [content[1], content[2]];
     this.remove = false;
     
     this.init = (scene: BABYLON.Scene) =>{
       //setting up the sprite
+      this.sprtMng = new BABYLON.SpriteManager("pickup", "../../../assets/textures/pickUp.png",  1, {height: 64, width: 64}, scene);
       switch(this.type){
         //if type isn't good, then error
+        case 0:
+          this.sprt = new BABYLON.Sprite("healthPickup", this.sprtMng);
+          this.sprt.playAnimation(0, 3, true, 250);
+          break;
+        case 1:
+          this.sprt = new BABYLON.Sprite("armorPickup", this.sprtMng);
+          this.sprt.playAnimation(4, 7, true, 250);
+          break;
+        case 2:
+          this.sprt = new BABYLON.Sprite("medikit", this.sprtMng);
+          this.sprt.cellIndex = 8;
+          break;
+        case 3:
+          this.sprt = new BABYLON.Sprite("armorGreen", this.sprtMng);
+          this.sprt.playAnimation(12, 13, true, 250);
+          break;
+        case 4:
+          this.sprt = new BABYLON.Sprite("armorBlue", this.sprtMng);
+          this.sprt.playAnimation(16, 17, true, 250);
+          break;
+        case 5:
+          this.sprt = new BABYLON.Sprite("soulSphere", this.sprtMng);
+          this.sprt.playAnimation(20, 23, true, 250);
+          break;
+        case 6:
+          this.sprt = new BABYLON.Sprite("megaSphere", this.sprtMng);
+          this.sprt.playAnimation(24, 27, true, 250);
+          break;
+        case 7:
+          this.sprt = new BABYLON.Sprite("smallBullets", this.sprtMng);
+          this.sprt.cellIndex = 28;
+          break;
+        case 8:
+          this.sprt = new BABYLON.Sprite("bulletBox", this.sprtMng);
+          this.sprt.cellIndex = 32;
+          break;
+        case 9:
+          this.sprt = new BABYLON.Sprite("shells", this.sprtMng);
+          this.sprt.cellIndex = 36;
+          break;
+        case 10:
+          this.sprt = new BABYLON.Sprite("shellBox", this.sprtMng);
+          this.sprt.cellIndex = 40;
+          break;
+          /*
+        case 11:
+          this.sprt = new BABYLON.Sprite("rocket", this.sprtMng);
+          this.sprt.cellIndex = 44;
+          break;
+        case 12:
+          this.sprt = new BABYLON.Sprite("rocketBox", this.sprtMng);
+          this.sprt.cellIndex = 48;
+          break;
+          */
+        case 13:
+          this.sprt = new BABYLON.Sprite("energyCell", this.sprtMng);
+          this.sprt.cellIndex = 52;
+          break;
+        case 14:
+          this.sprt = new BABYLON.Sprite("energyPack", this.sprtMng);
+          this.sprt.cellIndex = 56;
+          break;
+          /*
+        case 15:
+          this.sprt = new BABYLON.Sprite("chainsaw", this.sprtMng);
+          this.sprt.cellIndex = 60;
+          break;
+          */
+        case 16:
+          this.sprt = new BABYLON.Sprite("shotgun", this.sprtMng);
+          this.sprt.cellIndex = 64;
+          break;
+        case 17:
+          this.sprt = new BABYLON.Sprite("ssg", this.sprtMng);
+          this.sprt.cellIndex = 68;
+          break;
+        case 18:
+          this.sprt = new BABYLON.Sprite("chaingun", this.sprtMng);
+          this.sprt.cellIndex = 72;
+          break;
+        /*
+        case 19:
+          this.sprt = new BABYLON.Sprite("rocketLaucher", this.sprtMng);
+          this.sprt.cellIndex = 76;
+          break;
+        */
+        case 20:
+          this.sprt = new BABYLON.Sprite("plasmaRiffle", this.sprtMng);
+          this.sprt.cellIndex = 80;
+          break;
+        case 21:
+          this.sprt = new BABYLON.Sprite("bfg9k", this.sprtMng);
+          this.sprt.cellIndex = 84;
+          break;
+        case 22:
+          this.sprt = new BABYLON.Sprite("berzerk", this.sprtMng);
+          this.sprt.cellIndex = 88;
+          break;
+        case 23:
+          this.sprt = new BABYLON.Sprite("immunity", this.sprtMng);
+          this.sprt.playAnimation(92, 95, true, 250);
+          break;
+        case 24:
+          this.sprt = new BABYLON.Sprite("backpack", this.sprtMng);
+          this.sprt.cellIndex = 96;
+          break;
+        case 25:
+          this.sprt = new BABYLON.Sprite("redKey", this.sprtMng);
+          this.sprt.playAnimation(100, 101, true, 250);
+          break;
+        case 26:
+          this.sprt = new BABYLON.Sprite("blueKey", this.sprtMng);
+          this.sprt.playAnimation(104, 105, true, 250);
+          break;
+        case 27:
+          this.sprt = new BABYLON.Sprite("yellowKey", this.sprtMng);
+          this.sprt.playAnimation(108, 109, true, 250);
+          break;
         default:
           this.sprtMng = new BABYLON.SpriteManager("error", "../../../assets/textures/error.jpg",  3, {height: 32, width: 32}, scene);
           this.sprt = new BABYLON.Sprite("error", this.sprtMng);
