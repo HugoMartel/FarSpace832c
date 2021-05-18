@@ -48,8 +48,7 @@ export class GameService {
     private ngZone: NgZone,
     private menuService: MenuService,
     private windowRef: WindowRefService,
-    private terrainService: TerrainService, 
-    private uiService: GameUIService
+    private terrainService: TerrainService
   ) {
     this.frameCounter = 0;
     this.ground = [];
@@ -458,7 +457,6 @@ export class GameService {
       );
 
       this.createFPSScene(canvas, levelTEST);
-      //this.createPlanetScene(canvas);
 
       this.animate();
     });
@@ -480,7 +478,8 @@ export class GameService {
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
-    let player = new GamePlayerService(this.scene, this.canvas, this.uiService);
+    let uiService = new GameUIService(this.scene);
+    let player = new GamePlayerService(this.scene, this.canvas, uiService);
 
     //**********************
     //*       EVENTS       *
@@ -516,30 +515,50 @@ export class GameService {
                 this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
               break;
             case 'Digit1':
-              if (this.uiService.currentWeaponId !== 0)
-                this.uiService.changeWeapon(0);
+              if (uiService.currentWeaponId !== 0) {
+                uiService.changeWeapon(0, player);
+                uiService.swapSound.stop();
+                uiService.swapSound.play();
+              }
               break;
             case 'Digit2':
-              if (this.uiService.currentWeaponId !== 1)
-                this.uiService.changeWeapon(1);
+              if (uiService.currentWeaponId !== 1) {
+                uiService.changeWeapon(1, player);
+                uiService.swapSound.stop();
+                uiService.swapSound.play();
+              }
               break;
             case 'Digit3':
-              if (this.uiService.currentWeaponId !== 2) 
-                this.uiService.changeWeapon(2);
-              else 
-                this.uiService.changeWeapon(3);
+              if (uiService.currentWeaponId !== 2) {
+                uiService.changeWeapon(2, player);
+                uiService.swapSound.stop();
+                uiService.swapSound.play();
+              } else {
+                uiService.changeWeapon(3, player);
+                uiService.swapSound.stop();
+                uiService.swapSound.play();
+              }
               break;
             case 'Digit4':
-              if (this.uiService.currentWeaponId !== 4)
-                this.uiService.changeWeapon(4);
+              if (uiService.currentWeaponId !== 4) {
+                uiService.changeWeapon(4, player);
+                uiService.swapSound.stop();
+                uiService.swapSound.play();
+              }
               break;
             case 'Digit5':
-              if (this.uiService.currentWeaponId !== 5)
-                this.uiService.changeWeapon(5);
+              if (uiService.currentWeaponId !== 5) {
+                uiService.changeWeapon(5, player);
+                uiService.swapSound.stop();
+                uiService.swapSound.play();
+              }
               break;
             case 'Digit6':
-              if (this.uiService.currentWeaponId !== 6)
-                this.uiService.changeWeapon(6);
+              if (uiService.currentWeaponId !== 6) {
+                uiService.changeWeapon(6, player);
+                uiService.swapSound.stop();
+                uiService.swapSound.play();
+              }
               break;
           }
       }
@@ -770,14 +789,14 @@ export class GameService {
       }
 
       //* Weapon firing checks (a weapon has a maximum of 21 animation frames)
-      if (this.uiService.hasShot && 
-        this.uiService.currentWeapon.cellId <= this.uiService.currentWeaponAnimationFrames + this.uiService.currentWeaponId * 10
+      if (uiService.hasShot && 
+        uiService.currentWeapon.cellId <= uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10
         ) {
-        if (this.uiService.currentWeapon.cellId + 1 > this.uiService.currentWeaponAnimationFrames + this.uiService.currentWeaponId * 10) {
-          this.uiService.hasShot = false;
-          this.uiService.currentWeapon.cellId = this.uiService.currentWeaponId * 10;
+        if (uiService.currentWeapon.cellId + 1 > uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10) {
+          uiService.hasShot = false;
+          uiService.currentWeapon.cellId = uiService.currentWeaponId * 10;
         } else 
-          ++this.uiService.currentWeapon.cellId;
+          ++uiService.currentWeapon.cellId;
       }
     });
 

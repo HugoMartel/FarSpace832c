@@ -18,17 +18,13 @@ export class GamePlayerService {
   isImmune: boolean;
   frameSinceImmune: number;
   weaponList: Array<boolean>;
-  equipedWeapon: number;
+  equippedWeapon: number;
   fistSound: BABYLON.Sound;
   pistolSound: BABYLON.Sound;
-  /*
   shotgunSound: BABYLON.Sound;
-  SSGSound: BABYLON.Sound;
-  chaingunSound: BABYLON.Sound;
-  rocketSound: BABYLON.Sound;
+  ssgSound: BABYLON.Sound;
   plasmaSound: BABYLON.Sound;
   BFGSound: BABYLON.Sound;
-  */
   //note: we're using the camera position as player coord
   camera!:BABYLON.FreeCamera;
   sphere!: BABYLON.Mesh;
@@ -56,9 +52,9 @@ export class GamePlayerService {
     * |                2 | shotgun  |
     * |                3 | ssg      |
     * |                4 | chaingun |
-    * |                5 | rocket   |
-    * |                6 | plasma   |
-    * |                7 | BFG9K    |
+    * |                5 | plasma   |
+    * |                6 | BFG9K   |
+    * |                7 | rocket    |
     * |                8 | chainsaw |
     * +------------------+----------+
     */
@@ -72,7 +68,7 @@ export class GamePlayerService {
     * |         2 | blue    |
     * +-----------+---------+
     */
-    this.equipedWeapon = 1;
+    this.equippedWeapon = 0;
     //the player has no keys at the begining
     this.inventory = [false, false, false];
     /*
@@ -92,10 +88,10 @@ export class GamePlayerService {
     * |     2 | shotgun       |        2 |             1 |
     * |     3 | super shotgun |        2 |             2 |
     * |     4 | chaingun      |        1 |             1 |
-    * |     5 | rocket        |        3 |             1 |
-    * |     6 | plasma        |        4 |             1 |
-    * |     7 | BFG ??        |        4 |            60 |
-    * |     8 | chainsaw      |        0 |             0 |
+    * |     5 | plasma        |        4 |             1 |
+    * |     6 | BFG ??        |        4 |            60 |
+    * |     7 | rocket ??     |        3 |             1 |
+    * |     8 | chainsaw ??   |        0 |             0 |
     * +-------+---------------+----------+---------------+
 
     * +----------+----------+--------------+-------------------+
@@ -111,12 +107,32 @@ export class GamePlayerService {
     this.ammos = [127, 20, 0, 0, 0];
 
     // Sounds
-    this.fistSound = new BABYLON.Sound("fistSound", "assets/sound/fps/weapon/item.wav", scene, null, {
+    this.fistSound = new BABYLON.Sound("fistSound", "assets/sound/fps/weapon/fist.wav", scene, null, {
       loop: false,
       autoplay: false,
       volume: .5
     });
-    this.pistolSound = new BABYLON.Sound("pistolSound", "assets/sound/fps/weapon/item.wav", scene, null, {
+    this.pistolSound = new BABYLON.Sound("pistolSound", "assets/sound/fps/weapon/pistol.wav", scene, null, {
+      loop: false,
+      autoplay: false,
+      volume: .5
+    });
+    this.shotgunSound = new BABYLON.Sound("shotgunSound", "assets/sound/fps/weapon/shotgun.wav", scene, null, {
+      loop: false,
+      autoplay: false,
+      volume: .5
+    });
+    this.ssgSound = new BABYLON.Sound("ssgSound", "assets/sound/fps/weapon/ssg.wav", scene, null, {
+      loop: false,
+      autoplay: false,
+      volume: .5
+    });
+    this.plasmaSound = new BABYLON.Sound("plasmaSound", "assets/sound/fps/weapon/plasma.wav", scene, null, {
+      loop: false,
+      autoplay: false,
+      volume: .5
+    });
+    this.BFGSound = new BABYLON.Sound("BFGSound", "assets/sound/fps/weapon/BFG.wav", scene, null, {
       loop: false,
       autoplay: false,
       volume: .5
@@ -130,8 +146,8 @@ export class GamePlayerService {
     this.camera.attachControl(canvas, false);
     this.camera.keysUp = [90, 38]; // Z or UP Arrow
     this.camera.keysDown = [83, 40]; // S or DOWN ARROW
-    this.camera.keysLeft = [81]; // Q or LEFT ARROW
-    this.camera.keysRight = [68]; // D or RIGHT ARROW
+    this.camera.keysLeft = [81, 37]; // Q or LEFT ARROW
+    this.camera.keysRight = [68, 39]; // D or RIGHT ARROW
     //Add attachment controls
     //slowing down the camera speed
     this.camera.speed = 0.3;
@@ -197,55 +213,112 @@ export class GamePlayerService {
         return false;// The gun is already firing
 
       //fist/chainsaw
-      if (this.equipedWeapon == 0) {
+      if (this.equippedWeapon == 0) {
         //the shot is doable
         gameUIService.hasShot = true;
-        
+
+        //Check if the shot did hit something eventually
+        let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
+
+        if (pickInfo !== null && pickInfo.hit) {
+          level.enemy.forEach(enemy => {
+            console.log(Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z))
+            if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt && 
+                Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= 2.5) {
+              console.log("Fist hit at " + enemy.coord + ", hp: " + enemy.health);
+            }
+          });
+        }
+
+        this.fistSound.play();
+
         return true;
       }
       //shooting the pistol or the chaingun
-      else if ((this.equipedWeapon == 1 || this.equipedWeapon == 3) && this.ammos[1] > 0) { 
-        //minus the ammo shooted
-        this.ammos[1] -=1;
-
+      else if ((this.equippedWeapon == 1 || this.equippedWeapon == 4) && this.ammos[1] > 0) { 
         //the shot is doable
+        this.ammos[1] -=1;
         gameUIService.hasShot = true;
+
         //Check if the shot did hit something eventually
         let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
 
         if (pickInfo !== null && pickInfo.hit) {
           level.enemy.forEach(enemy => {
             if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt) {
-              console.log("G TOUCHÉ!!!");
+              console.log((this.equippedWeapon == 1 ? "Pistol" : "Chaingun") + " hit at " + enemy.coord + ", hp: " + enemy.health);
             }
           });
         }
-        
+
+        this.pistolSound.play();
+
         return true;
       }
       //shotgun
-      else if (this.equipedWeapon == 2 && this.ammos[2] > 0){
+      else if (this.equippedWeapon == 2 && this.ammos[2] > 0){
+        //the shot is doable
         this.ammos[2] -=1;
+        gameUIService.hasShot = true;
+
+        //TODO
+
+        this.shotgunSound.play();
+
         return true;
       }
       //super shotgun
-      else if (this.equipedWeapon == 4 && this.ammos[2] > 1) {
+      else if (this.equippedWeapon == 3 && this.ammos[2] > 1) {
+        //the shot is doable
         this.ammos[2] -=2;
+        gameUIService.hasShot = true;
+
+        //TODO
+
+        this.ssgSound.play();
+
         return true;
       }
+      /*
       //rocket
-      else if (this.equipedWeapon == 5 && this.ammos[3] > 0) {
+      else if (this.equippedWeapon == 7 && this.ammos[3] > 0) {
+        //the shot is doable
         this.ammos[3] -= 1;
+
         return true;
       }
+      */
       //plasma
-      else if (this.equipedWeapon == 6 && this.ammos[4] > 0) {
+      else if (this.equippedWeapon == 5 && this.ammos[4] > 0) {
+        //the shot is doable
         this.ammos[4] -= 1;
+        gameUIService.hasShot = true;
+
+        //Check if the shot did hit something eventually
+        let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
+
+        if (pickInfo !== null && pickInfo.hit) {
+          level.enemy.forEach(enemy => {
+            if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt) {
+              console.log("Plasma hit at " + enemy.coord + ", hp: " + enemy.health);
+            }
+          });
+        }
+
+        this.plasmaSound.play();
+
         return true
       }
       //BFG
-      else if (this.equipedWeapon == 7 && this.ammos[4] > 59) {
+      else if (this.equippedWeapon == 6 && this.ammos[4] > 59) {
+        //the shot is doable
         this.ammos[4] -= 60;
+        gameUIService.hasShot = true;
+
+        //TODO
+
+        this.BFGSound.play();
+
         return true
       }
       //no ammo (or unknown weapon (shouldn't happen))

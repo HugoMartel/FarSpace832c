@@ -74,7 +74,7 @@ export class GamePickupsService {
       switch(this.type){
         //if type isn't good, then error
         default:
-          this.sprtMng = new BABYLON.SpriteManager("error", "../../../assets/textures/error.jpg",  3, {height: 32, width: 32}, scene);
+          this.sprtMng = new BABYLON.SpriteManager("error", "assets/textures/error.jpg",  3, {height: 32, width: 32}, scene);
           this.sprt = new BABYLON.Sprite("error", this.sprtMng);
           break;
       }
@@ -88,19 +88,19 @@ export class GamePickupsService {
       this.remove = true;
       this.sprt.dispose();
       //loading the sound:
-      if(this.type < 5 || (this.type > 6 && this.type < 15) || this.type == 24) this.sound = new BABYLON.Sound("music", "../../../assets/sound/fps/pickup/item.wav", scene,  () => {
+      if(this.type < 5 || (this.type > 6 && this.type < 15) || this.type == 24) this.sound = new BABYLON.Sound("music", "assets/sound/fps/pickup/item.wav", scene,  () => {
         this.sound.play();
       }, {
         loop: false,
         autoplay: false
       });
-      else if(this.type == 5 || this.type == 6 || this.type == 22 || this.type == 23) this.sound = new BABYLON.Sound("music", "../../../assets/sound/fps/pickup/powerup.wav", scene, () => {
+      else if(this.type == 5 || this.type == 6 || this.type == 22 || this.type == 23) this.sound = new BABYLON.Sound("music", "assets/sound/fps/pickup/powerup.wav", scene, () => {
         this.sound.play();
       }, {
         loop: false,
         autoplay: false
       });
-      else this.sound = new BABYLON.Sound("music", "../../../assets/sound/fps/pickup/weapon.wav", scene, () => {
+      else this.sound = new BABYLON.Sound("music", "assets/sound/fps/pickup/weapon.wav", scene, () => {
         this.sound.play();
       }, {
         loop: false,
@@ -193,12 +193,12 @@ export class GamePickupsService {
         //chainsaw
         case 15:
           player.weaponList[8] = true;
-          player.equipedWeapon = 8;
+          player.equippedWeapon = 8;
           break;
         //shotgun
         case 16:
           player.weaponList[2] = true;
-          player.equipedWeapon = 2;
+          player.equippedWeapon = 2;
           if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) player.ammos[2] += 8;
           else if(player.hasBackPack) player.ammos[2] = 100;
           else player.ammos[2] = 50;
@@ -206,7 +206,7 @@ export class GamePickupsService {
         //ssg
         case 17:
           player.weaponList[3] = true;
-          player.equipedWeapon = 3;
+          player.equippedWeapon = 3;
           if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) player.ammos[2] += 8;
           else if(player.hasBackPack) player.ammos[2] = 100;
           else player.ammos[2] = 50;
@@ -214,7 +214,7 @@ export class GamePickupsService {
         //chaingun
         case 18:
           player.weaponList[4] = true;
-          player.equipedWeapon = 4;
+          player.equippedWeapon = 4;
           if((!player.hasBackPack && player.ammos[1] + 20 <= 200) || (player.hasBackPack && player.ammos[1] + 20 <= 400)) player.ammos[1] += 20;
           else if(player.hasBackPack) player.ammos[1] = 400;
           else player.ammos[1] = 200;
@@ -222,7 +222,7 @@ export class GamePickupsService {
         //rocket Launcher
         case 19:
           player.weaponList[5] = true;
-          player.equipedWeapon = 5;
+          player.equippedWeapon = 5;
           if((!player.hasBackPack && player.ammos[3] + 2 <= 50) || (player.hasBackPack && player.ammos[3] + 2 <= 100)) player.ammos[3] += 2;
           else if(player.hasBackPack) player.ammos[3] = 100;
           else player.ammos[3] = 50;
@@ -230,7 +230,7 @@ export class GamePickupsService {
         //plasma
         case 20:
           player.weaponList[6] = true;
-          player.equipedWeapon =6;
+          player.equippedWeapon =6;
           if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) player.ammos[4] += 40;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;
@@ -238,7 +238,7 @@ export class GamePickupsService {
         //BFG
         case 21:
           player.weaponList[7] = true;
-          player.equipedWeapon = 7;
+          player.equippedWeapon = 7;
           if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) player.ammos[4] += 40;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;

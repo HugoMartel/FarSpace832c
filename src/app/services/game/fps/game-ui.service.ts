@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
+import { GamePlayerService } from './player/game-player.service';
 
 
 @Injectable({
@@ -11,11 +12,12 @@ export class GameUIService {
   currentWeapon:GUI.Image;
   currentWeaponId:number;
   currentWeaponAnimationFrames:number;
+  swapSound:BABYLON.Sound;
   hasShot:boolean;
   displayUI:Function;
   changeWeapon:Function;
 
-  constructor() {
+  constructor(scene: BABYLON.Scene) {
     this.hasShot = false;
     this.currentWeapon = new GUI.Image("weapons", "assets/textures/weapons.png");
     //width and height of the sprite
@@ -30,7 +32,12 @@ export class GameUIService {
     this.currentWeaponId = 0;
     this.currentWeaponAnimationFrames = 3;
     //select the cell in the animation we want to display when not shooting
-    this.currentWeapon.cellId = this.currentWeaponId * 18;
+    this.currentWeapon.cellId = 0;
+    this.swapSound = new BABYLON.Sound("BFGSound", "assets/sound/fps/weapon/swap.wav", scene, null, {
+      loop: false,
+      autoplay: false,
+      volume: .5
+    });
 
 
     /**
@@ -114,39 +121,36 @@ export class GameUIService {
      * function to display the pistol need to create a new one for every weapon in particular for one handed weapon and two handed weapon
      * @param id weapon id to change to
      */
-    this.changeWeapon = (id:number) => {
+    this.changeWeapon = (id:number, player:GamePlayerService) => {
       //select the line in the file we want to display
       this.currentWeaponId = id;
+      player.equippedWeapon = id;
+      this.currentWeapon.cellId = 10 * id;
+
       switch (id) {
         case 0:
-          this.currentWeapon.cellId = 0;
           this.currentWeaponAnimationFrames = 3;
           break;
         case 1:
-          this.currentWeapon.cellId = 10;
           this.currentWeaponAnimationFrames = 5;
           break;
         case 2:
-          this.currentWeapon.cellId = 20;
           this.currentWeaponAnimationFrames = 5;
           break;
         case 3:
-          this.currentWeapon.cellId = 30;
           this.currentWeaponAnimationFrames = 9;
           break;
         case 4:
-          this.currentWeapon.cellId = 40;
           this.currentWeaponAnimationFrames = 2;
           break;
         case 5:
-          this.currentWeapon.cellId = 50;
           this.currentWeaponAnimationFrames = 2;
           break;
         case 6:
-          this.currentWeapon.cellId = 60;
           this.currentWeaponAnimationFrames = 3;
           break;
         default:
+          player.equippedWeapon = 0;
           this.currentWeapon.cellId = 0;
           this.currentWeaponAnimationFrames = 3;
           break;
