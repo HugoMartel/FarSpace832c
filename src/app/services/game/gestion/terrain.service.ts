@@ -14,48 +14,44 @@ export class TerrainService{
   }
 
   public generateTerrain(alpha: number, subsin: number, size_x: number, size_y: number) {
-    this.terrainMatrix = this.matrixService.constructMatrix(size_x+2, size_y+2);
+    this.terrainMatrix = this.matrixService.constructMatrix(size_x, size_y);
     //this.terrainMatrixTest = this.matrixService.constructMatrix(size_x , size_y);
     let x: number[] = [];
-    x = this.IFSin(alpha/4, subsin, size_x+2);
+    x = this.IFSin(alpha/4, subsin, size_x);
     let y: number[] = [];
-    y = this.IFSin(alpha/4, subsin, size_y+2);
-
+    y = this.IFSin(alpha/4, subsin, size_y);
     //console.log("IFX = ", x);
     //console.log("IFY = ", y);
-
     for (let i = 0; i < x.length; i++) {
       for (let j = 0; j < y.length; j++) {
-        this.terrainMatrix[i][j] = Math.floor(x[i]+y[j]+alpha/2);
+        this.terrainMatrix[i][j] = x[i]+y[j]+alpha/2;
         //this.terrainMatrixTest[i][j] = 30;
       }
     }
 
     for (let k = 0; k < 50; k++) {
-
-      for (let i = 1; i < x.length-1; i++) {
-        for (let j = 1; j < y.length-1; j++) {
-          this.Errode(i, j);
-        }
-      }
-
-      for (let i = 0; i < x.length; i += x.length-1) {
+      for (let i = 0; i < x.length; i++) {
         for (let j = 0; j < y.length; j++) {
-          this.ErrodeBorder(i, j, size_x , size_y, alpha);
+          this.ErrodeLight(i, j, size_x , size_y, alpha);
         }
       }
-      for (let i = 0; i < x.length; i ++) {
-        for (let j = 0; j < y.length; j += y.length-1) {
-          this.ErrodeBorder(i, j, size_x , size_y, alpha);
-        }
-      }
+    }
 
+    for (let i = 0; i < x.length; i++) {
+      for (let j = 0; j < y.length; j++) {
+        this.terrainMatrix[i][j] = Math.floor(this.terrainMatrix[i][j]);
+      }
+    }
+    for (let i = 0; i < x.length; i++) {
+      for (let j = 0; j < y.length; j++) {
+        this.CheckSingle(i, j, size_x , size_y);
+      }
     }
 
     return this.terrainMatrix;
   }
 
-  /*
+  //Original scaling, got a better one now
   private ScalNum(alpha: number, subdiv: number) {
     let result: number[] = [];
     let base: number = alpha/subdiv;
@@ -65,8 +61,8 @@ export class TerrainService{
     }
     return result;
   }
-  */
 
+  //Simple, no fancy, just as we need
   private RdScal(alpha: number, subdiv: number) {
     let result: number[] = [];
     let rest: number = alpha;
@@ -154,6 +150,7 @@ export class TerrainService{
     return result;
   }
 
+  //do not use that shit, it will consume your computer
   private Errode(posX: number, posY: number){//do not use on border
     let deepPot: number = 0;
     let voisinPot: number[] = [];
@@ -188,6 +185,7 @@ export class TerrainService{
     }
   }
 
+  //do not use that shit, it will consume your computer
   private ErrodeBorder(posX: number, posY: number, maxX: number, maxY: number, alpha: number){
     let deepPot: number = 0;
     let voisinPot: any[] = [];
@@ -283,4 +281,57 @@ export class TerrainService{
 
   }
 
+  private ErrodeLight(posX: number, posY: number, maxX: number, maxY: number, alpha: number){
+    let newX: number = Math.floor(Math.random()*5)-2+posX;
+    let newY: number = Math.floor(Math.random()*5)-2+posY;
+
+    if (newX >= maxX || newX < 0 || newY >= maxY || newY < 0) {
+      //console.log("(X;Y) = (", posX, ";", posY, ") = ", this.terrainMatrix[posX][posY], " => (nX;nY) = (", newX, ";", newY, ")");
+      if (this.terrainMatrix[posX][posY] > 3*alpha/4) {
+        this.terrainMatrix[posX][posY] += Math.random()-1;
+      }else if (this.terrainMatrix[posX][posY] < alpha/4) {
+        this.terrainMatrix[posX][posY] += Math.random();
+      }else {
+        this.terrainMatrix[posX][posY] += Math.random()*2-1;
+      }
+      //console.log("Apply : (X;Y) = (", posX, ";", posY, ") = ", this.terrainMatrix[posX][posY], " => (nX;nY) = (", newX, ";", newY, ")");
+    }else {
+      let diffZ: number = this.terrainMatrix[newX][newY]-this.terrainMatrix[posX][posY];
+
+      if (diffZ < 0) {
+        //console.log("(X;Y) = (", posX, ";", posY, ") = ", this.terrainMatrix[posX][posY], " => (nX;nY) = (", newX, ";", newY, ") = ", this.terrainMatrix[newX][newY]);
+        //console.log("diffZ = ", diffZ);
+        this.terrainMatrix[newX][newY] -= diffZ/3;
+        this.terrainMatrix[posX][posY] += diffZ/3;
+        //console.log("Aplly : (X;Y) = (", posX, ";", posY, ") = ", this.terrainMatrix[posX][posY], " => (nX;nY) = (", newX, ";", newY, ") = ", this.terrainMatrix[newX][newY]);
+      }
+    }
+  }
+
+  private CheckSingle(posX: number, posY: number, maxX: number, maxY: number){
+    let checklist: number[] = [-1, 1];
+    let relatProx: number = 2;
+    for (let i of checklist) {
+      if (relatProx != 0) {
+        if (posX+i < maxX && posX+i >= 0) {
+          let diffZ: number = this.terrainMatrix[posX+i][posY] - this.terrainMatrix[posX][posY];
+          if (diffZ != 0) {diffZ = diffZ/Math.abs(diffZ);}
+          if (relatProx != 2 && relatProx != diffZ) {relatProx = 0;}
+          else {relatProx = diffZ;}
+        }
+      }
+    }
+    for (let j of checklist) {
+      if (relatProx != 0) {
+        if (posY+j < maxY && posY+j >= 0) {
+          let diffZ: number = this.terrainMatrix[posX][posY+j] - this.terrainMatrix[posX][posY];
+          if (diffZ != 0) {diffZ = diffZ/Math.abs(diffZ);}
+          if (relatProx != 2 && relatProx != diffZ) {relatProx = 0;}
+          else {relatProx = diffZ;}
+        }
+      }
+    }
+    if (relatProx > 0) {this.terrainMatrix[posX][posY] += 1;}
+    else if (relatProx < 0) {this.terrainMatrix[posX][posY] -= 1;}
+  }
 }

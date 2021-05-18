@@ -447,17 +447,14 @@ export class GameService {
     console.log(testColorPalette);
 
 
-    for (let x = 1; x < this.terr2Matrix.length-1; x++) {
-      for (let y = 1; y < this.terr2Matrix[x].length-1; y++) {
+    for (let x = 0; x < this.terr2Matrix.length; x++) {
+      for (let y = 0; y < this.terr2Matrix[x].length; y++) {
         //let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
         let instanceTest:BABYLON.InstancedMesh = this.GroundBoxes.createInstance("tplane " + (x*y+y));
         instanceTest.position.x = x;
         instanceTest.position.z = y;
         //instanceTest.position.y = this.terr2Matrix[x][y];
         instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
-        if (this.terr2Matrix[x][y] == 0) {
-          console.log("test RGB : ", testColorPalette[this.terr2Matrix[x][y]], " 0 ", testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
-        }
         instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
       }
     }
