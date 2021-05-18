@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
+import * as stuff from '../randomFunctions/random-functions.service'
 import {GamePlayerService} from '../player/game-player.service';
 //import { SSL_OP_NO_QUERY_MTU } from 'node:constants';
 //TODO: create this shit
@@ -52,6 +53,14 @@ export class GameFireballService {
         player.applyDamage(20);
         this.toMove = false;
         this.sprt.stopAnimation();
+        let volume = 1 / stuff.distance(this.sprt.position ,player.camera.position);
+        let sound = new BABYLON.Sound("music", "assets/sound/fps/enemies/imp/fireballHit.wav", scene, () => {
+          sound.play();
+        }, {
+          loop: false,
+          autoplay: false,
+          volume: volume
+        }); 
         this.sprt.disposeWhenFinishedAnimating = true;
         this.sprt.playAnimation(20, 23, false, 100);
       }
@@ -62,9 +71,17 @@ export class GameFireballService {
         //if touching a wall 
         if(hit?.pickedMesh != null && hit?.pickedMesh.position.x != null && Math.sqrt(Math.pow(this.coord[0] - hit?.pickedMesh?.position.x, 2) + Math.pow(this.coord[1] - hit?.pickedMesh?.position.z, 2)) < 0.1){
           this.toMove = false;
+          let volume = 1 / stuff.distance(hit?.pickedMesh?.position, this.sprt.position);
+          let sound = new BABYLON.Sound("music", "assets/sound/fps/enemies/imp/fireballHit.wav", scene, () => {
+            sound.play();
+          }, {
+            loop: false,
+            autoplay: false,
+            volume: volume
+          }); 
           this.sprt.stopAnimation();
           this.sprt.disposeWhenFinishedAnimating = true;
-          this.sprt.playAnimation(20, 23, false, 100,);
+          this.sprt.playAnimation(20, 23, false, 100);
         }
         //moving the mesh
         else{

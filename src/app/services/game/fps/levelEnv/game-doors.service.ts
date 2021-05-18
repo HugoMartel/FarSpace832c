@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 import { GamePlayerService } from '../player/game-player.service'
-
+import * as stuff from '../randomFunctions/random-functions.service'
 @Injectable({
   providedIn: 'root'
 })
@@ -50,6 +50,7 @@ export class GameDoorsService {
 
     this.init = (scene: BABYLON.Scene) => {
       this.mesh = BABYLON.MeshBuilder.CreateBox("door", {depth: 0.25, width :3, height :3}, scene);
+      this.mesh.metadata = "door";
       let material = new BABYLON.StandardMaterial("doorMat", scene);
       switch(this.env) {
         default:
@@ -83,21 +84,24 @@ export class GameDoorsService {
         this.toOpen = true;
       }
     }
-    this.closeSound = (scene: BABYLON.Scene) => {
+    this.closeSound = (scene: BABYLON.Scene, player: GamePlayerService) => {
+      let volume = 1 / stuff.distance(player.camera.position, this.mesh.position);  
       let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/doors/longDoorClosing.wav", scene, () => {
         sound.play();
       }, {
         loop: false,
-        autoplay: false
+        autoplay: false,
+        volume: volume
       }); 
     }
 
-    this.openSound = (scene: BABYLON.Scene) => {
+    this.openSound = (scene: BABYLON.Scene, player: GamePlayerService) => {
       let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/doors/longDoorOpening.wav", scene, () => {
         sound.play();
       }, {
         loop: false,
-        autoplay: false
+        autoplay: false,
+        volume: 0.6
       });
     }
   }
