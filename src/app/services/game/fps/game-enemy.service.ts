@@ -51,7 +51,7 @@ export class GameEnemyService {
       if(this.mesh !== undefined && this.sprtMng !== undefined){
         let enemyMat1 = new BABYLON.StandardMaterial("Emat", scene);
         enemyMat1.emissiveColor = BABYLON.Color3.FromHexString('#ff9900');
-        enemyMat1.specularPower = 64;
+        enemyMat1.specularPower = 128;
         enemyMat1.alpha = 0;
         this.mesh.position = new BABYLON.Vector3(this.coord[0], 0.75, this.coord[1]);
         this.mesh.checkCollisions = true;

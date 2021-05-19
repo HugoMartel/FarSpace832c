@@ -3,6 +3,7 @@ import * as BABYLON from '@babylonjs/core';
 
 import { GameUIService } from '../game-ui.service';
 import { GameLevelService } from '../game-level.service';
+import { Vector2 } from '@babylonjs/core';
 
 //TODO: add imunty & bersek
 //TODO: add a function to end the the game when no health 
@@ -25,6 +26,7 @@ export class GamePlayerService {
   ssgSound: BABYLON.Sound;
   plasmaSound: BABYLON.Sound;
   BFGSound: BABYLON.Sound;
+  shotPuff: BABYLON.SpriteManager;
   //note: we're using the camera position as player coord
   camera!:BABYLON.FreeCamera;
   sphere!: BABYLON.Mesh;
@@ -137,6 +139,10 @@ export class GamePlayerService {
       autoplay: false,
       volume: .5
     });
+
+    // Weapon particles
+    this.shotPuff = new BABYLON.SpriteManager("shotPuffManager", "assets/textures/error.jpg", 3, {height: 64, width: 40}, scene);
+    this.shotPuff.isPickable = false;
     
 
     this.camera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 1, -3), scene);
@@ -216,6 +222,13 @@ export class GamePlayerService {
       if (this.equippedWeapon == 0) {
         //the shot is doable
         gameUIService.hasShot = true;
+        let isHittingEnemy = false;
+
+        // Particle
+        let puff = new BABYLON.Sprite("enemy", this.shotPuff);
+        puff.height = 1.5;
+        puff.width = 1.5;
+        puff.isPickable = false;
 
         //Check if the shot did hit something eventually
         let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
@@ -224,10 +237,23 @@ export class GamePlayerService {
           level.enemy.forEach(enemy => {
             if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt && 
                 Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= 3.) {
-              console.log("Fist hit at " + enemy.coord + ", hp: " + enemy.health);
+                  isHittingEnemy = true;
+              console.log("Fist hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);
+              puff.position = enemy.sprt.position;
+              
             }
           });
-        }
+        } 
+
+        if (!isHittingEnemy)
+          puff.position = new BABYLON.Vector3(
+            this.camera.position.x + 3.0 * (BABYLON.Vector3.Dot(new BABYLON.Vector3(0, 0, 1), this.camera.position)), 
+            0, 
+            this.camera.position.z + 3.0 * (BABYLON.Vector3.Dot(new BABYLON.Vector3(0, 0, 1), this.camera.position))
+          );
+
+          puff.playAnimation(0, 3, false, 0, () => puff.dispose());
+
 
         this.fistSound.play();
 
@@ -241,6 +267,7 @@ export class GamePlayerService {
 
         //Check if the shot did hit something eventually
         let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
+        //let pickInfo = scene.pick(Math.round(canvas.width / 2), Math.round(canvas.height / 2), (meshHit) => meshHit.metadata !== "enemy", false, this.camera);
 
         if (pickInfo !== null && pickInfo.hit) {
           level.enemy.forEach(enemy => {
@@ -262,8 +289,8 @@ export class GamePlayerService {
 
         //Check if the shots (5 line) did hit something eventually
         let pick = (x:number,y:number) => scene.pickSprite(x, y, undefined, false, this.camera);
-        for (let i = -20; i <= 20; i+=10) {
-          let pickInfo = pick(Math.round(i + canvas.width / 2), Math.round(canvas.height / 2));
+        for (let i = -2; i <= 2; ++i) {
+          let pickInfo = pick(Math.round(i*canvas.width / 150 + canvas.width / 2), Math.round(canvas.height / 2));
           if (pickInfo !== null && pickInfo.hit) {
             level.enemy.forEach(enemy => {
               if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt) {
@@ -295,10 +322,10 @@ export class GamePlayerService {
           }
         }
         //Actual shots
-        pick(Math.round(-10 + canvas.width / 2), Math.round(-10 + canvas.height / 2));
-        pick(Math.round(-10 + canvas.width / 2), Math.round(+10 + canvas.height / 2));
-        pick(Math.round(10 + canvas.width / 2), Math.round(-10 + canvas.height / 2));
-        pick(Math.round(10 + canvas.width / 2), Math.round(10 + canvas.height / 2));
+        pick(Math.round(-canvas.width / 125 + canvas.width / 2), Math.round(-canvas.width / 125 + canvas.height / 2));
+        pick(Math.round(-canvas.width / 125 + canvas.width / 2), Math.round(+canvas.width / 125 + canvas.height / 2));
+        pick(Math.round(canvas.width / 125 + canvas.width / 2), Math.round(-canvas.width / 125 + canvas.height / 2));
+        pick(Math.round(canvas.width / 125 + canvas.width / 2), Math.round(canvas.width / 125 + canvas.height / 2));
         pick(Math.round(canvas.width / 2), Math.round(canvas.height / 2));
         
         
