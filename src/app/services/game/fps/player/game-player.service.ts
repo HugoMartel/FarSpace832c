@@ -27,6 +27,7 @@ export class GamePlayerService {
   plasmaSound: BABYLON.Sound;
   BFGSound: BABYLON.Sound;
   shotPuff: BABYLON.SpriteManager;
+  shooting: boolean;
   //note: we're using the camera position as player coord
   camera!:BABYLON.FreeCamera;
   sphere!: BABYLON.Mesh;
@@ -71,6 +72,7 @@ export class GamePlayerService {
     * +-----------+---------+
     */
     this.equippedWeapon = 0;
+    this.shooting = false;
     //the player has no keys at the begining
     this.inventory = [false, false, false];
     /*
@@ -112,32 +114,32 @@ export class GamePlayerService {
     this.fistSound = new BABYLON.Sound("fistSound", "assets/sound/fps/weapon/fist.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.pistolSound = new BABYLON.Sound("pistolSound", "assets/sound/fps/weapon/pistol.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.shotgunSound = new BABYLON.Sound("shotgunSound", "assets/sound/fps/weapon/shotgun.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.ssgSound = new BABYLON.Sound("ssgSound", "assets/sound/fps/weapon/ssg.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.plasmaSound = new BABYLON.Sound("plasmaSound", "assets/sound/fps/weapon/plasma.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.BFGSound = new BABYLON.Sound("BFGSound", "assets/sound/fps/weapon/BFG.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
 
     // Weapon particles
@@ -218,6 +220,8 @@ export class GamePlayerService {
       if (gameUIService.hasShot) 
         return false;// The gun is already firing
 
+      console.log("bordel");
+
       //fist/chainsaw
       if (this.equippedWeapon == 0) {
         //the shot is doable
@@ -233,6 +237,13 @@ export class GamePlayerService {
 
         //Check if the shot did hit something eventually
         let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
+        let ray = this.camera.getForwardRay(3);
+        let rayHelper = new BABYLON.RayHelper(ray);
+        rayHelper.show(scene);
+
+        let hit = scene.pickWithRay(ray);
+        console.log(hit);
+        
 
         if (pickInfo !== null && pickInfo.hit) {
           level.enemy.forEach(enemy => {
@@ -248,11 +259,8 @@ export class GamePlayerService {
         } 
 
         if (!isHittingEnemy) {
-          puff.position = new BABYLON.Vector3(
-            this.camera.position.x + 3.0 * (BABYLON.Vector3.Dot(new BABYLON.Vector3(0, 0, 1), this.camera.position)), 
-            0, 
-            this.camera.position.z + 3.0 * (BABYLON.Vector3.Dot(new BABYLON.Vector3(0, 0, 1), this.camera.position))
-          );
+          console.log(this.camera.rotation);
+          puff.position = this.camera.getFrontPosition(3);
           puff.playAnimation(0, 5, false, 50, () => puff.dispose());
         }
 

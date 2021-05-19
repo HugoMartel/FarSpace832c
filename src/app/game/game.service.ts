@@ -476,6 +476,7 @@ export class GameService {
     // Create the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
     this.engine.displayLoadingUI();
+    let animationFrameSkipper = 0;
 
     // Create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
@@ -487,13 +488,21 @@ export class GameService {
     //**********************
     //*       EVENTS       *
     //**********************
-    let mouseEvent = (e:Event) => {
-      e.preventDefault();
-      //Shoot case
-      player.shoot(this.scene, level, this.canvas);
+    let mouseEvent = (ptInfo:BABYLON.PointerInfo) => {
+      ptInfo.event.preventDefault();
+
+      // Detect the event type and if the input is a left click
+      //! BABYLON.PointerInput.LeftClick means right click...)
+      if (ptInfo.type === BABYLON.PointerEventTypes.POINTERDOWN && ptInfo.event.button === 0) {
+        player.shooting = true;
+        player.shoot(this.scene, level, this.canvas);
+      } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 0) {
+        player.shooting = false;
+      }
     };
     
     let keyboardEvent = (kbInfo:BABYLON.KeyboardInfo) => {
+      kbInfo.event.preventDefault();
       switch (kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
           switch (kbInfo.event.code) {  
@@ -570,7 +579,7 @@ export class GameService {
     };
 
     // On click event, request pointer lock
-    this.scene.onPointerDown = (evt:Event) => {
+    this.canvas.addEventListener('pointerdown', (evt:Event) => {
       evt.preventDefault();
 	  	//true/false check if we're locked, faster than checking pointerlock on each single click.
       if (document.pointerLockElement !== this.canvas) {
@@ -578,13 +587,13 @@ export class GameService {
         this.canvas.requestPointerLock();
 
         /* Add the mouse events */
-        this.canvas.addEventListener('click', mouseEvent);
+        this.scene.onPointerObservable.add(mouseEvent);
 
         /* Add the keyboard events */
         this.scene.onKeyboardObservable.add(keyboardEvent);
 
       }
-    };
+    });
 
     //**********************
     //*       SKYBOX       *
@@ -793,15 +802,24 @@ export class GameService {
         i.check(player, this.scene);
       }
 
-      //* Weapon firing checks (a weapon has a maximum of 21 animation frames)
-      if (uiService.hasShot && 
-        uiService.currentWeapon.cellId <= uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10
-        ) {
-        if (uiService.currentWeapon.cellId + 1 > uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10) {
-          uiService.hasShot = false;
-          uiService.currentWeapon.cellId = uiService.currentWeaponId * 10;
-        } else 
-          ++uiService.currentWeapon.cellId;
+      if (animationFrameSkipper != 4)
+        ++animationFrameSkipper;
+      else {
+        //* Weapon firing checks (a weapon has a maximum of 21 animation frames)
+        if (uiService.hasShot && 
+          uiService.currentWeapon.cellId <= uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10
+          ) {
+          if (uiService.currentWeapon.cellId + 1 > uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10) {
+            uiService.currentWeapon.cellId = uiService.currentWeaponId * 10;
+            if (player.shooting) {
+              player.shoot(this.scene, level, this.canvas);
+            } else
+              uiService.hasShot = false;
+          } else 
+            ++uiService.currentWeapon.cellId;
+
+          animationFrameSkipper = 0;//Reset the timing if the animation is triggered
+        }
       }
     });
 
