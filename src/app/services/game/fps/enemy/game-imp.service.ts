@@ -37,7 +37,7 @@ export class GameImpService extends GameEnemyService {
     this.setup = (scene: BABYLON.Scene):void => {
       this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/AllImpAnimation.png", 3, {height: 65, width: 65}, scene);
       this.sprtMng.isPickable = true;
-      this.mesh = BABYLON.MeshBuilder.CreateBox("body", {size: 1, width: 1, height: 0.5}, scene);//! wtf is it attached to anything ????
+      this.mesh = BABYLON.MeshBuilder.CreateSphere("enemy", {diameterX: 0.5, diameterY: 1, diameterZ: 0.5});
       this.mesh.metadata = "enemy";
       this.mesh.isPickable = true;
     }

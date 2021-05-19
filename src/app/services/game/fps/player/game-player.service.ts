@@ -125,7 +125,7 @@ export class GamePlayerService {
     this.sphere.position.z = this.camera.position.z;
     this.sphere.position.y = 0.5;
     this.sphere.isPickable = true;
-    this.sphere.metadata = "Player";
+    this.sphere.metadata = "player";
     // Add the camera to the active cameras
     if (scene.activeCameras !== null) {
       scene.activeCameras.push(this.camera);

@@ -72,13 +72,13 @@ export class GameDoorsService {
       if(this.rotate) this.mesh.rotation.y += Math.PI / 2
     }
 
-    this.open = (player: GamePlayerService, scene: BABYLON.Scene) => {
-      let distance = Math.sqrt(Math.pow(this.mesh.position.x - player.camera.position.x, 2) + Math.pow(this.mesh.position.z - player.camera.position.z , 2));
+    this.open = (coords: BABYLON.Vector3, keys: Array<boolean>, scene: BABYLON.Scene) => {
+      let distance = Math.sqrt(Math.pow(this.mesh.position.x - coords.x, 2) + Math.pow(this.mesh.position.z - coords.z , 2));
       if(distance > 3) return;
       //tODO: add switch:
       else if(this.switchNeeded) return;
       //TODO: add message for the player
-      else if(this.key != -1 && !player.inventory[this.key]) return;
+      else if(this.key != -1 && !keys[this.key]) return;
       //else opening the door
       else{
         this.toOpen = true;

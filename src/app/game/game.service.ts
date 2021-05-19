@@ -439,10 +439,12 @@ export class GameService {
         // coordX, coordZ
         [1, 4],
         [1, 3],
+        [1, 5],
         [2, 5],
+        [3, 5],
         [12, 13],
-        [12, 14],[12, 15], [12, 16], [12, 17], [12, 18],
-        [16, 13], [16, 14], [16, 15], [16, 16], [16, 17]
+        [12, 14],[12, 15], [12, 16], [12, 17], [12, 18], [12, 19],
+        [16, 13], [16, 14], [16, 15], [16, 16], [16, 17], [16, 18], [16, 19],
       ];
 
       let switchesTest = [
@@ -480,6 +482,16 @@ export class GameService {
 
     let player = new GamePlayerService(this.scene, this.canvas, this.uiService);
 
+    //Add the camera, to be shown as a cone and surrounding collision volume
+    var viewCamera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 8, -2), this.scene);
+    viewCamera.parent = player.camera;
+    viewCamera.setTarget(new BABYLON.Vector3(0, -0.0001, 1));
+    if(this.scene != null && this.scene.activeCameras != null){
+      this.scene.activeCameras.push(viewCamera);
+      this.scene.activeCameras.push(player.camera);
+    }
+    viewCamera.viewport = new BABYLON.Viewport(0, 0.5, 1.0, 0.5);
+    player.camera.viewport = new BABYLON.Viewport(0, 0, 1.0, 0.5);  
     // Add the crosshair to the player camera
     player.addGunSight();
 
@@ -693,7 +705,7 @@ export class GameService {
         let hit = this.scene.pickWithRay(ray);
         for (let i of level.doors) {
           if (i.mesh == hit?.pickedMesh) {
-            i.open(player, this.scene);
+            i.open(player.camera.position, player.inventory, this.scene);
             break;
           } 
         }
