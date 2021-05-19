@@ -426,11 +426,11 @@ export class GameService {
       ];
       let objectsTEST:pickupArray = [
         // [type, coordx, coordz]
-        [24, 7, 7], 
-        [25, 5, 5],
-        [26, 6, 7],
-        [27, 7, 6],
-        [28, 7, 8]
+        [8, 7, 7], 
+        [8, 5, 5],
+        [10, 6, 7],
+        [14, 7, 6],
+        [8, 7, 8]
       ];
       let doorTEST:doorArray = [
         // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)

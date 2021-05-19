@@ -141,7 +141,7 @@ export class GamePlayerService {
     });
 
     // Weapon particles
-    this.shotPuff = new BABYLON.SpriteManager("shotPuffManager", "assets/textures/error.jpg", 3, {height: 64, width: 40}, scene);
+    this.shotPuff = new BABYLON.SpriteManager("shotPuffManager", "assets/textures/particles.png", 1, {height: 32, width: 32}, scene);
     this.shotPuff.isPickable = false;
     
 
@@ -229,6 +229,7 @@ export class GamePlayerService {
         puff.height = 1.5;
         puff.width = 1.5;
         puff.isPickable = false;
+        
 
         //Check if the shot did hit something eventually
         let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
@@ -240,19 +241,22 @@ export class GamePlayerService {
                   isHittingEnemy = true;
               console.log("Fist hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);
               puff.position = enemy.sprt.position;
+              puff.playAnimation(6, 10, false, 50, () => puff.dispose());
               
             }
           });
         } 
 
-        if (!isHittingEnemy)
+        if (!isHittingEnemy) {
           puff.position = new BABYLON.Vector3(
             this.camera.position.x + 3.0 * (BABYLON.Vector3.Dot(new BABYLON.Vector3(0, 0, 1), this.camera.position)), 
             0, 
             this.camera.position.z + 3.0 * (BABYLON.Vector3.Dot(new BABYLON.Vector3(0, 0, 1), this.camera.position))
           );
+          puff.playAnimation(0, 5, false, 50, () => puff.dispose());
+        }
 
-          puff.playAnimation(0, 3, false, 0, () => puff.dispose());
+          
 
 
         this.fistSound.play();
