@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
+import { GamePlayerService } from './player/game-player.service';
 
 
 @Injectable({
@@ -36,7 +37,7 @@ export class GameUIService {
     /**
      * Display the UI on the 3D scene
      */
-    this.displayUI = () => {
+    this.displayUI = (player: GamePlayerService) => {
       let ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
       ui.idealWidth = 1795;
       ui.idealHeight = 897;
@@ -58,6 +59,12 @@ export class GameUIService {
 
       // Init life and ammo
       //TODO
+      let ammoWindow:GUI.Image = new GUI.Image("ammoWindow", "assets/hud/statusBackground.png");
+      ammoWindow.width = "503px";
+      ammoWindow.height = "542px";
+      ammoWindow.top = "-100px";
+      ammoWindow.stretch = GUI.Image.STRETCH_UNIFORM;
+      ui.addControl(ammoWindow);
 
       // Init robot cam
       //? TODO

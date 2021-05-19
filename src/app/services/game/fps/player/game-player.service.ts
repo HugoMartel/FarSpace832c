@@ -154,7 +154,7 @@ export class GamePlayerService {
 
 
     /******    UI   ******/
-    gameUIService.displayUI();
+    gameUIService.displayUI(this);
 
     /******FUNCTIONS******/
     //locking the ability to look up
