@@ -518,46 +518,48 @@ export class GameService {
                 this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
               break;
             case 'Digit1':
-              if (uiService.currentWeaponId !== 0) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 0) {
                 uiService.changeWeapon(0, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit2':
-              if (uiService.currentWeaponId !== 1) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 1) {
                 uiService.changeWeapon(1, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit3':
-              if (uiService.currentWeaponId !== 2) {
-                uiService.changeWeapon(2, player);
-                uiService.swapSound.stop();
-                uiService.swapSound.play();
-              } else {
-                uiService.changeWeapon(3, player);
-                uiService.swapSound.stop();
-                uiService.swapSound.play();
+              if (!uiService.hasShot) {
+                if (uiService.currentWeaponId !== 2) {
+                  uiService.changeWeapon(2, player);
+                  uiService.swapSound.stop();
+                  uiService.swapSound.play();
+                } else {
+                  uiService.changeWeapon(3, player);
+                  uiService.swapSound.stop();
+                  uiService.swapSound.play();
+                }
               }
               break;
             case 'Digit4':
-              if (uiService.currentWeaponId !== 4) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 4) {
                 uiService.changeWeapon(4, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit5':
-              if (uiService.currentWeaponId !== 5) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 5) {
                 uiService.changeWeapon(5, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit6':
-              if (uiService.currentWeaponId !== 6) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 6) {
                 uiService.changeWeapon(6, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
