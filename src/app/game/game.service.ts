@@ -802,23 +802,26 @@ export class GameService {
         i.check(player, this.scene);
       }
 
+      // Slow down the animations
       if (animationFrameSkipper != 4)
         ++animationFrameSkipper;
       else {
-        //* Weapon firing checks (a weapon has a maximum of 21 animation frames)
+        //* Weapon firing checks (a weapon has a maximum of 10 animation frames)
         if (uiService.hasShot && 
           uiService.currentWeapon.cellId <= uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10
           ) {
+          // Check if the animation is done
           if (uiService.currentWeapon.cellId + 1 > uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10) {
             uiService.currentWeapon.cellId = uiService.currentWeaponId * 10;
+            uiService.hasShot = false;// Shot is done
+            // Is the playing still pressing the shoot button ?
             if (player.shooting) {
-              player.shoot(this.scene, level, this.canvas);
-            } else
-              uiService.hasShot = false;
+              player.shoot(this.scene, level, this.canvas);// Shoot again then
+            }
           } else 
-            ++uiService.currentWeapon.cellId;
+            ++uiService.currentWeapon.cellId;// If the animation isn't done yet
 
-          animationFrameSkipper = 0;//Reset the timing if the animation is triggered
+          animationFrameSkipper = 0;//Reset the timer if the animation is triggered
         }
       }
     });
