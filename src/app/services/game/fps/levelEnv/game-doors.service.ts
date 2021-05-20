@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 import { GamePlayerService } from '../player/game-player.service'
-
+import * as stuff from '../randomFunctions/random-functions.service'
 @Injectable({
   providedIn: 'root'
 })
@@ -50,6 +50,7 @@ export class GameDoorsService {
 
     this.init = (scene: BABYLON.Scene) => {
       this.mesh = BABYLON.MeshBuilder.CreateBox("door", {depth: 0.25, width :3, height :3}, scene);
+      this.mesh.metadata = "door";
       let material = new BABYLON.StandardMaterial("doorMat", scene);
       switch(this.env) {
         default:
@@ -71,33 +72,36 @@ export class GameDoorsService {
       if(this.rotate) this.mesh.rotation.y += Math.PI / 2
     }
 
-    this.open = (player: GamePlayerService, scene: BABYLON.Scene) => {
-      let distance = Math.sqrt(Math.pow(this.mesh.position.x - player.camera.position.x, 2) + Math.pow(this.mesh.position.z - player.camera.position.z , 2));
+    this.open = (coords: BABYLON.Vector3, keys: Array<boolean>, scene: BABYLON.Scene) => {
+      let distance = Math.sqrt(Math.pow(this.mesh.position.x - coords.x, 2) + Math.pow(this.mesh.position.z - coords.z , 2));
       if(distance > 3) return;
       //tODO: add switch:
       else if(this.switchNeeded) return;
       //TODO: add message for the player
-      else if(this.key != -1 && !player.inventory[this.key]) return;
+      else if(this.key != -1 && !keys[this.key]) return;
       //else opening the door
       else{
         this.toOpen = true;
       }
     }
-    this.closeSound = (scene: BABYLON.Scene) => {
+    this.closeSound = (scene: BABYLON.Scene, player: GamePlayerService) => {
+      let volume = 1 / stuff.distance(player.camera.position, this.mesh.position);  
       let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/doors/longDoorClosing.wav", scene, () => {
         sound.play();
       }, {
         loop: false,
-        autoplay: false
+        autoplay: false,
+        volume: volume
       }); 
     }
 
-    this.openSound = (scene: BABYLON.Scene) => {
+    this.openSound = (scene: BABYLON.Scene, player: GamePlayerService) => {
       let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/doors/longDoorOpening.wav", scene, () => {
         sound.play();
       }, {
         loop: false,
-        autoplay: false
+        autoplay: false,
+        volume: 0.6
       });
     }
   }

@@ -25,6 +25,7 @@ export class GameSwitchService {
     // Mesh creation on init
     this.init = (scene: BABYLON.Scene) => {
       this.mesh = BABYLON.MeshBuilder.CreateBox("switch", {size :1, height: 5}, scene);
+      this.mesh.metadata = "switch";
       this.mesh.checkCollisions = true;
       this.mesh.isPickable = true;
       let material = new BABYLON.StandardMaterial("testMat", scene);

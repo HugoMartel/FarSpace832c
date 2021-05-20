@@ -1,7 +1,9 @@
 import { Injectable, Inject } from '@angular/core';
 import { GameEnemyService } from '../game-enemy.service';
 import { GameFireballService } from '../attacks/game-fireball.service';
+import { GamePlayerService } from '../player/game-player.service'
 import * as BABYLON from '@babylonjs/core';
+import * as stuff from '../randomFunctions/random-functions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +11,7 @@ import * as BABYLON from '@babylonjs/core';
 export class GameImpService extends GameEnemyService {
   sprtMng!:BABYLON.SpriteManager;
   mesh!:BABYLON.Mesh;
-  stateFrames: Array<Array<number>>;
-  attack: Function;
-  
+  stateFrames: Array<Array<number>>;  
   /**
    * Constructor of the Imp Service
    * @param position spawn position of the imp
@@ -21,6 +21,7 @@ export class GameImpService extends GameEnemyService {
   constructor(position: Array<number>, @Inject(Number) private sec: number) { 
     //10 = life, sec = state, scene obvious
     super(position, 10, 1, sec);
+    this.speed = 0.05;
     this.stateFrames = [
       [0, 3],   //sleep
       [12, 15], //ambush
@@ -37,25 +38,44 @@ export class GameImpService extends GameEnemyService {
     this.setup = (scene: BABYLON.Scene):void => {
       this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/AllImpAnimation.png", 3, {height: 65, width: 65}, scene);
       this.sprtMng.isPickable = true;
-      this.mesh = BABYLON.MeshBuilder.CreateBox("body", {size: 1, width: 1, height: 1}, scene);//! wtf is it attached to anything ????
+      this.mesh = BABYLON.MeshBuilder.CreateSphere("enemy", {diameterX: 0.5, diameterY: 1, diameterZ: 0.5});
+      this.mesh.metadata = "enemy";
+      this.mesh.isPickable = true;
     }
     
     /**
      * Function to call when the imp will enter his attack states
-     * @param enemyCoord Coords of the attacked enemy (the player or another mob)
+     * @param player: the player
      * @param scene Babylon scene associated with the game
      */
-    this.attack = (enemyCoord : Array<number>, scene: BABYLON.Scene):void => {
-      //long range attack
-      if (this.state === 3){
-        this.projectile = new GameFireballService([this.coord[0]+1, this.coord[1]+1], enemyCoord,scene);
-      }
-
-      //close range attack
-      else if (this.state === 4){
-        //TODO
-      }
-
+    this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene) => {
+      if(this.projectile != undefined && this.projectile.toMove) return false;
+      let volume = 1 / stuff.distance(player.camera.position, this.sprt.position); 
+      this.projectile = new GameFireballService([this.sprt.position.x + 1 * Math.cos(this.angle), this.sprt.position.z + 1 * Math.sin(this.angle)], [player.camera.position.x, player.camera.position.z], scene);
+      let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/enemies/imp/attackFar.wav", scene, () => {
+        sound.play();
+      }, {
+        loop: false,
+        autoplay: false,
+        volume: volume
+      });
+      return true;
+    }
+    /**
+    * Function to call when the imp will enter his attack states
+    * @param player: the player
+    * @param scene Babylon scene associated with the game
+    */
+    this.attackNear = (player: GamePlayerService, scene: BABYLON.Scene) => {
+      player.applyDamage(10);
+      //playing sound:
+      let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/enemies/imp/attackNear.wav", scene, () => {
+        sound.play();
+      }, {
+        loop: false,
+        autoplay: false,
+        volume: 0.6
+      }); 
     }
   }
 }

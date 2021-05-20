@@ -21,7 +21,7 @@ import { GamePlayerService } from '../services/game/fps/player/game-player.servi
 import { GameUIService } from '../services/game/fps/game-ui.service';
 //tmp
 import { GameFireballService } from '../services/game/fps/attacks/game-fireball.service';
-
+import * as stuff from '../services/game/fps/randomFunctions/random-functions.service'
 
 // Types defines
 type enemyArray = Array<Array<Array<number>>>;
@@ -422,7 +422,7 @@ export class GameService {
       this.resetScene();
       let enemyTEST:enemyArray = [
         // [[type], [coordx, coordz, state], etc]
-        [[1], [2, 2, 1]]
+        [[1], [4, 4, 0]]
       ];
       let objectsTEST:pickupArray = [
         // [type, coordx, coordz]
@@ -441,9 +441,12 @@ export class GameService {
         // coordX, coordZ
         [1, 4],
         [1, 3],
+        [1, 5],
         [2, 5],
+        [3, 5],
         [12, 13],
-        [16, 13]
+        [12, 14],[12, 15], [12, 16], [12, 17], [12, 18], [12, 19],
+        [16, 13], [16, 14], [16, 15], [16, 16], [16, 17], [16, 18], [16, 19],
       ];
 
       let switchesTest = [
@@ -483,6 +486,17 @@ export class GameService {
 
     let uiService = new GameUIService(this.scene);
     let player = new GamePlayerService(this.scene, this.canvas, uiService);
+
+    //Add the camera, to be shown as a cone and surrounding collision volume
+    /*var viewCamera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 8, -2), this.scene);
+    viewCamera.parent = player.camera;
+    viewCamera.setTarget(new BABYLON.Vector3(0, -0.0001, 1));
+    if(this.scene != null && this.scene.activeCameras != null){
+      this.scene.activeCameras.push(viewCamera);
+      this.scene.activeCameras.push(player.camera);
+    }
+    viewCamera.viewport = new BABYLON.Viewport(0, 0.5, 1.0, 0.5);
+    player.camera.viewport = new BABYLON.Viewport(0, 0, 1.0, 0.5);*/  
 
     //**********************
     //*       EVENTS       *
@@ -654,15 +668,17 @@ export class GameService {
     //*       WALLS        *
     //**********************
     let wallMesh = BABYLON.MeshBuilder.CreateBox("wall", {size :1, height: 3}, this.scene);
+    wallMesh.metadata = "wall";
     wallMesh.material = wallMaterial;
     
     wallMesh.isVisible = false;
-    wallMesh.isPickable = false;
+    wallMesh.isPickable = true;
     wallMesh.checkCollisions = false;
     wallMesh.alwaysSelectAsActiveMesh = false;
 
     for (let i = 0; i < level.walls.length; ++i) {
       let wallInstance:BABYLON.InstancedMesh = wallMesh.createInstance("wallInstance"+i);
+      wallInstance.metadata = "wall";
       wallInstance.position.x = level.walls[i][0];
       wallInstance.position.z = level.walls[i][1];
       wallInstance.position.y = 1;
@@ -676,12 +692,16 @@ export class GameService {
       for(let j of [20, -20]){
         let wall1:BABYLON.InstancedMesh = wallMesh.createInstance("box1");
         let wall2:BABYLON.InstancedMesh = wallMesh.createInstance("box2");
+        wall1.metadata = "wall";
+        wall2.metadata = "wall";
         wall1.position.x = i;
         wall1.position.z = j;
         wall1.position.y = 1;
         wall2.position.x = j;
         wall2.position.z = i;
         wall2.position.y = 1;
+        wall1.isPickable = true;
+        wall2.isPickable = true;
         wall1.checkCollisions = true;
         wall2.checkCollisions = true;
       }
@@ -708,7 +728,6 @@ export class GameService {
     this.scene.collisionsEnabled = true;
     for(let i = 0; i < this.ground.length; ++i) this.ground[i].checkCollisions = true;
     // generates the world x-y-z axis for better understanding
-    let test = new GameFireballService([-7, -7], [19, 19], this.scene);
     this.showWorldAxis(8);
 
     //**************************
@@ -729,9 +748,8 @@ export class GameService {
 
 
       //* Pathfinding
-      //TODO: fix this shit
-      //for(let i = 0; i < level.enemy.length; ++i) level.enemy[i].moveThorwardPlayer([this.camera.position.x, this.camera.position.z]);
-      
+      for(let i of level.enemy) i.IA(player, this.scene, this.frameCounter, level.doors);
+
       //* checking if e is pressed:
       if (this.keyPressed.includes('e')) {
         //shooting a ray
@@ -739,7 +757,7 @@ export class GameService {
         let hit = this.scene.pickWithRay(ray);
         for (let i of level.doors) {
           if (i.mesh == hit?.pickedMesh) {
-            i.open(player, this.scene);
+            i.open(player.camera.position, player.inventory, this.scene);
             break;
           } 
         }
@@ -754,7 +772,7 @@ export class GameService {
       //* Checking to open or close doors
       for (let i of level.doors){
         if (i.toOpen){
-          if (i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene);
+          if (i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene, player);
           if (i.mesh.position.y <= 4) i.mesh.position.y += 0.1;
           else { 
             i.toOpen = false;
@@ -763,17 +781,26 @@ export class GameService {
             i.counterSinceOpened = this.frameCounter;
           }
         }
-        else if (!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 500 && 3 <= (Math.sqrt(Math.pow(i.mesh.position.x - player.camera.position.x, 2) + Math.pow(i.mesh.position.z - player.camera.position.z , 2)))){
-          i.closeSound(this.scene);
-          i.toClose = true;
-        }
-        else if(i.toClose){
-          if(i.mesh.position.y >= 1) i.mesh.position.y -= 0.1;
-          else{
-            i.toClose = false;
-            i.state = false;
-            i.mesh.position.y = 1;
-            i.counterSinceOpened = 0;
+        else{
+          let isAyoneUnderTheDoor = false;
+          if (!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 300){
+            for(let j of level.enemy){
+              if(stuff.distance(i.mesh.position, j.mesh.position) <= 3) isAyoneUnderTheDoor = true; 
+            }
+            if(3 >= stuff.distance(i.mesh.position, player.camera.position)) isAyoneUnderTheDoor = true;
+            if(!isAyoneUnderTheDoor){
+              i.closeSound(this.scene, player);
+              i.toClose = true;
+            }
+          }
+          else if(i.toClose){
+            if(i.mesh.position.y >= 1) i.mesh.position.y -= 0.1;
+            else{
+              i.toClose = false;
+              i.state = false;
+              i.mesh.position.y = 1;
+              i.counterSinceOpened = 0;
+            }
           }
         }
       }
@@ -785,7 +812,6 @@ export class GameService {
           level.enemy[i].projectile.move(this.scene, player);
         }
       }
-      test.move(this.scene, player);
       //checking if player taking pickup
       for(let i of level.pickups){
         i.check(player, this.scene);
@@ -883,7 +909,6 @@ export class GameService {
       const rendererLoopCallback = () => {
         this.scene.render();
       };
-
       if (this.windowRef.document.readyState !== 'loading') {
         this.engine.runRenderLoop(rendererLoopCallback);
       } else {
