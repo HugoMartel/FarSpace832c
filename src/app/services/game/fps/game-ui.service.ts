@@ -33,10 +33,10 @@ export class GameUIService {
     this.currentWeaponAnimationFrames = 3;
     //select the cell in the animation we want to display when not shooting
     this.currentWeapon.cellId = 0;
-    this.swapSound = new BABYLON.Sound("BFGSound", "assets/sound/fps/weapon/swap.wav", scene, null, {
+    this.swapSound = new BABYLON.Sound("swapSound", "assets/sound/fps/weapon/swap.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
 
 

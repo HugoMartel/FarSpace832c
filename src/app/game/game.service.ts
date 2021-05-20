@@ -426,11 +426,11 @@ export class GameService {
       ];
       let objectsTEST:pickupArray = [
         // [type, coordx, coordz]
-        [24, 7, 7], 
-        [25, 5, 5],
-        [26, 6, 7],
-        [27, 7, 6],
-        [28, 7, 8]
+        [8, 7, 7], 
+        [8, 5, 5],
+        [10, 6, 7],
+        [14, 7, 6],
+        [8, 7, 8]
       ];
       let doorTEST:doorArray = [
         // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
@@ -479,6 +479,7 @@ export class GameService {
     // Create the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
     this.engine.displayLoadingUI();
+    let animationFrameSkipper = 0;
 
     // Create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
@@ -501,13 +502,21 @@ export class GameService {
     //**********************
     //*       EVENTS       *
     //**********************
-    let mouseEvent = (e:Event) => {
-      e.preventDefault();
-      //Shoot case
-      player.shoot(this.scene, level, this.canvas);
+    let mouseEvent = (ptInfo:BABYLON.PointerInfo) => {
+      ptInfo.event.preventDefault();
+
+      // Detect the event type and if the input is a left click
+      //! BABYLON.PointerInput.LeftClick means right click...)
+      if (ptInfo.type === BABYLON.PointerEventTypes.POINTERDOWN && ptInfo.event.button === 0) {
+        player.shooting = true;
+        player.shoot(this.scene, level, this.canvas);
+      } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 0) {
+        player.shooting = false;
+      }
     };
     
     let keyboardEvent = (kbInfo:BABYLON.KeyboardInfo) => {
+      kbInfo.event.preventDefault();
       switch (kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
           switch (kbInfo.event.code) {  
@@ -532,46 +541,48 @@ export class GameService {
                 this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
               break;
             case 'Digit1':
-              if (uiService.currentWeaponId !== 0) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 0) {
                 uiService.changeWeapon(0, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit2':
-              if (uiService.currentWeaponId !== 1) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 1) {
                 uiService.changeWeapon(1, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit3':
-              if (uiService.currentWeaponId !== 2) {
-                uiService.changeWeapon(2, player);
-                uiService.swapSound.stop();
-                uiService.swapSound.play();
-              } else {
-                uiService.changeWeapon(3, player);
-                uiService.swapSound.stop();
-                uiService.swapSound.play();
+              if (!uiService.hasShot) {
+                if (uiService.currentWeaponId !== 2) {
+                  uiService.changeWeapon(2, player);
+                  uiService.swapSound.stop();
+                  uiService.swapSound.play();
+                } else {
+                  uiService.changeWeapon(3, player);
+                  uiService.swapSound.stop();
+                  uiService.swapSound.play();
+                }
               }
               break;
             case 'Digit4':
-              if (uiService.currentWeaponId !== 4) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 4) {
                 uiService.changeWeapon(4, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit5':
-              if (uiService.currentWeaponId !== 5) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 5) {
                 uiService.changeWeapon(5, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit6':
-              if (uiService.currentWeaponId !== 6) {
+              if (!uiService.hasShot && uiService.currentWeaponId !== 6) {
                 uiService.changeWeapon(6, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
@@ -582,7 +593,7 @@ export class GameService {
     };
 
     // On click event, request pointer lock
-    this.scene.onPointerDown = (evt:Event) => {
+    this.canvas.addEventListener('pointerdown', (evt:Event) => {
       evt.preventDefault();
 	  	//true/false check if we're locked, faster than checking pointerlock on each single click.
       if (document.pointerLockElement !== this.canvas) {
@@ -590,13 +601,13 @@ export class GameService {
         this.canvas.requestPointerLock();
 
         /* Add the mouse events */
-        this.canvas.addEventListener('click', mouseEvent);
+        this.scene.onPointerObservable.add(mouseEvent);
 
         /* Add the keyboard events */
         this.scene.onKeyboardObservable.add(keyboardEvent);
 
       }
-    };
+    });
 
     //**********************
     //*       SKYBOX       *
@@ -817,15 +828,27 @@ export class GameService {
         i.check(player, this.scene);
       }
 
-      //* Weapon firing checks (a weapon has a maximum of 21 animation frames)
-      if (uiService.hasShot && 
-        uiService.currentWeapon.cellId <= uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10
-        ) {
-        if (uiService.currentWeapon.cellId + 1 > uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10) {
-          uiService.hasShot = false;
-          uiService.currentWeapon.cellId = uiService.currentWeaponId * 10;
-        } else 
-          ++uiService.currentWeapon.cellId;
+      // Slow down the animations
+      if (animationFrameSkipper != 4)
+        ++animationFrameSkipper;
+      else {
+        //* Weapon firing checks (a weapon has a maximum of 10 animation frames)
+        if (uiService.hasShot && 
+          uiService.currentWeapon.cellId <= uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10
+          ) {
+          // Check if the animation is done
+          if (uiService.currentWeapon.cellId + 1 > uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10) {
+            uiService.currentWeapon.cellId = uiService.currentWeaponId * 10;
+            uiService.hasShot = false;// Shot is done
+            // Is the playing still pressing the shoot button ?
+            if (player.shooting) {
+              player.shoot(this.scene, level, this.canvas);// Shoot again then
+            }
+          } else 
+            ++uiService.currentWeapon.cellId;// If the animation isn't done yet
+
+          animationFrameSkipper = 0;//Reset the timer if the animation is triggered
+        }
       }
     });
 
