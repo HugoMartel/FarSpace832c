@@ -159,7 +159,7 @@ export class GameUIService {
       hudWindow8.left = "-970px";
       ui.addControl(hudWindow8);
 
-      // font color : gris #969696   rouge #9a0101
+      // font color : gray #969696   red #9a0101   yellow #f1fc59
       //ammo 
       let ammoWindow:GUI.Image = new GUI.Image("ammoWindow", "assets/hud/statusCleaar.png");
       ammoWindow.width = "269px";
@@ -320,6 +320,45 @@ export class GameUIService {
       inventoryLine.top = "410px";
       inventoryLine.left = "649px";
       ui.addControl(inventoryLine);
+      let keyPlace1:GUI.Image = new GUI.Image("keyPlace1", "assets/hud/behindKey.png");
+      keyPlace1.width = "69px";
+      keyPlace1.height = "69px";
+      keyPlace1.top = "305px";
+      keyPlace1.left = "590px";
+      ui.addControl(keyPlace1);
+      let keyPlace2:GUI.Image = new GUI.Image("keyPlace2", "assets/hud/behindKey.png");
+      keyPlace2.width = "69px";
+      keyPlace2.height = "69px";
+      keyPlace2.top = "384px";
+      keyPlace2.left = "590px";
+      ui.addControl(keyPlace2);
+      let keyPlace3:GUI.Image = new GUI.Image("keyPlace3", "assets/hud/behindKey.png");
+      keyPlace3.width = "69px";
+      keyPlace3.height = "69px";
+      keyPlace3.top = "464px";
+      keyPlace3.left = "590px";
+      ui.addControl(keyPlace3);
+      let redKey:GUI.Image = new GUI.Image("redKey", "assets/hud/redKey.png");
+      redKey.width = "41px";
+      redKey.height = "39px";
+      redKey.top = "305px";
+      redKey.left = "590px";
+      if (player.inventory[0])
+        ui.addControl(redKey);
+      let blueKey:GUI.Image = new GUI.Image("blueKey", "assets/hud/blueKey.png");
+      blueKey.width = "41px";
+      blueKey.height = "39px";
+      blueKey.top = "384px";
+      blueKey.left = "590px";
+      if (player.inventory[1])
+        ui.addControl(blueKey);
+      let yellowKey:GUI.Image = new GUI.Image("yellowKey",  "assets/hud/yellowKey.png");
+      yellowKey.width = "41px";
+      yellowKey.height = "39px";
+      yellowKey.top = "464px";
+      yellowKey.left = "590px";
+      if (player.inventory[2])
+        ui.addControl(yellowKey);
       
 
       //allAmmo window

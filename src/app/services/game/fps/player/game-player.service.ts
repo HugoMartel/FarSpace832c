@@ -183,6 +183,7 @@ export class GamePlayerService {
       else{
         this.health -= damage;
       }
+
     }
 
 
