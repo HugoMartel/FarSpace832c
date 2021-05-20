@@ -85,6 +85,7 @@ export class GameEnemyService {
         this.mesh.material = enemyMat1;
       }
     }
+
     /**
     * Function called at every render loop to make the enemy less useless
     * @param player: the player in the scene
@@ -92,10 +93,10 @@ export class GameEnemyService {
     * @param frames: the frame number (found in the render loop)
     * @param doors: the array of GameDoorsServices of the level
     */
-   //TODO: add a ray when moving 90 degree (while)
     this.IA = (player: GamePlayerService, scene: BABYLON.Scene, frames: number, doors: Array<GameDoorsService>) => {
       //if the mob is dead then return
       if(this.state == 2) return;
+      //computing the distance between the player and the mob, so we can wake him up if the player is near
       let distanceFromPlayer = stuff.distance(player.camera.position, this.sprt.position);
       //if the enemy is too far away then put it to sleep
       if(distanceFromPlayer >= 20){
@@ -103,11 +104,11 @@ export class GameEnemyService {
         this.sprt.stopAnimation();
         this.playAnimation();
       }
+      //if the player is near the enemy and the enemy is sleeping then wake up;
+      if((this.state == 0 || this.state == 1) && stuff.distance(player.camera.position, this.sprt.position) < 5) this.state = 5;
       //setting the lowest distance from a front facing mesh to infinity
       let minimumMeshDistance = 999999999;
       this.mesh.isPickable = false;
-      //if the player is near the enemy and the enemy is sleeping then wake up;
-      if((this.state == 0 || this.state == 1) && stuff.distance(player.camera.position, this.sprt.position) < 5) this.state = 5;
       //shooting a ray to see what's in front / getting it's coordinates
       /*
       *We're shooting 3 rays so that we can avoir everything in front 
@@ -123,18 +124,18 @@ export class GameEnemyService {
       let hitLeft = scene.pickWithRay(rayCenter);
       let hitRight = scene.pickWithRay(rayRight);
       let hitArray = [hitLeft, hitRight, hitCenter];
+      //storing if one of the ray hitted something or no
       let hitBool = false;
-      let nothingBool = true;
+      //we're using this one later to store the nearest mesh that the ray intersect
       let mainHit;
+      //we're getting the nearest mesh and the distance between this one and the player, and storing it with this for
       for(let i of hitArray){
+        //this condition is to ensure that we're picking a valid mesh and not any shit that could be wandering arround
         if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (i.pickedMesh.metadata == "enemy" || i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall")){
           hitBool = true;
           if (stuff.distance(this.sprt.position, i.pickedMesh.position) < minimumMeshDistance){
             minimumMeshDistance = stuff.distance(this.sprt.position, i.pickedMesh.position);
             mainHit = i;
-          }
-          else{
-            nothingBool = true;
           }
         }
       }
@@ -144,15 +145,19 @@ export class GameEnemyService {
         if(distanceFromPlayer < minimumMeshDistance && (frames - this.framesSinceOldAngle > 250 || (distanceFromPlayer < 1.5))){
           //if the distance is inferior to 2.5: then near attack
           if(distanceFromPlayer <= 2.5){
+            //if it has been more than 100 frames since last near attack then we can attack again
             if(frames - this.framesinceNearAttack >= 100){
               this.framesinceNearAttack = frames;
+              //changing the state to play the animation
               this.state = 4;
               this.attackNear(player, scene);
               this.sprt.stopAnimation();
               this.playAnimation();
             }
           }
+          //else if the player is far, we check to do a far attack
           else{
+            //if a far attack has been made less than 150 frames ago, we're only moving, not attacking
             if(frames - this.frameSinceFarAttack < 150){
               this.sprt.position.x += this.speed * Math.cos(this.angle);
               this.mesh.position.x += this.speed * Math.cos(this.angle);
@@ -161,9 +166,12 @@ export class GameEnemyService {
               this.mesh.position.z += this.speed * Math.sin(this.angle);
               this.coord[1] += this.speed * Math.sin(this.angle);
             }
+            //if it has been more than 150 frames since last far attack, we can do another one
+            //we're passing the function as condition because the function is checking if an attack is possible
+            //cf if the fireball isn't in the world anymore, to avoid bugs
             else if (this.attackFar(player, scene)){
               this.frameSinceFarAttack = frames;
-              //attack far;
+              //changing the state to play animation
               this.state = 3;
               this.sprt.stopAnimation();
               this.playAnimation();
@@ -207,7 +215,7 @@ export class GameEnemyService {
               //getting the nearest mesh hitted by those rays
               for(let i of hitCheckArray){
                 //checking if we are getting a valid mesh
-                if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (/*i.pickedMesh.metadata == "enemy" ||*/ i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall"))
+                if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (i.pickedMesh.metadata == "enemy" || i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall"))
                   if (stuff.distance(this.sprt.position, i.pickedMesh.position) < rotationMinDistance){
                     //if this one is the nearest
                     rotationMinDistance = stuff.distance(this.sprt.position, i.pickedMesh.position);
@@ -245,6 +253,9 @@ export class GameEnemyService {
                   hitCheckArray = [checkingHitCenter, checkingHitLeft, checkingHitRight];
                   for(let i of hitCheckArray){
                     //checking if it is a valid mesh
+                    //NOTE: we're not checking if if is a mob here because it is sometime leading to infinite loop:
+                    //so yes sometimes the enemy in the background are going on each other, but it's better than a crash
+                    //+ it is almost never happening, if not then send issue fast
                     if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (/*i.pickedMesh.metadata == "enemy" ||*/ i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall")){
                       //if it is a valid mesh then we're checking if it is closer than the closest current
                       if (stuff.distance(this.sprt.position, i.pickedMesh.position) < rotationMinDistance){
@@ -264,13 +275,15 @@ export class GameEnemyService {
                   }
                 }
               }
-              //when the angle is good then we move the sprite, using some basic maths
-              this.sprt.position.x += this.speed * Math.cos(this.oldAngle);
-              this.mesh.position.x += this.speed * Math.cos(this.oldAngle);
-              this.coord[0] += this.speed * Math.cos(this.oldAngle); 
-              this.sprt.position.z += this.speed * Math.sin(this.oldAngle);
-              this.mesh.position.z += this.speed * Math.sin(this.oldAngle);
-              this.coord[1] += this.speed * Math.sin(this.oldAngle);
+              if(stuff.distance(player.camera.position, new BABYLON.Vector3(this.sprt.position.x + this.speed * Math.cos(this.oldAngle), 0.5, this.sprt.position.z + this.speed * Math.sin(this.oldAngle))) >= 1.5){
+                //when the angle is good then we move the sprite, using some basic maths
+                this.sprt.position.x += this.speed * Math.cos(this.oldAngle);
+                this.mesh.position.x += this.speed * Math.cos(this.oldAngle);
+                this.coord[0] += this.speed * Math.cos(this.oldAngle); 
+                this.sprt.position.z += this.speed * Math.sin(this.oldAngle);
+                this.mesh.position.z += this.speed * Math.sin(this.oldAngle);
+                this.coord[1] += this.speed * Math.sin(this.oldAngle);
+              }
             }
           }
           //else if no mesh to near then we continue in the direction of the player hoping it is a good thing
@@ -284,8 +297,9 @@ export class GameEnemyService {
             }
           }
         }
-      //if no mesh picked
+      //if no mesh picked, then we are going straight into the player
       else{
+        //same attack code as above, look up if you need help understanding it
         let distanceFromPlayer = stuff.distance(player.camera.position, this.sprt.position);
         if(distanceFromPlayer <= 2.5){
           if(frames - this.framesinceNearAttack >= 100){
@@ -316,9 +330,10 @@ export class GameEnemyService {
           }
         }
       }
+      //we're setting the mob mesh to pickable because now we're not checking anymore
       this.mesh.isPickable = true;
     }
-    //TODO: add description
+
     this.playAnimation = () => {
       if(this.stateFrames === undefined || this.sprt === undefined) return;
       let loop = true;

@@ -422,7 +422,7 @@ export class GameService {
       this.resetScene();
       let enemyTEST:enemyArray = [
         // [[type], [coordx, coordz, state], etc]
-        [[1], [4, 4, 0]]
+        [[1], [4, 4, 0], [5, 5, 0], [-7, -7, 0]]
       ];
       let objectsTEST:pickupArray = [
         // [type, coordx, coordz]
@@ -497,7 +497,7 @@ export class GameService {
       this.scene.activeCameras.push(player.camera);
     }
     viewCamera.viewport = new BABYLON.Viewport(0, 0.5, 1.0, 0.5);
-    player.camera.viewport = new BABYLON.Viewport(0, 0, 1.0, 0.5);*/  
+    player.camera.viewport = new BABYLON.Viewport(0, 0, 1.0, 0.5);*/
 
     //**********************
     //*       EVENTS       *
