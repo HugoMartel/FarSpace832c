@@ -98,7 +98,7 @@ export class GameService {
       "menuUI", true, this.scene
     );
     menuUI.idealWidth = 1795;
-    menuUI.idealHeight = 897;
+    menuUI.idealHeight = 1009;
     menuUI.background = "teal";
 
     // Create the Grid object
