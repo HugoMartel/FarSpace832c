@@ -16,6 +16,11 @@ export class GameUIService {
   hasShot:boolean;
   displayUI:Function;
   changeWeapon:Function;
+  updateHealth:Function;
+  updateArmor:Function;
+  updateAmmo:Function;
+  updateKeys:Function;
+  updateWeapons:Function;
 
   constructor(scene: BABYLON.Scene) {
     this.hasShot = false;
@@ -156,6 +161,48 @@ export class GameUIService {
           break;
       }
 
+    };
+
+
+    /**
+     * function to change the health value displayed on the HUD
+     * @param h health amount to change to
+     */
+    this.updateHealth = (h:number) => {
+      //TODO
+    };
+
+    /**
+     * function to change the armor value displayed on the HUD
+     * @param a armor amount to change to
+     */
+    this.updateArmor = (a:number) => {
+      //TODO
+    };
+    
+    /**
+     * function to change an ammo value displayed on the HUD
+     * @param a ammo amount to change to
+     * @param pool ammo pool to change
+     */
+    this.updateAmmo = (a:number, pool:number) => {
+      //TODO
+    };
+    
+    /**
+     * function to change the keys owned shown on the HUD
+     * @param k key to change
+     */
+    this.updateKeys = (k:number) => {
+      //TODO
+    };
+    
+    /**
+     * function to change the armor value displayed on the HUD
+     * @param id weapon id to light on
+     */
+    this.updateWeapons = (id:number) => {
+      //TODO
     };
 
   }
