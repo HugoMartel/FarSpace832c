@@ -6,6 +6,7 @@ import { MatrixService } from './matrix.service';
 })
 export class TerrainService{
   public terrainMatrix: any[] = [];
+  public flatZone: any[] = [];
   //public terrainMatrixTest: any[] = [];
 
   constructor(private matrixService: MatrixService) {
@@ -25,9 +26,10 @@ export class TerrainService{
     for (let i = 0; i < x.length; i++) {
       for (let j = 0; j < y.length; j++) {
         this.terrainMatrix[i][j] = x[i]+y[j]+alpha/2;
-        //this.terrainMatrixTest[i][j] = 30;
       }
     }
+    this.setFlatZone(size_x, size_y, alpha);
+    //console.log(this.flatZone);
 
     for (let k = 0; k < 50; k++) {
       for (let i = 0; i < x.length; i++) {
@@ -35,18 +37,23 @@ export class TerrainService{
           this.ErrodeLight(i, j, size_x , size_y, alpha);
         }
       }
+      this.applyFlatZone();
     }
+
+    //this.applyFlatZone();
 
     for (let i = 0; i < x.length; i++) {
       for (let j = 0; j < y.length; j++) {
         this.terrainMatrix[i][j] = Math.floor(this.terrainMatrix[i][j]);
       }
     }
+
     for (let i = 0; i < x.length; i++) {
       for (let j = 0; j < y.length; j++) {
         this.CheckSingle(i, j, size_x , size_y);
       }
     }
+
 
     return this.terrainMatrix;
   }
@@ -128,10 +135,9 @@ export class TerrainService{
   private IFSin(alpha: number, subsin: number, size: number) {
     let scale: number[] = [];
     scale = this.RdScal(alpha, subsin);
-    console.log("scales : ", scale);
 
     let hz: number[] = [];
-    let h0: number = (Math.PI/(size))*1.5;
+    let h0: number = Math.PI/size;
     for (let i = 1; i < subsin+1; i++) {
       hz[i-1] = i*h0;
     }
@@ -143,7 +149,30 @@ export class TerrainService{
     for (let x = 0; x < size; x++) {
       let tmp: number = 0;
       for (let i = 0; i < subsin; i++) {
-        tmp += scale[i]*Math.sin(hz[i]*x+rdDephas);
+        tmp += scale[i]*Math.sin(hz[i]*(x+rdDephas*size));
+      }
+      result.push(tmp);
+    }
+    return result;
+  }
+
+  private IFSinFull(alpha: number, subsin: number, size: number) {
+    let scale: number[] = [];
+    scale = this.RdScal(alpha, subsin);
+    let rdDephas: number[] = [];
+    let hz: number[] = [];
+    let h0: number = (2*Math.PI)/size;
+    for (let i = 1; i < subsin+1; i++) {
+      hz[i-1] = i*h0;
+      rdDephas.push(Math.random()*2*Math.PI);
+    }
+    //console.log("Hz = ", hz);
+    let result: number[] = [];
+    for (let x = 0; x < size; x++) {
+      let tmp: number = 0;
+      for (let i = 0; i < subsin; i++) {
+
+        tmp += scale[i]*Math.sin(hz[i]*x+rdDephas[i]);
       }
       result.push(tmp);
     }
@@ -333,5 +362,111 @@ export class TerrainService{
     }
     if (relatProx > 0) {this.terrainMatrix[posX][posY] += 1;}
     else if (relatProx < 0) {this.terrainMatrix[posX][posY] -= 1;}
+  }
+
+  private contain2(x: any, y: any, list: any[]){
+    for (let i = list.length-1; i > 0; i--){
+      if (list[i][0] == x && list[i][1] == y){return(true);}
+    }
+    return(false);
+  }
+
+  private setFlatZone(sX: number, sY: number, alpha: number){
+    let ranges: number[] = [];
+    let minSizeXY: number = Math.min(sX, sY);
+    let midX: number = Math.floor(sX/2);
+    let midY: number = Math.floor(sY/2);
+
+    let tmp: number = 0;
+    for (let x = 0; x < sX; x++) {
+      for (let y = 0; y < sY; y++) {
+        tmp += this.terrainMatrix[x][y];
+      }
+    }
+    Math.round(Math.random()) ? this.flatZone.push(Math.round((alpha-(tmp/(sX*sY)))*1.4)) : this.flatZone.push(Math.round((alpha-(tmp/(sX*sY)))*0.6));
+    //this.flatZone.push(28);
+
+    let minCircleSubdiv: number = Math.floor(2*Math.PI/Math.atan(1/(minSizeXY*0.3))+1);
+    ranges = this.IFSinFull(minSizeXY/20, 8, minCircleSubdiv);
+    let currentAngle: number = 0;
+    for (let i = 0; i < ranges.length; i++) {
+      ranges[i] += minSizeXY/8;
+      currentAngle = i*2*Math.PI/minCircleSubdiv;
+      //flatZone border
+      if(!this.contain2(midX+Math.floor(ranges[i]*Math.cos(currentAngle)), midY+Math.floor(ranges[i]*Math.sin(currentAngle)), this.flatZone)){this.flatZone.push([midX+Math.floor(ranges[i]*Math.cos(currentAngle)), midY+Math.floor(ranges[i]*Math.sin(currentAngle))]);}
+    }
+    //Fill flatZone
+    let tmpflatZone: any[] = [[midX, midY]];
+     while (tmpflatZone.length) {
+       let current: any[] = tmpflatZone.shift();
+       if (this.contain2(current[0], current[1], this.flatZone)) {continue;}
+       this.flatZone.push(current);
+       for (let x = -1; x <= 1; x+=2) {if(!this.contain2(current[0]+x, current[1], this.flatZone)) {tmpflatZone.push([current[0]+x, current[1]]);}}
+       for (let y = -1; y <= 1; y+=2) {if(!this.contain2(current[0], current[1]+y, this.flatZone)) {tmpflatZone.push([current[0], current[1]+y]);}}
+     }
+
+    //cursed, a lot
+    /*
+    for (let i = 0; i < Math.floor(ranges.length/2); i++) {
+      ranges[i] += minSizeXY/10;
+      let currentAngle: number = i*2*Math.PI/minCircleSubdiv;
+      let segCoeff: number = Math.tan(currentAngle);
+      if (segCoeff == 0) {
+        for (let k = 0; k < Math.round(ranges[i]); k++){
+          if(!this.contain2(midX, midY+k, this.flatZone)){this.flatZone.push([midX, midY+k]);}
+        }
+      }else if (Math.abs(segCoeff) > ranges[i]) {
+        let signK: number = Math.sign(segCoeff);
+        for (let k = 0; k < Math.round(ranges[i]); k++){
+          if(!this.contain2(midX+k*signK, midY, this.flatZone)){this.flatZone.push([midX+k*signK, midY]);}
+        }
+      }else {
+        let currentHeight: number = 0;
+        for (let j = 0; j < Math.abs(Math.round(ranges[i]*Math.cos(currentAngle))); j++) {
+          let signJ: number = Math.sign(Math.cos(currentAngle));
+          for (let k = 0; k < Math.floor(Math.abs(segCoeff))+1; k++) {
+            let signK: number = Math.sign(segCoeff);
+            if(!this.contain2(midX+j*signJ, midY+k*signK+Math.floor(currentHeight), this.flatZone)){this.flatZone.push([midX+j*signJ, midY+k*signK+Math.floor(currentHeight)]);}
+          }
+          currentHeight += segCoeff;
+        }
+        for (let k = 0; k < Math.round(ranges[i]%(Math.abs(segCoeff/Math.sin(currentAngle)))); k++) {
+          let signK: number = Math.sign(segCoeff/Math.sin(currentAngle));
+          if(!this.contain2(midX+Math.floor(ranges[i]/segCoeff), midY+k*signK+Math.floor(currentHeight), this.flatZone)){this.flatZone.push([midX+Math.floor(ranges[i]/segCoeff), midY+k*signK+Math.floor(currentHeight)]);}
+        }
+      }
+    }
+    for (let i = Math.floor(ranges.length/2); i < ranges.length; i++) {
+      ranges[i] += minSizeXY/10;
+      let currentAngle: number = i*2*Math.PI/minCircleSubdiv;
+      let segCoeff: number = ranges[i]*Math.sin(currentAngle);
+      if (segCoeff == 0) {
+        for (let k = 0; k < Math.round(ranges[i]); k++){
+          if(!this.contain2(midX, midY-k, this.flatZone)){this.flatZone.push([midX, midY-k]);}
+        }
+      }else if (Math.abs(segCoeff) > ranges[i]) {
+        for (let k = 0; k < Math.round(ranges[i]); k++){
+          if(!this.contain2(midX+k, midY, this.flatZone)){this.flatZone.push([midX+k, midY]);}
+        }
+      }else {
+        let currentHeight: number = 0;
+        for (let j = 0; j < Math.round(ranges[i]*Math.cos(currentAngle)); j++) {
+          for (let k = 0; k < Math.floor(segCoeff)+1; k++) {
+            if(!this.contain2(midX-j, midY-k+Math.floor(currentHeight), this.flatZone)){this.flatZone.push([midX-j, midY-k+Math.floor(currentHeight)]);}
+          }
+          currentHeight -= segCoeff;
+        }
+        for (let k = 0; k < Math.round(ranges[i]%segCoeff); k++) {
+          if(!this.contain2(midX-Math.floor(ranges[i]/segCoeff), midY-k-Math.floor(currentHeight), this.flatZone)){this.flatZone.push([midX-Math.floor(ranges[i]/segCoeff), midY-k-Math.floor(currentHeight)]);}
+        }
+      }
+    }
+    */
+  }
+
+  private applyFlatZone(){
+    for (let i = 1; i < this.flatZone.length; i++) {
+      this.terrainMatrix[this.flatZone[i][0]][this.flatZone[i][1]] = this.flatZone[0];
+    }
   }
 }

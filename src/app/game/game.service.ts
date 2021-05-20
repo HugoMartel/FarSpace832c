@@ -444,9 +444,7 @@ export class GameService {
     for (let i = 0; i < this.size_z; i++) {
       testColorPalette[i] = (i)/(this.size_z-1);
     }
-    console.log(testColorPalette);
-
-
+    //console.log(testColorPalette);
     for (let x = 0; x < this.terr2Matrix.length; x++) {
       for (let y = 0; y < this.terr2Matrix[x].length; y++) {
         //let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
