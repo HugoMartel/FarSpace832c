@@ -7,7 +7,7 @@ import * as stuff from './randomFunctions/random-functions.service'
 import { GameDoorsService } from "./levelEnv/game-doors.service"
 @Injectable({ providedIn: 'root' })
 
-//TODO: fix doors & distance from player
+//TODO: maybe try to see if we have some problems with the doors
 
 export class GameEnemyService {
   coord: Array<number>;
@@ -41,7 +41,7 @@ export class GameEnemyService {
     this.type = typeEnemy;
     this.oldAngle = -1;
     this.angle = 0;
-    this.speed = 0.07;
+    this.speed = 0.01;
     this.framesSinceOldAngle = 0;
     //STATE: 0 = sleep
     //       1 = ambush
@@ -133,7 +133,7 @@ export class GameEnemyService {
       //if a wall or something else is picken the player and the awaken enemy
       if(hitBool && mainHit != null && mainHit.pickedMesh != undefined){
         //if nothing stands between the player and the enemy
-        if(distanceFromPlayer < minimumMeshDistance && frames - this.framesSinceOldAngle > 200){
+        if(distanceFromPlayer < minimumMeshDistance && frames - this.framesSinceOldAngle > 100){
           //if the distance is inferior to 2.5: then near attack
           if(distanceFromPlayer <= 2.5){
             if(frames - this.framesinceNearAttack >= 300){
@@ -165,7 +165,7 @@ export class GameEnemyService {
         //if mesh is before the player
         else{
           //if mesh near
-          if (minimumMeshDistance <= 1){
+          if (minimumMeshDistance < 1.5){
             //checking if this mesh is a door
             if(mainHit.pickedMesh.metadata == "door"){
               for(let i of doors){
@@ -180,7 +180,7 @@ export class GameEnemyService {
               //if the old angle is undefined, the we're setting it up
               if(this.oldAngle == -1) this.oldAngle = this.angle + Math.PI / 2;
               //if the angle hasn't been changed since a long time then we're updating it
-              else if(frames - this.framesSinceOldAngle > 200){
+              else if(frames - this.framesSinceOldAngle > 100){
                 this.framesSinceOldAngle = frames;
                 this.oldAngle += Math.PI / 4;
                 this.oldAngle %= 2 * Math.PI;
@@ -216,9 +216,9 @@ export class GameEnemyService {
                 }
               }
               //if this direction isn't right, then we need to find a new one 
-              if(rotationMinDistance <= 1){
+              if(rotationMinDistance < 1.5){
                 //while the enemy can't move in this direction we are looking for a new one shooting again 3 rays
-                while(rotationMinDistance <= 1 && rotationMinDistance == 999999){
+                while(rotationMinDistance < 1 && rotationMinDistance == 999999){
                   rotationMinDistance = 999999;
                   //we're increasing the angle so the enemy is rotating
                   this.oldAngle = (this.oldAngle + Math.PI / 2) % Math.PI * 2;

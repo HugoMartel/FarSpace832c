@@ -483,7 +483,7 @@ export class GameService {
     let player = new GamePlayerService(this.scene, this.canvas, this.uiService);
 
     //Add the camera, to be shown as a cone and surrounding collision volume
-    var viewCamera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 8, -2), this.scene);
+    /*var viewCamera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 8, -2), this.scene);
     viewCamera.parent = player.camera;
     viewCamera.setTarget(new BABYLON.Vector3(0, -0.0001, 1));
     if(this.scene != null && this.scene.activeCameras != null){
@@ -491,7 +491,7 @@ export class GameService {
       this.scene.activeCameras.push(player.camera);
     }
     viewCamera.viewport = new BABYLON.Viewport(0, 0.5, 1.0, 0.5);
-    player.camera.viewport = new BABYLON.Viewport(0, 0, 1.0, 0.5);  
+    player.camera.viewport = new BABYLON.Viewport(0, 0, 1.0, 0.5);*/  
     // Add the crosshair to the player camera
     player.addGunSight();
 
