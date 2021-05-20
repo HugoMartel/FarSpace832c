@@ -252,6 +252,46 @@ export class GameUIService {
       weaponLine.top = "410px";
       weaponLine.left = "-241px";
       ui.addControl(weaponLine);
+      //you always have the pistol so don't need a condition
+      let firstWeapon:GUI.Image = new GUI.Image("firstWeapon", "assets/hud/2light.png");
+      firstWeapon.width = "59px";
+      firstWeapon.height = "59px";
+      firstWeapon.top = "290px";
+      firstWeapon.left = "-185px";
+      ui.addControl(firstWeapon);
+      let secondWeapon:GUI.Image = new GUI.Image("secondWeapon", player.weaponList[2] ? "assets/hud/3light.png" : "assets/hud/3dark.png");
+      secondWeapon.width = "59px";
+      secondWeapon.height = "59px";
+      secondWeapon.top = "290px";
+      secondWeapon.left = "-105px";
+      ui.addControl(secondWeapon);
+      let thirdWeapon:GUI.Image = new GUI.Image("thirdWeapon", player.weaponList[3] ? "assets/hud/4light.png" : "assets/hud/4dark.png");
+      thirdWeapon.width = "59px";
+      thirdWeapon.height = "59px";
+      thirdWeapon.top = "350px";
+      thirdWeapon.left = "-185px";
+      ui.addControl(thirdWeapon);
+      let fourthWeapon:GUI.Image = new GUI.Image("fourthWeapon", player.weaponList[4] ? "assets/hud/5light.png" : "assets/hud/5dark.png");
+      fourthWeapon.width = "59px";
+      fourthWeapon.height = "59px";
+      fourthWeapon.top = "350px";
+      fourthWeapon.left = "-105px";
+      ui.addControl(fourthWeapon);
+      let fifthWeapon:GUI.Image = new GUI.Image("fifthWeapon", player.weaponList[6] ? "assets/hud/6light.png" : "assets/hud/6dark.png");
+      fifthWeapon.width = "59px";
+      fifthWeapon.height = "59px";
+      fifthWeapon.top = "410px";
+      fifthWeapon.left = "-185px";
+      ui.addControl(fifthWeapon);
+      let sixthWeapon:GUI.Image = new GUI.Image("sixthWeapon", player.weaponList[7] ? "assets/hud/7light.png" : "assets/hud/7dark.png");
+      sixthWeapon.width = "59px";
+      sixthWeapon.height = "59px";
+      sixthWeapon.top = "410px";
+      sixthWeapon.left = "-105px";
+      ui.addControl(sixthWeapon);
+
+
+
 
       //robot cam
       let robotWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/robotCam.png");
