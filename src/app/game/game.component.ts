@@ -12,9 +12,19 @@ export class GameComponent implements OnInit {
   public gameCanvas!: ElementRef<HTMLCanvasElement>;
 
 
-  public constructor(private engServ: GameService) {  }
+  public constructor(private engServ: GameService) { }
+  
 
   public ngOnInit(): void {
+
+    this.gameCanvas.nativeElement.width = 0.95 * window.innerWidth;
+      this.gameCanvas.nativeElement.height = 9 * this.gameCanvas.nativeElement.width / 16;
+    document.addEventListener("fullscreenchange", (e: Event) => {
+      e.preventDefault();
+      this.gameCanvas.nativeElement.width = 0.95 * window.innerWidth;
+      this.gameCanvas.nativeElement.height = 9 * this.gameCanvas.nativeElement.width / 16;
+    });
+
     this.engServ.createMenuScene(this.gameCanvas);
     
     this.engServ.animate();

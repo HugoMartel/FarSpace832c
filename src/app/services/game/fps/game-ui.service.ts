@@ -43,7 +43,7 @@ export class GameUIService {
     this.displayUI = (player: GamePlayerService) => {
       let ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
       ui.idealWidth = 1795;
-      ui.idealHeight = 897;
+      ui.idealHeight = 1009;
 
       // Init crosshair
       let crosshairVerticalRect:GUI.Rectangle = new GUI.Rectangle("crosshairVerticalRect");
