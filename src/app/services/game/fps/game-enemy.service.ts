@@ -9,6 +9,10 @@ import { GameDoorsService } from "./levelEnv/game-doors.service"
 
 //TODO: maybe try to see if we have some problems with the doors
 
+//TODO: when enemy is ded we need to remove the mesh
+
+//TODO: add a way to check enemy collision when near, cause rn they're doing shit
+
 export class GameEnemyService {
   coord: Array<number>;
   health: number;
@@ -120,6 +124,7 @@ export class GameEnemyService {
       let hitRight = scene.pickWithRay(rayRight);
       let hitArray = [hitLeft, hitRight, hitCenter];
       let hitBool = false;
+      let nothingBool = true;
       let mainHit;
       for(let i of hitArray){
         if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (i.pickedMesh.metadata == "enemy" || i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall")){
@@ -128,15 +133,18 @@ export class GameEnemyService {
             minimumMeshDistance = stuff.distance(this.sprt.position, i.pickedMesh.position);
             mainHit = i;
           }
+          else{
+            nothingBool = true;
+          }
         }
       }
       //if a wall or something else is picken the player and the awaken enemy
       if(hitBool && mainHit != null && mainHit.pickedMesh != undefined){
         //if nothing stands between the player and the enemy
-        if(distanceFromPlayer < minimumMeshDistance && frames - this.framesSinceOldAngle > 100){
+        if(distanceFromPlayer < minimumMeshDistance && (frames - this.framesSinceOldAngle > 250 || (distanceFromPlayer < 1.5))){
           //if the distance is inferior to 2.5: then near attack
           if(distanceFromPlayer <= 2.5){
-            if(frames - this.framesinceNearAttack >= 300){
+            if(frames - this.framesinceNearAttack >= 100){
               this.framesinceNearAttack = frames;
               this.state = 4;
               this.attackNear(player, scene);
@@ -145,7 +153,7 @@ export class GameEnemyService {
             }
           }
           else{
-            if(frames - this.frameSinceFarAttack < 200){
+            if(frames - this.frameSinceFarAttack < 150){
               this.sprt.position.x += this.speed * Math.cos(this.angle);
               this.mesh.position.x += this.speed * Math.cos(this.angle);
               this.coord[0] += this.speed * Math.cos(this.angle); 
@@ -180,9 +188,9 @@ export class GameEnemyService {
               //if the old angle is undefined, the we're setting it up
               if(this.oldAngle == -1) this.oldAngle = this.angle + Math.PI / 2;
               //if the angle hasn't been changed since a long time then we're updating it
-              else if(frames - this.framesSinceOldAngle > 100){
+              else if(frames - this.framesSinceOldAngle > 250){
                 this.framesSinceOldAngle = frames;
-                this.oldAngle += Math.PI / 4;
+                this.oldAngle += Math.PI / 5;
                 this.oldAngle %= 2 * Math.PI;
               }
               //shooting 3 new rays in the new direction of the enemy
@@ -199,7 +207,7 @@ export class GameEnemyService {
               //getting the nearest mesh hitted by those rays
               for(let i of hitCheckArray){
                 //checking if we are getting a valid mesh
-                if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (i.pickedMesh.metadata == "enemy" || i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall"))
+                if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (/*i.pickedMesh.metadata == "enemy" ||*/ i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall"))
                   if (stuff.distance(this.sprt.position, i.pickedMesh.position) < rotationMinDistance){
                     //if this one is the nearest
                     rotationMinDistance = stuff.distance(this.sprt.position, i.pickedMesh.position);
@@ -216,12 +224,12 @@ export class GameEnemyService {
                 }
               }
               //if this direction isn't right, then we need to find a new one 
-              if(rotationMinDistance < 1.5){
+              if(rotationMinDistance < 1.5 && rotationMinDistance != 999999){
                 //while the enemy can't move in this direction we are looking for a new one shooting again 3 rays
-                while(rotationMinDistance < 1 && rotationMinDistance == 999999){
+                while(rotationMinDistance < 1.5){
                   rotationMinDistance = 999999;
                   //we're increasing the angle so the enemy is rotating
-                  this.oldAngle = (this.oldAngle + Math.PI / 2) % Math.PI * 2;
+                  this.oldAngle = (this.oldAngle + Math.PI / 5) % (Math.PI * 2);
                   //we're changint the direction bis with this new angle
                   directionBis = new BABYLON.Vector3(Math.cos(this.oldAngle), 0, Math.sin(this.oldAngle));
                   //We're again shooting 3 ray so we can see if something is blocking the way
@@ -237,7 +245,7 @@ export class GameEnemyService {
                   hitCheckArray = [checkingHitCenter, checkingHitLeft, checkingHitRight];
                   for(let i of hitCheckArray){
                     //checking if it is a valid mesh
-                    if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (i.pickedMesh.metadata == "enemy" || i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall")){
+                    if (i != null && i.pickedMesh != undefined && i.pickedMesh.metadata != "player" && (/*i.pickedMesh.metadata == "enemy" ||*/ i.pickedMesh.metadata == "door" || i.pickedMesh.metadata == "switch" || i.pickedMesh.metadata == "wall")){
                       //if it is a valid mesh then we're checking if it is closer than the closest current
                       if (stuff.distance(this.sprt.position, i.pickedMesh.position) < rotationMinDistance){
                         rotationMinDistance = stuff.distance(this.sprt.position, i.pickedMesh.position);
@@ -280,7 +288,7 @@ export class GameEnemyService {
       else{
         let distanceFromPlayer = stuff.distance(player.camera.position, this.sprt.position);
         if(distanceFromPlayer <= 2.5){
-          if(frames - this.framesinceNearAttack >= 200){
+          if(frames - this.framesinceNearAttack >= 100){
             this.framesinceNearAttack = frames;
             this.state = 4;
             this.attackNear(player, scene);
@@ -290,7 +298,7 @@ export class GameEnemyService {
         }
         else{
           //moving while waiting to shoot (working, just the wall detection above is shit)
-          if(frames - this.frameSinceFarAttack < 200){
+          if(frames - this.frameSinceFarAttack < 150){
            this.sprt.position.x += this.speed * Math.cos(this.angle);
             this.mesh.position.x += this.speed * Math.cos(this.angle);
             this.coord[0] += this.speed * Math.cos(this.angle); 
