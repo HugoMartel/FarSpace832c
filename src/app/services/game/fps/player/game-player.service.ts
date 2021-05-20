@@ -3,6 +3,7 @@ import * as BABYLON from '@babylonjs/core';
 
 import { GameUIService } from '../game-ui.service';
 import { GameLevelService } from '../game-level.service';
+import { Vector2 } from '@babylonjs/core';
 
 //TODO: add imunty & bersek
 //TODO: add a function to end the the game when no health 
@@ -25,6 +26,8 @@ export class GamePlayerService {
   ssgSound: BABYLON.Sound;
   plasmaSound: BABYLON.Sound;
   BFGSound: BABYLON.Sound;
+  shotPuff: BABYLON.SpriteManager;
+  shooting: boolean;
   //note: we're using the camera position as player coord
   camera!:BABYLON.FreeCamera;
   sphere!: BABYLON.Mesh;
@@ -69,6 +72,7 @@ export class GamePlayerService {
     * +-----------+---------+
     */
     this.equippedWeapon = 0;
+    this.shooting = false;
     //the player has no keys at the begining
     this.inventory = [false, false, false];
     /*
@@ -110,33 +114,37 @@ export class GamePlayerService {
     this.fistSound = new BABYLON.Sound("fistSound", "assets/sound/fps/weapon/fist.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.pistolSound = new BABYLON.Sound("pistolSound", "assets/sound/fps/weapon/pistol.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.shotgunSound = new BABYLON.Sound("shotgunSound", "assets/sound/fps/weapon/shotgun.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.ssgSound = new BABYLON.Sound("ssgSound", "assets/sound/fps/weapon/ssg.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.plasmaSound = new BABYLON.Sound("plasmaSound", "assets/sound/fps/weapon/plasma.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
     this.BFGSound = new BABYLON.Sound("BFGSound", "assets/sound/fps/weapon/BFG.wav", scene, null, {
       loop: false,
       autoplay: false,
-      volume: .5
+      volume: .3
     });
+
+    // Weapon particles
+    this.shotPuff = new BABYLON.SpriteManager("shotPuffManager", "assets/textures/particles.png", 1, {height: 32, width: 32}, scene);
+    this.shotPuff.isPickable = false;
     
 
     this.camera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 1, -3), scene);
@@ -212,23 +220,52 @@ export class GamePlayerService {
       if (gameUIService.hasShot) 
         return false;// The gun is already firing
 
+      console.log("bordel");
+
       //fist/chainsaw
       if (this.equippedWeapon == 0) {
         //the shot is doable
         gameUIService.hasShot = true;
+        let isHittingEnemy = false;
+
+        // Particle
+        let puff = new BABYLON.Sprite("enemy", this.shotPuff);
+        puff.height = 1.5;
+        puff.width = 1.5;
+        puff.isPickable = false;
+        
 
         //Check if the shot did hit something eventually
         let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
+        let ray = this.camera.getForwardRay(3);
+        let rayHelper = new BABYLON.RayHelper(ray);
+        rayHelper.show(scene);
+
+        let hit = scene.pickWithRay(ray);
+        console.log(hit);
+        
 
         if (pickInfo !== null && pickInfo.hit) {
           level.enemy.forEach(enemy => {
-            console.log(Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z))
             if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt && 
-                Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= 2.5) {
-              console.log("Fist hit at " + enemy.coord + ", hp: " + enemy.health);
+                Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= 3.) {
+                  isHittingEnemy = true;
+              console.log("Fist hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);
+              puff.position = enemy.sprt.position;
+              puff.playAnimation(6, 10, false, 50, () => puff.dispose());
+              
             }
           });
+        } 
+
+        if (!isHittingEnemy) {
+          console.log(this.camera.rotation);
+          puff.position = this.camera.getFrontPosition(3);
+          puff.playAnimation(0, 5, false, 50, () => puff.dispose());
         }
+
+          
+
 
         this.fistSound.play();
 
@@ -242,6 +279,7 @@ export class GamePlayerService {
 
         //Check if the shot did hit something eventually
         let pickInfo = scene.pickSprite(Math.round(canvas.width / 2), Math.round(canvas.height / 2), undefined, false, this.camera);
+        //let pickInfo = scene.pick(Math.round(canvas.width / 2), Math.round(canvas.height / 2), (meshHit) => meshHit.metadata !== "enemy", false, this.camera);
 
         if (pickInfo !== null && pickInfo.hit) {
           level.enemy.forEach(enemy => {
@@ -261,7 +299,18 @@ export class GamePlayerService {
         this.ammos[2] -=1;
         gameUIService.hasShot = true;
 
-        //TODO
+        //Check if the shots (5 line) did hit something eventually
+        let pick = (x:number,y:number) => scene.pickSprite(x, y, undefined, false, this.camera);
+        for (let i = -2; i <= 2; ++i) {
+          let pickInfo = pick(Math.round(i*canvas.width / 150 + canvas.width / 2), Math.round(canvas.height / 2));
+          if (pickInfo !== null && pickInfo.hit) {
+            level.enemy.forEach(enemy => {
+              if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt) {
+                console.log("Shotgun hit at " + enemy.coord + ", hp: " + enemy.health);
+              }
+            });
+          }
+        }
 
         this.shotgunSound.play();
 
@@ -273,7 +322,25 @@ export class GamePlayerService {
         this.ammos[2] -=2;
         gameUIService.hasShot = true;
 
-        //TODO
+         //Check if the shots (5 square) did hit something eventually
+        let pick = (x:number,y:number):void => {
+          let pickInfo = scene.pickSprite(x, y, undefined, false, this.camera);
+          if (pickInfo !== null && pickInfo.hit) {
+            level.enemy.forEach(enemy => {
+              if ((pickInfo as BABYLON.PickingInfo).pickedSprite === enemy.sprt) {
+                console.log("SSG hit at " + enemy.coord + ", hp: " + enemy.health);
+              }
+            });
+          }
+        }
+        //Actual shots
+        pick(Math.round(-canvas.width / 125 + canvas.width / 2), Math.round(-canvas.width / 125 + canvas.height / 2));
+        pick(Math.round(-canvas.width / 125 + canvas.width / 2), Math.round(+canvas.width / 125 + canvas.height / 2));
+        pick(Math.round(canvas.width / 125 + canvas.width / 2), Math.round(-canvas.width / 125 + canvas.height / 2));
+        pick(Math.round(canvas.width / 125 + canvas.width / 2), Math.round(canvas.width / 125 + canvas.height / 2));
+        pick(Math.round(canvas.width / 2), Math.round(canvas.height / 2));
+        
+        
 
         this.ssgSound.play();
 
