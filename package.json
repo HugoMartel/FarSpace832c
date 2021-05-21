@@ -1,6 +1,10 @@
 {
   "name": "far-space832c",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HugoMartel/FarSpace832c.git"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
