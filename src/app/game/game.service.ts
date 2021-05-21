@@ -141,9 +141,33 @@ export class GameService {
       //************************************************************************
 
       //this.createFPSScene(canvas, levelTEST);
-      this.createPlanetScene(canvas);
+      let introVideo:HTMLVideoElement = document.createElement("video");
+      introVideo.width = canvas.nativeElement.width;
+      introVideo.height = canvas.nativeElement.height;
+      introVideo.autoplay = true;
+      introVideo.loop = false;
+      introVideo.muted = false;
+      introVideo.controls = true;
+      introVideo.textContent = "Sorry, your browser doesn't support embedded videos.";
+      let introSource:HTMLSourceElement = document.createElement("source");
+      introSource.src = "assets/videos/intro.mp4";
+      introSource.type = "video/mp4";
+      introVideo.appendChild(introSource);
 
-      this.animate();
+      let videoContainer = document.getElementById("gameWindowBody");
+      if (videoContainer !== null) {
+        videoContainer.prepend(introVideo);
+        canvas.nativeElement.style.display = "none";
+        this.createPlanetScene(canvas);
+      }
+
+      introVideo.addEventListener('ended', (event:Event) => {
+        event.preventDefault();
+        videoContainer?.removeChild(introVideo);
+        canvas.nativeElement.style.display = "block";
+
+        this.animate();
+      });
     });
   }
 
@@ -408,6 +432,7 @@ export class GameService {
 
     // Then, load the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
+    this.engine.displayLoadingUI();
 
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
@@ -460,14 +485,35 @@ export class GameService {
         instanceTest.position.x = x;
         instanceTest.position.z = y;
         //instanceTest.position.y = this.terr2Matrix[x][y];
-        instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
+        if (x == 0 || x == 99 || y == 0 || y == 99) {
+          instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
+        } else {
+          instanceTest.scaling.y = this.terr2Matrix[x][y] + 0.05;
+          instanceTest.position.y = this.terr2Matrix[x][y]/2 + 0.025;
+        }
         instanceTest.metadata = "ground";
         instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
       }
     }
+
     this.gesMeLoadService.initMeshes(this.scene);
     this.gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
     this.gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);
+
+    //**********************
+    //*       SKYBOX       *
+    //**********************
+    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
+    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/cubemapDebug/", this.scene);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
+
+    this.engine.hideLoadingUI();
+
   }
 
   //**********************
