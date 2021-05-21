@@ -464,12 +464,7 @@ export class GameService {
       }
     }
 
-    BABYLON.SceneLoader.ImportMesh("", "assets/Blender/My/1stQG/", "1stQG.glb", this.scene, (newMeshes) => {
-      newMeshes[0].position.x = 50;
-      newMeshes[0].position.z = 50;
-      newMeshes[0].position.y = this.terr2Matrix[50][50];
-    });
-
+    this.gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
   }
 
   //**********************
