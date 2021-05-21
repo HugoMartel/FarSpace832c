@@ -182,7 +182,7 @@ export class GamePlayerService {
 
     /******    UI   ******/
     this.ui = gameUIService;
-    this.ui.displayUI();
+    this.ui.displayUI(this);
 
     /******FUNCTIONS******/
     //locking the ability to look up
@@ -211,6 +211,7 @@ export class GamePlayerService {
       else{
         this.health -= damage;
       }
+
     }
 
 

@@ -97,7 +97,7 @@ export class GameService {
       "menuUI", true, this.scene
     );
     menuUI.idealWidth = 1795;
-    menuUI.idealHeight = 897;
+    menuUI.idealHeight = 1009;
     menuUI.background = "teal";
 
     // Create the Grid object
@@ -485,7 +485,7 @@ export class GameService {
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
-    let uiService = new GameUIService(this.scene);
+    let uiService = new GameUIService(this.scene, this.menuService);
     let player = new GamePlayerService(this.scene, this.canvas, uiService);
 
     //Add the camera, to be shown as a cone and surrounding collision volume
