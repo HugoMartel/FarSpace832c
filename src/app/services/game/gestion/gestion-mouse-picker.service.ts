@@ -18,7 +18,7 @@ export class GestionMousePickerService {
       if (ptInfo.type === BABYLON.PointerEventTypes.POINTERMOVE) {
         let pickInfo:BABYLON.PickingInfo|null = scene.pick(scene.pointerX, scene.pointerY, undefined);
         if (pickInfo !== null && pickInfo.hit && pickInfo.pickedMesh !== null) {
-          //console.log([pickInfo.pickedMesh.position.x, pickInfo.pickedMesh.position.z, pickInfo.pickedMesh.metadata]);
+          //console.log(pickInfo.pickedMesh.position.y*2);
           if (pickInfo.pickedMesh.metadata == "ground") {
 
             let pasContent = new BABYLON.StandardMaterial("pasContent", scene);

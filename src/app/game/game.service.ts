@@ -473,10 +473,17 @@ export class GameService {
     this.GroundBoxes.registerInstancedBuffer("color", 4);
     this.GroundBoxes.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
 
-    let testColorPalette: number[] = [];
+    let colorPaletteRed: number[] = [];
+    let colorPaletteGreen: number[] = [];
+    let colorPaletteBlue: number[] = [];
     for (let i = 0; i < this.size_z; i++) {
-      testColorPalette[i] = (i)/(this.size_z-1);
+      let tmp: number = (30*(i+1)/(this.size_z+1));
+      colorPaletteRed[i] = ((0.0000272718*tmp**5)-(0.00200717*tmp**4)+(0.0503205*tmp**3)-(0.466441*tmp**2)+(1.38804*tmp)+6.6)/25.6;
+      colorPaletteGreen[i] = (Math.exp((i+1-0.62-(this.size_z/1.95))/((39/200)*this.size_z))+13)/25.6;
+      colorPaletteBlue[i] = ((0.000167911*tmp**4)-(0.00955384*tmp**3)+(0.169536*tmp**2)-(0.307887*tmp)+2.6)/25.6;
     }
+    //console.log(colorPaletteRed, colorPaletteGreen, colorPaletteBlue);
+
     //console.log(testColorPalette);
     for (let x = 0; x < this.terr2Matrix.length; x++) {
       for (let y = 0; y < this.terr2Matrix[x].length; y++) {
@@ -492,7 +499,8 @@ export class GameService {
           instanceTest.position.y = this.terr2Matrix[x][y]/2 + 0.025;
         }
         instanceTest.metadata = "ground";
-        instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
+        let tmp: number = this.terr2Matrix[x][y];
+        instanceTest.instancedBuffers.color = new BABYLON.Color4(colorPaletteRed[tmp], colorPaletteGreen[tmp], colorPaletteBlue[tmp]);
       }
     }
 
