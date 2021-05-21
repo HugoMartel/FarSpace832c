@@ -364,10 +364,15 @@ export class GameEnemyService {
     this.playAnimation = () => {
       if(this.stateFrames === undefined || this.sprt === undefined) return;
       let loop = true;
+      let speed = 300;
       //if the status is death, attack near or attack far, then no looping
-      if(this.state == 2 || this.state == 3 || this.state == 4) loop = false;
+      if(this.state == 2 || this.state == 3 || this.state == 4){ 
+        loop = false;
+        this.sprt.position.y-=0.025;
+        speed = 200;
+      }
       //playing the animation
-      this.sprt.playAnimation(this.stateFrames[this.state][0], this.stateFrames[this.state][1], loop, 300, () => {
+      this.sprt.playAnimation(this.stateFrames[this.state][0], this.stateFrames[this.state][1], loop, speed, () => {
         if(this.state == 3 || this.state == 4){
           this.state = 5;
           this.playAnimation();
