@@ -395,10 +395,21 @@ export class GameEnemyService {
       });
     }
 
+    /**
+    * calling to try an attack near
+    * @param player: the player
+    * @param scene: the babylon scene
+    */
     this.attackNear = (player: GamePlayerService, scene: BABYLON.Scene) => {
       //no general definition for now
       return false;
     }
+
+    /**
+    * calling to try an far near
+    * @param player: the player
+    * @param scene: the babylon scene
+    */
     this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene) => {
       //no general definition for now
       return false;

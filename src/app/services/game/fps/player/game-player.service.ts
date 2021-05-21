@@ -446,7 +446,7 @@ export class GamePlayerService {
         // Check every enemy if they got hit
         enemies.forEach(enemy => {
           //checking the distance with each enemy to wake up
-          if(stuff.distance(enemy.sprt.position, this.camera.position) < 30){
+          if(stuff.distance(enemy.sprt.position, this.camera.position) < 30 && (enemy.state == 0 || enemy.state == 1)){
             //waking him up
             enemy.state = 5;
             //playing the good sound

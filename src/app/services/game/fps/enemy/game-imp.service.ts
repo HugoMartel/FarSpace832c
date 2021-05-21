@@ -46,7 +46,7 @@ export class GameImpService extends GameEnemyService {
     }
     
     /**
-     * Function to call when the imp will enter his attack states
+     * Function to call when the imp will enter his attack states to attackFar
      * @param player: the player
      * @param scene Babylon scene associated with the game
      */
@@ -68,7 +68,7 @@ export class GameImpService extends GameEnemyService {
       return true;
     }
     /**
-    * Function to call when the imp will enter his attack states
+    * Function to call when the imp will enter his attack states to attackNear
     * @param player: the player
     * @param scene Babylon scene associated with the game
     */
@@ -89,8 +89,13 @@ export class GameImpService extends GameEnemyService {
       sound.setPosition(this.mesh.position) 
     }
 
-
+    /**
+    * Function to play death & injure sounds
+    * @param name: injured or death or wakeup in string,
+    * @param scene: the babylon scene
+    */
     this.playSound = (name: String, scene: BABYLON.Scene) => {
+      //TODO: check the random
       //playing a pain sound
       if(this.sound != undefined) this.sound.stop();
       if (name == "injured"){
