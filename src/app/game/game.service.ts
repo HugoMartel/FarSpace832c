@@ -514,7 +514,7 @@ export class GameService {
       //! BABYLON.PointerInput.LeftClick means right click...)
       if (ptInfo.type === BABYLON.PointerEventTypes.POINTERDOWN && ptInfo.event.button === 0) {
         player.shooting = true;
-        player.shoot(this.scene, level, this.canvas);
+        player.shoot(this.scene, level, this.canvas, this.frameCounter);
       } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 0) {
         player.shooting = false;
       }
