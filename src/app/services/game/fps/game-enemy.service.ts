@@ -11,8 +11,6 @@ import { GameDoorsService } from "./levelEnv/game-doors.service"
 
 //TODO: when enemy is ded we need to remove the mesh
 
-//TODO: add a way to check enemy collision when near, cause rn they're doing shit
-
 export class GameEnemyService {
   coord: Array<number>;
   health: number;
@@ -29,13 +27,14 @@ export class GameEnemyService {
   mesh!: BABYLON.Mesh;
   //add some stuff here if we do more fireball
   projectile!: GameFireballService;
-  init: Function;
-  setup: Function;
   stateFrames!: Array<Array<number>>;
   playAnimation : Function;
   attackNear : Function;
+  init: Function;
+  setup: Function;
   attackFar: Function;
   IA: Function;
+  applyDamage: Function;
 
   constructor(position: Array<number>, @Inject(Number) private healthbar: number, @Inject(Number) private typeEnemy: number, @Inject(Number) private status: number) { 
     this.coord = position;
@@ -83,6 +82,27 @@ export class GameEnemyService {
         this.sprt.isPickable = true;
         this.mesh.checkCollisions = true;
         this.mesh.material = enemyMat1;
+      }
+    }
+
+    /**
+    * Function to remove health and detect death of the enemy
+    @param damage the damage that is applied to the enemy, a number
+    */
+    this.applyDamage = (damage: number) => {
+      //removing the health
+      this.health -= damage;
+      //if the enemy is dead
+      if(this.health <= 0){
+        //removing the mesh
+        this.mesh.isPickable = false;
+        this.mesh.checkCollisions = false;
+        this.mesh.dispose();
+        //changing the state to the death state
+        this.state = 2;
+        //restatring the animation to show the death one
+        this.sprt.stopAnimation();
+        this.playAnimation();
       }
     }
 
@@ -142,7 +162,7 @@ export class GameEnemyService {
       //if a wall or something else is picken the player and the awaken enemy
       if(hitBool && mainHit != null && mainHit.pickedMesh != undefined){
         //if nothing stands between the player and the enemy
-        if(distanceFromPlayer < minimumMeshDistance && (frames - this.framesSinceOldAngle > 250 || (distanceFromPlayer < 1.5))){
+        if(distanceFromPlayer < minimumMeshDistance && (frames - this.framesSinceOldAngle > 250 || (distanceFromPlayer <= 2))){
           //if the distance is inferior to 2.5: then near attack
           if(distanceFromPlayer <= 2.5){
             //if it has been more than 100 frames since last near attack then we can attack again
@@ -159,12 +179,14 @@ export class GameEnemyService {
           else{
             //if a far attack has been made less than 150 frames ago, we're only moving, not attacking
             if(frames - this.frameSinceFarAttack < 150){
-              this.sprt.position.x += this.speed * Math.cos(this.angle);
-              this.mesh.position.x += this.speed * Math.cos(this.angle);
-              this.coord[0] += this.speed * Math.cos(this.angle); 
-              this.sprt.position.z += this.speed * Math.sin(this.angle);
-              this.mesh.position.z += this.speed * Math.sin(this.angle);
-              this.coord[1] += this.speed * Math.sin(this.angle);
+              if(stuff.distance(player.camera.position, new BABYLON.Vector3(this.sprt.position.x + this.speed * Math.cos(this.angle), 0.5, this.sprt.position.z + this.speed * Math.sin(this.angle))) >=1.752){
+                this.sprt.position.x += this.speed * Math.cos(this.angle);
+                this.mesh.position.x += this.speed * Math.cos(this.angle);
+                this.coord[0] += this.speed * Math.cos(this.angle); 
+                this.sprt.position.z += this.speed * Math.sin(this.angle);
+                this.mesh.position.z += this.speed * Math.sin(this.angle);
+                this.coord[1] += this.speed * Math.sin(this.angle);
+              }
             }
             //if it has been more than 150 frames since last far attack, we can do another one
             //we're passing the function as condition because the function is checking if an attack is possible
@@ -275,7 +297,10 @@ export class GameEnemyService {
                   }
                 }
               }
-              if(stuff.distance(player.camera.position, new BABYLON.Vector3(this.sprt.position.x + this.speed * Math.cos(this.oldAngle), 0.5, this.sprt.position.z + this.speed * Math.sin(this.oldAngle))) >= 1.5){
+              //computing the new distance from the player
+              //if not going into the player, or searching the new way
+              let newDistFromPlayer = stuff.distance(player.camera.position, new BABYLON.Vector3(this.sprt.position.x + this.speed * Math.cos(this.oldAngle), 0.5, this.sprt.position.z + this.speed * Math.sin(this.oldAngle)));
+              if (newDistFromPlayer > rotationMinDistance || newDistFromPlayer >= 1.75){
                 //when the angle is good then we move the sprite, using some basic maths
                 this.sprt.position.x += this.speed * Math.cos(this.oldAngle);
                 this.mesh.position.x += this.speed * Math.cos(this.oldAngle);
@@ -287,7 +312,7 @@ export class GameEnemyService {
             }
           }
           //else if no mesh to near then we continue in the direction of the player hoping it is a good thing
-          else{
+          else if (stuff.distance(player.camera.position, new BABYLON.Vector3(this.sprt.position.x + this.speed * Math.cos(this.angle), 0.5, this.sprt.position.z + this.speed * Math.sin(this.angle))) >= 1.75){
               this.sprt.position.x += this.speed * Math.cos(this.angle);
               this.mesh.position.x += this.speed * Math.cos(this.angle);
               this.coord[0] += this.speed * Math.cos(this.angle); 
@@ -313,12 +338,14 @@ export class GameEnemyService {
         else{
           //moving while waiting to shoot (working, just the wall detection above is shit)
           if(frames - this.frameSinceFarAttack < 150){
-           this.sprt.position.x += this.speed * Math.cos(this.angle);
-            this.mesh.position.x += this.speed * Math.cos(this.angle);
-            this.coord[0] += this.speed * Math.cos(this.angle); 
-            this.sprt.position.z += this.speed * Math.sin(this.angle);
-            this.mesh.position.z += this.speed * Math.sin(this.angle);
-            this.coord[1] += this.speed * Math.sin(this.angle);
+            if(stuff.distance(player.camera.position, new BABYLON.Vector3(this.sprt.position.x + this.speed * Math.cos(this.angle), 0.5, this.sprt.position.z + this.speed * Math.sin(this.angle))) >= 1.75){
+              this.sprt.position.x += this.speed * Math.cos(this.angle);
+              this.mesh.position.x += this.speed * Math.cos(this.angle);
+              this.coord[0] += this.speed * Math.cos(this.angle); 
+              this.sprt.position.z += this.speed * Math.sin(this.angle);
+              this.mesh.position.z += this.speed * Math.sin(this.angle);
+              this.coord[1] += this.speed * Math.sin(this.angle);
+            }
           }
           //shooting (working)
           else if (this.attackFar(player, scene)){
