@@ -85,14 +85,18 @@ export class GameDoorsService {
       }
     }
     this.closeSound = (scene: BABYLON.Scene, player: GamePlayerService) => {
-      let volume = 1 / stuff.distance(player.camera.position, this.mesh.position);  
       let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/doors/longDoorClosing.wav", scene, () => {
         sound.play();
       }, {
         loop: false,
         autoplay: false,
-        volume: volume
-      }); 
+        spatialSound: true,
+        maxDistance: 50,
+        volume: 0.75,
+        distanceModel: "linear",
+        rolloffFactor: 2
+      });
+      sound.setPosition(this.mesh.position) 
     }
 
     this.openSound = (scene: BABYLON.Scene, player: GamePlayerService) => {
@@ -101,8 +105,13 @@ export class GameDoorsService {
       }, {
         loop: false,
         autoplay: false,
-        volume: 0.6
+        spatialSound: true,
+        maxDistance: 50,
+        volume: 0.75,
+        distanceModel: "linear",
+        rolloffFactor: 2
       });
+      sound.setPosition(this.mesh.position) 
     }
   }
 }

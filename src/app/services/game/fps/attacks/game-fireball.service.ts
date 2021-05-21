@@ -53,13 +53,16 @@ export class GameFireballService {
         player.applyDamage(20);
         this.toMove = false;
         this.sprt.stopAnimation();
-        let volume = 1 / stuff.distance(this.sprt.position ,player.camera.position);
         let sound = new BABYLON.Sound("music", "assets/sound/fps/enemies/imp/fireballHit.wav", scene, () => {
           sound.play();
         }, {
           loop: false,
           autoplay: false,
-          volume: volume
+          spatialSound: true,
+          maxDistance: 50,
+          volume: 0.75,
+          distanceModel: "linear",
+          rolloffFactor: 2
         }); 
         this.sprt.disposeWhenFinishedAnimating = true;
         this.sprt.playAnimation(20, 23, false, 100);
@@ -71,14 +74,18 @@ export class GameFireballService {
         //if touching a wall 
         if(hit?.pickedMesh != null && hit?.pickedMesh.position.x != null && stuff.distance(hit?.pickedMesh.position, new BABYLON.Vector3(this.coord[0], 0.5, this.coord[1])) < 1.2){
           this.toMove = false;
-          let volume = 1 / stuff.distance(hit?.pickedMesh?.position, this.sprt.position);
           let sound = new BABYLON.Sound("music", "assets/sound/fps/enemies/imp/fireballHit.wav", scene, () => {
             sound.play();
           }, {
             loop: false,
             autoplay: false,
-            volume: volume
+            spatialSound: true,
+            maxDistance: 50,
+            volume: 0.75,
+            distanceModel: "linear",
+            rolloffFactor: 2
           }); 
+          sound.setPosition(this.sprt.position) 
           this.sprt.stopAnimation();
           this.sprt.disposeWhenFinishedAnimating = true;
           this.sprt.playAnimation(20, 23, false, 100);

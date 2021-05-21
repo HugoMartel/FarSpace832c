@@ -51,15 +51,19 @@ export class GameImpService extends GameEnemyService {
      */
     this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene) => {
       if(this.projectile != undefined && this.projectile.toMove) return false;
-      let volume = 1 / stuff.distance(player.camera.position, this.sprt.position); 
       this.projectile = new GameFireballService([this.sprt.position.x + 1 * Math.cos(this.angle), this.sprt.position.z + 1 * Math.sin(this.angle)], [player.camera.position.x, player.camera.position.z], scene);
       let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/enemies/imp/attackFar.wav", scene, () => {
         sound.play();
       }, {
         loop: false,
         autoplay: false,
-        volume: volume
+        spatialSound: true,
+        maxDistance: 50,
+        volume: 0.8,
+        distanceModel: "linear",
+        rolloffFactor: 2
       });
+      sound.setPosition(this.mesh.position) 
       return true;
     }
     /**
@@ -75,8 +79,13 @@ export class GameImpService extends GameEnemyService {
       }, {
         loop: false,
         autoplay: false,
-        volume: 0.6
+        spatialSound: true,
+        maxDistance: 50,
+        volume: 0.75,
+        distanceModel: "linear",
+        rolloffFactor: 2
       }); 
+      sound.setPosition(this.mesh.position) 
     }
   }
 }
