@@ -20,7 +20,7 @@ export class GameImpService extends GameEnemyService {
    */
   constructor(position: Array<number>, @Inject(Number) private sec: number) { 
     //10 = life, sec = state, scene obvious
-    super(position, 10, 1, sec);
+    super(position, 70, 1, sec);
     this.speed = 0.05;
     this.stateFrames = [
       [0, 3],   //sleep
@@ -39,7 +39,7 @@ export class GameImpService extends GameEnemyService {
       this.sprtMng = new BABYLON.SpriteManager("imp", "assets/textures/Enemy/AllImpAnimation.png", 3, {height: 65, width: 65}, scene);
       this.sprtMng.isPickable = true;
       //this.mesh = BABYLON.MeshBuilder.CreateSphere("enemy", {diameterX: 0.5, diameterY: 1, diameterZ: 0.5});
-      this.mesh = BABYLON.MeshBuilder.CreateBox("wall", {size :0.5, height: 3}, scene);
+      this.mesh = BABYLON.MeshBuilder.CreateBox("wall", {size :0.6, height: 3}, scene);
       this.mesh.metadata = "enemy";
       this.mesh.isPickable = true;
     }

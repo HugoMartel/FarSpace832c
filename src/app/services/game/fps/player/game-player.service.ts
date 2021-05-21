@@ -4,7 +4,9 @@ import * as BABYLON from '@babylonjs/core';
 import { GameUIService } from '../game-ui.service';
 import { GameLevelService } from '../game-level.service';
 import { Vector2 } from '@babylonjs/core';
+import * as stuff from '../randomFunctions/random-functions.service'
 import { GameEnemyService } from '../game-enemy.service';
+import { distance } from '../randomFunctions/random-functions.service';
 
 //TODO: add imunty & bersek
 //TODO: add a function to end the the game when no health 
@@ -435,7 +437,7 @@ export class GamePlayerService {
     this.shootRay = (ray:BABYLON.Ray, maxDist:number, enemies: Array<GameEnemyService>, puffSprt:BABYLON.Sprite) => {
       let isHittingEnemy:boolean = false;
 
-      let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", true);
+      let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
       console.log(hit?.pickedMesh);//!DEBUG
 
 
@@ -447,6 +449,62 @@ export class GamePlayerService {
           if (hit?.pickedMesh === enemy.mesh) {
             isHittingEnemy = true;
             console.log("Plasma hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
+            let hitDistance = stuff.distance(hit.pickedMesh.position, this.camera.position);
+            //removing the enemy HP
+            let damage = 0;
+            /* Dammage are calculated with:
+            *http://www.doom2.net/single/weaponfaq.html*/
+            switch (this.equippedWeapon){
+              //fist;
+              case 0:
+                //setting up the damage 
+                damage = 11;
+                break;
+              //pistol:
+              case 1:
+                damage = 10;
+                break;
+              //shotgun
+              case 2:
+                damage = 70/5;
+                if (hitDistance >= maxDist / 2){
+                  damage *= (1.5 - hitDistance / maxDist);
+                }
+                break;
+              //SSG
+              case 3:
+                damage = 210/5;
+                if (hitDistance >= maxDist / 2){
+                  damage *= (1.5 - hitDistance / maxDist);
+                }
+                break;
+              //chaingun
+              case 4:
+                damage = 10;
+                break;
+              //plasma:
+              case 5:
+                damage = 22.5;
+                break;
+              //BFG 9K
+              case 6:
+                damage = 3130;
+                break;
+              //rocket
+              case 7:
+                damage = 218;
+                break;
+              //chainsaw
+              case 8:
+                damage = 480;
+                break;
+              //in case of mistake happening
+              default:
+                damage = 0;
+                break;
+            }
+            if(hitDistance >= maxDist) damage = 0;
+            enemy.applyDamage(damage)
             /*
             TODO: Enemy logic 
               - Remove the appropriate health to the enemy, 
