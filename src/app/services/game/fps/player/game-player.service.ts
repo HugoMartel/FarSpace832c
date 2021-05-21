@@ -252,7 +252,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(1,1,1));//White
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff);
+        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
 
         this.fistSound.play();
 
@@ -284,7 +284,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(0,0,0));//Black
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff);
+        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
 
         this.pistolSound.play();
 
@@ -318,7 +318,7 @@ export class GamePlayerService {
         //TODO create 4 other shots coming out of the barrel in a line : * * * * *
         
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff);
+        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
 
         this.shotgunSound.play();
 
@@ -357,7 +357,7 @@ export class GamePlayerService {
         */
         
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff);
+        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
 
         this.ssgSound.play();
 
@@ -398,7 +398,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(0,0,1));//Blue
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff);
+        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
 
         this.plasmaSound.play();
 
@@ -434,7 +434,7 @@ export class GamePlayerService {
      * @param enemies level enemies array
      * @param puffSprt puff sprite to display where did the ray hit
      */
-    this.shootRay = (ray:BABYLON.Ray, maxDist:number, enemies: Array<GameEnemyService>, puffSprt:BABYLON.Sprite) => {
+    this.shootRay = (ray:BABYLON.Ray, maxDist:number, enemies: Array<GameEnemyService>, puffSprt:BABYLON.Sprite, scene: BABYLON.Scene) => {
       let isHittingEnemy:boolean = false;
 
       let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
@@ -445,6 +445,13 @@ export class GamePlayerService {
       if (hit !== null && hit.pickedMesh !== null && hit.pickedMesh.metadata === "enemy") {
         // Check every enemy if they got hit
         enemies.forEach(enemy => {
+          //checking the distance with each enemy to wake up
+          if(stuff.distance(enemy.sprt.position, this.camera.position) < 30){
+            //waking him up
+            enemy.state = 5;
+            //playing the good sound
+            enemy.playSound("wakeup", scene);
+          }
           // Check if the tested enemy is the one that got hit
           if (hit?.pickedMesh === enemy.mesh) {
             isHittingEnemy = true;
@@ -458,7 +465,8 @@ export class GamePlayerService {
               //fist;
               case 0:
                 //setting up the damage 
-                damage = 11;
+                if(this.onBerserk) damage = 130;
+                else damage = 10;
                 break;
               //pistol:
               case 1:
@@ -504,15 +512,8 @@ export class GamePlayerService {
                 break;
             }
             if(hitDistance >= maxDist) damage = 0;
-            enemy.applyDamage(damage)
-            /*
-            TODO: Enemy logic 
-              - Remove the appropriate health to the enemy, 
-              - Reduce damage by distance ? (linearly with Math.hypot result above ?)
-              - Trigger pain state of the enemy
-              - Maybe change the ray hit to rough hitbox since the imps' hitbox seem a little thin
-            */
-          
+            enemy.applyDamage(damage, scene);
+
             // Set the blood puff position slightly in front of the imp
             puffSprt.position = new BABYLON.Vector3(
               enemy.sprt.position.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x),

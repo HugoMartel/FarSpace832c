@@ -18,6 +18,7 @@ export class GameEnemyService {
   speed: number;
   state: number;
   angle: number;
+  sound!: BABYLON.Sound;
   frameSinceFarAttack: number;
   framesinceNearAttack: number;
   framesSinceOldAngle: number;
@@ -35,6 +36,7 @@ export class GameEnemyService {
   attackFar: Function;
   IA: Function;
   applyDamage: Function;
+  playSound: Function;
 
   constructor(position: Array<number>, @Inject(Number) private healthbar: number, @Inject(Number) private typeEnemy: number, @Inject(Number) private status: number) { 
     this.coord = position;
@@ -52,6 +54,7 @@ export class GameEnemyService {
     //       3 = attack missil
     //       4 = attack near
     //       5 = chasing
+    //       6 = painState
 
     this.state = status;
     this.setup = (scene: BABYLON.Scene) => {
@@ -89,7 +92,15 @@ export class GameEnemyService {
     * Function to remove health and detect death of the enemy
     @param damage the damage that is applied to the enemy, a number
     */
-    this.applyDamage = (damage: number) => {
+    this.applyDamage = (damage: number, scene: BABYLON.Scene) => {
+      //one third of a chance to trigger a pain state:
+      let random = Math.floor(Math.random() * 7);
+      if(random <= 3){
+        this.state = 6;
+        this.sprt.stopAnimation();
+        this.playAnimation();
+      }
+      this.playSound("injured", scene);
       //removing the health
       this.health -= damage;
       //if the enemy is dead
@@ -100,6 +111,7 @@ export class GameEnemyService {
         this.mesh.dispose();
         //changing the state to the death state
         this.state = 2;
+        this.playSound("death", scene);
         //restatring the animation to show the death one
         this.sprt.stopAnimation();
         this.playAnimation();
@@ -114,8 +126,8 @@ export class GameEnemyService {
     * @param doors: the array of GameDoorsServices of the level
     */
     this.IA = (player: GamePlayerService, scene: BABYLON.Scene, frames: number, doors: Array<GameDoorsService>) => {
-      //if the mob is dead then return
-      if(this.state == 2) return;
+      //if the mob is dead then return or in a pain state then return
+      if(this.state == 2 || this.state == 6) return;
       //computing the distance between the player and the mob, so we can wake him up if the player is near
       let distanceFromPlayer = stuff.distance(player.camera.position, this.sprt.position);
       //if the enemy is too far away then put it to sleep
@@ -125,7 +137,10 @@ export class GameEnemyService {
         this.playAnimation();
       }
       //if the player is near the enemy and the enemy is sleeping then wake up;
-      if((this.state == 0 || this.state == 1) && stuff.distance(player.camera.position, this.sprt.position) < 5) this.state = 5;
+      if((this.state == 0 || this.state == 1) && stuff.distance(player.camera.position, this.sprt.position) < 10){ 
+        this.state = 5;
+        this.playSound("wakeup", scene);
+      }
       //setting the lowest distance from a front facing mesh to infinity
       let minimumMeshDistance = 999999999;
       this.mesh.isPickable = false;
@@ -366,14 +381,14 @@ export class GameEnemyService {
       let loop = true;
       let speed = 300;
       //if the status is death, attack near or attack far, then no looping
-      if(this.state == 2 || this.state == 3 || this.state == 4){ 
+      if(this.state == 2 || this.state == 3 || this.state == 4 || this.state == 6){ 
+        if(this.state == 2) this.sprt.position.y-=0.025;
         loop = false;
-        this.sprt.position.y-=0.025;
         speed = 200;
       }
       //playing the animation
       this.sprt.playAnimation(this.stateFrames[this.state][0], this.stateFrames[this.state][1], loop, speed, () => {
-        if(this.state == 3 || this.state == 4){
+        if(this.state == 3 || this.state == 4 || this.state == 6){
           this.state = 5;
           this.playAnimation();
         }
@@ -387,6 +402,15 @@ export class GameEnemyService {
     this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene) => {
       //no general definition for now
       return false;
+    }
+
+    /**
+    * Function to play death & injure sounds
+    * @param name: injured or death or wakeup in string,
+    * @param scene: the babylon scene
+    */
+    this.playSound = (name: String, scene: BABYLON.Scene) => {
+      return;
     }
   }
 }

@@ -28,7 +28,8 @@ export class GameImpService extends GameEnemyService {
       [7, 11],  //death
       [4, 6],   //attack missile
       [4, 6],   //attack melee,
-      [0, 3]    //chasing
+      [0, 3],    //chasing
+      [24, 24] //pain state
     ];
 
     /**
@@ -86,6 +87,71 @@ export class GameImpService extends GameEnemyService {
         rolloffFactor: 2
       }); 
       sound.setPosition(this.mesh.position) 
+    }
+
+
+    this.playSound = (name: String, scene: BABYLON.Scene) => {
+      //playing a pain sound
+      if(this.sound != undefined) this.sound.stop();
+      if (name == "injured"){
+        this.sound = new BABYLON.Sound("music", "../../../assets/sound/fps/enemies/imp/pain.wav", scene, () => {
+          this.sound.play();
+        }, {
+          loop: false,
+          autoplay: false,
+          spatialSound: true,
+          maxDistance: 50,
+          volume: 0.8,
+          distanceModel: "linear",
+          rolloffFactor: 2
+        });
+        this.sound.setPosition(this.mesh.position);
+      }
+      else if (name == "death"){
+        let random = Math.round(Math.random());
+        if (random == 0){
+          this.sound = new BABYLON.Sound("music", "../../../../assets/sound/fps/enemies/imp/death1.wav", scene, () => {
+            this.sound.play();
+          }, {
+            loop: false,
+            autoplay: false,
+            spatialSound: true,
+            maxDistance: 50,
+            volume: 0.8,
+            distanceModel: "linear",
+            rolloffFactor: 2
+          });
+          this.sound.setPosition(this.mesh.position);
+        }
+        else if(random == 1){
+          this.sound = new BABYLON.Sound("music", "../../../../assets/sound/fps/enemies/imp/death2.wav", scene, () => {
+            this.sound.play();
+          }, {
+            loop: false,
+            autoplay: false,
+            spatialSound: true,
+            maxDistance: 50,
+            volume: 0.8,
+            distanceModel: "linear",
+            rolloffFactor: 2
+          });
+          this.sound.setPosition(this.mesh.position);
+        }
+      }
+      else if (name == "wakeup"){
+        this.sound = new BABYLON.Sound("music", "../../../../assets/sound/fps/enemies/imp/wakeup.wav", scene, () => {
+          this.sound.play();
+        }, {
+          loop: false,
+          autoplay: false,
+          spatialSound: true,
+          maxDistance: 50,
+          volume: 0.8,
+          distanceModel: "linear",
+          rolloffFactor: 2
+        });
+        this.sound.setPosition(this.mesh.position);
+      }
     }
   }
 }
