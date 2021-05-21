@@ -127,9 +127,11 @@ export class GameUIService {
      * @param id weapon id to change to
      */
     this.changeWeapon = (id:number, player:GamePlayerService) => {
-      //select the line in the file we want to display
+
       this.currentWeaponId = id;
       player.equippedWeapon = id;
+
+      //select the line in the file we want to display
       this.currentWeapon.cellId = 10 * id;
 
       switch (id) {

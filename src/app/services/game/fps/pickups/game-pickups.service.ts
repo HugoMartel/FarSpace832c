@@ -202,6 +202,11 @@ export class GamePickupsService {
       this.sprt.position.y = 0.5;
     }
 
+    /**
+     * Function to call when the player is on a collectible
+     * @param player player that picked up the collectible
+     * @param scene babylon scene
+     */
     this.pickingUp = (player: GamePlayerService, scene: BABYLON.Scene) => {
       if(this.remove) return; 
       this.remove = true;
@@ -318,6 +323,7 @@ export class GamePickupsService {
         case 16:
           player.weaponList[2] = true;
           player.equippedWeapon = 2;
+          player.ui.changeWeapon(2);
           if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) player.ammos[2] += 8;
           else if(player.hasBackPack) player.ammos[2] = 100;
           else player.ammos[2] = 50;
@@ -326,6 +332,7 @@ export class GamePickupsService {
         case 17:
           player.weaponList[3] = true;
           player.equippedWeapon = 3;
+          player.ui.changeWeapon(3);
           if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) player.ammos[2] += 8;
           else if(player.hasBackPack) player.ammos[2] = 100;
           else player.ammos[2] = 50;
@@ -334,30 +341,34 @@ export class GamePickupsService {
         case 18:
           player.weaponList[4] = true;
           player.equippedWeapon = 4;
+          player.ui.changeWeapon(4);
           if((!player.hasBackPack && player.ammos[1] + 20 <= 200) || (player.hasBackPack && player.ammos[1] + 20 <= 400)) player.ammos[1] += 20;
           else if(player.hasBackPack) player.ammos[1] = 400;
           else player.ammos[1] = 200;
           break;
         //rocket Launcher
         case 19:
-          player.weaponList[5] = true;
-          player.equippedWeapon = 5;
+          player.weaponList[7] = true;
+          player.equippedWeapon = 7;
+          //player.ui.changeWeapon(7);//!not added into the game
           if((!player.hasBackPack && player.ammos[3] + 2 <= 50) || (player.hasBackPack && player.ammos[3] + 2 <= 100)) player.ammos[3] += 2;
           else if(player.hasBackPack) player.ammos[3] = 100;
           else player.ammos[3] = 50;
           break;
         //plasma
         case 20:
-          player.weaponList[6] = true;
-          player.equippedWeapon =6;
+          player.weaponList[5] = true;
+          player.equippedWeapon = 5;
+          player.ui.changeWeapon(5);
           if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) player.ammos[4] += 40;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;
           break;
         //BFG
         case 21:
-          player.weaponList[7] = true;
-          player.equippedWeapon = 7;
+          player.weaponList[6] = true;
+          player.equippedWeapon = 6;
+          player.ui.changeWeapon(6);
           if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) player.ammos[4] += 40;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;

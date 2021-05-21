@@ -556,11 +556,11 @@ export class GameService {
               break;
             case 'Digit3':
               if (!uiService.hasShot) {
-                if (uiService.currentWeaponId !== 2) {
+                if (player.weaponList[2] && uiService.currentWeaponId !== 2) {
                   uiService.changeWeapon(2, player);
                   uiService.swapSound.stop();
                   uiService.swapSound.play();
-                } else {
+                } else if (player.weaponList[3]) {
                   uiService.changeWeapon(3, player);
                   uiService.swapSound.stop();
                   uiService.swapSound.play();
@@ -568,21 +568,21 @@ export class GameService {
               }
               break;
             case 'Digit4':
-              if (!uiService.hasShot && uiService.currentWeaponId !== 4) {
+              if (!uiService.hasShot && player.weaponList[4] && uiService.currentWeaponId !== 4) {
                 uiService.changeWeapon(4, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit5':
-              if (!uiService.hasShot && uiService.currentWeaponId !== 5) {
+              if (!uiService.hasShot && player.weaponList[5] && uiService.currentWeaponId !== 5) {
                 uiService.changeWeapon(5, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
               }
               break;
             case 'Digit6':
-              if (!uiService.hasShot && uiService.currentWeaponId !== 6) {
+              if (!uiService.hasShot && player.weaponList[6] && uiService.currentWeaponId !== 6) {
                 uiService.changeWeapon(6, player);
                 uiService.swapSound.stop();
                 uiService.swapSound.play();
