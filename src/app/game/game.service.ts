@@ -408,6 +408,7 @@ export class GameService {
 
     // Then, load the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
+    this.engine.displayLoadingUI();
 
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
@@ -469,6 +470,21 @@ export class GameService {
       newMeshes[0].position.z = 50;
       newMeshes[0].position.y = this.terr2Matrix[50][50];
     });
+
+
+    //**********************
+    //*       SKYBOX       *
+    //**********************
+    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
+    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/cubemapDebug/", this.scene);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
+
+    this.engine.hideLoadingUI();
 
   }
 
