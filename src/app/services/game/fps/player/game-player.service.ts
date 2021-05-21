@@ -4,6 +4,7 @@ import * as BABYLON from '@babylonjs/core';
 import { GameUIService } from '../game-ui.service';
 import { GameLevelService } from '../game-level.service';
 import { Vector2 } from '@babylonjs/core';
+import { GameEnemyService } from '../game-enemy.service';
 
 //TODO: add imunty & bersek
 //TODO: add a function to end the the game when no health 
@@ -35,6 +36,7 @@ export class GamePlayerService {
   ammos: Array<number>;
   lockRotation: Function;
   shoot: Function;
+  shootRay: Function;
   applyDamage: Function;
 
   constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement, gameUIService: GameUIService){ 
@@ -229,8 +231,6 @@ export class GamePlayerService {
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
 
-        let isHittingEnemy:boolean = false;
-
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
         puff.height = 1.5;
@@ -239,64 +239,15 @@ export class GamePlayerService {
 
         // Max distance that the fist can reach
         let hitDistance:number = 3.;
-        
 
-        //Check if the shot did hit something eventually
+
+        // Create the ray
         let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
         let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
         rayHelper.show(scene, new BABYLON.Color3(1,1,1));//White
 
-        let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray");
-        console.log(hit?.pickedMesh);//!DEBUG
-        
         // Check if the ray did hit something eventually
-        if (hit !== null && hit.pickedMesh !== null && hit.pickedMesh.metadata === "enemy") {
-          // Check every enemy if they got hit
-          level.enemy.forEach(enemy => {
-            // Check if the tested enemy is the one that got hit
-            if (
-              hit?.pickedMesh === enemy.mesh && 
-              Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= hitDistance
-            ) {
-                  isHittingEnemy = true;
-              console.log("Fist hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
-              /*
-              TODO: Enemy logic 
-                - Remove the appropriate health to the enemy, 
-                - Reduce damage by distance ? (linearly with Math.hypot result above ?)
-                - Trigger pain state of the enemy
-                - Maybe change the ray hit to rough hitbox since the imps' hitbox seem a little thin
-              */
-
-              // Set the blood puff position slightly in front of the imp
-              puff.position = new BABYLON.Vector3(
-                enemy.sprt.position.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x),
-                1,
-                enemy.sprt.position.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-              );
-              //Play the blood puff animation
-              puff.playAnimation(6, 10, false, 50, () => puff.dispose());
-              
-            }
-          });
-        }
-
-        // Particle animation if the shot doesn't hit an enemy
-        if (!isHittingEnemy) {
-          if (hit !== null && hit.pickedMesh !== null && hit.pickedPoint !== null && (hit.pickedMesh.metadata === "wall" || hit.pickedMesh.metadata === "door")) {
-            // If a wall is hit
-            puff.position = new BABYLON.Vector3(
-              hit.pickedPoint.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x), 
-              1, 
-              hit.pickedPoint.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-            );
-          } else {
-            // If nothing is hit
-            puff.position = this.camera.getFrontPosition(hitDistance);
-          }
-          //Play the smoke puff animation
-          puff.playAnimation(0, 5, false, 50, () => puff.dispose());
-        }
+        this.shootRay(ray, hitDistance, level.enemy, puff);
 
         this.fistSound.play();
 
@@ -312,8 +263,6 @@ export class GamePlayerService {
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
 
-        let isHittingEnemy:boolean = false;
-
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
         puff.height = 1.5;
@@ -324,62 +273,13 @@ export class GamePlayerService {
         let hitDistance:number = this.equippedWeapon == 1 ? 30. : 50.;
         
 
-        //Check if the shot did hit something eventually
+        // Create the ray
         let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
         let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
         rayHelper.show(scene, new BABYLON.Color3(0,0,0));//Black
 
-        let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray");
-        console.log(hit?.pickedMesh);//!DEBUG
-        
         // Check if the ray did hit something eventually
-        if (hit !== null && hit.pickedMesh !== null && hit.pickedMesh.metadata === "enemy") {
-          // Check every enemy if they got hit
-          level.enemy.forEach(enemy => {
-            // Check if the tested enemy is the one that got hit
-            if (
-              hit?.pickedMesh === enemy.mesh && 
-              Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= hitDistance
-            ) {
-                  isHittingEnemy = true;
-              console.log((this.equippedWeapon == 1?"Pistol":"Chaigun") + " hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
-              /*
-              TODO: Enemy logic 
-                - Remove the appropriate health to the enemy, 
-                - Reduce damage by distance ? (linearly with Math.hypot result above ?)
-                - Trigger pain state of the enemy
-                - Maybe change the ray hit to rough hitbox since the imps' hitbox seem a little thin
-              */
-
-              // Set the blood puff position slightly in front of the imp
-              puff.position = new BABYLON.Vector3(
-                enemy.sprt.position.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x),
-                1,
-                enemy.sprt.position.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-              );
-              //Play the blood puff animation
-              puff.playAnimation(6, 10, false, 50, () => puff.dispose());
-              
-            }
-          });
-        }
-
-        // Particle animation if the shot doesn't hit an enemy
-        if (!isHittingEnemy) {
-          if (hit !== null && hit.pickedMesh !== null && hit.pickedPoint !== null && (hit.pickedMesh.metadata === "wall" || hit.pickedMesh.metadata === "door")) {
-            // If a wall is hit
-            puff.position = new BABYLON.Vector3(
-              hit.pickedPoint.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x), 
-              1, 
-              hit.pickedPoint.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-            );
-          } else {
-            // If nothing is hit
-            puff.position = this.camera.getFrontPosition(hitDistance);
-          }
-          //Play the smoke puff animation
-          puff.playAnimation(0, 5, false, 50, () => puff.dispose());
-        }
+        this.shootRay(ray, hitDistance, level.enemy, puff);
 
         this.pistolSound.play();
 
@@ -395,8 +295,6 @@ export class GamePlayerService {
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
 
-        let isHittingEnemy:boolean = false;
-
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
         puff.height = 1.5;
@@ -407,64 +305,15 @@ export class GamePlayerService {
         let hitDistance:number =  30.;
         
 
-        //Check if the shot did hit something eventually
+        // Create the ray
         let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
         let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
         rayHelper.show(scene, new BABYLON.Color3(1,0,0));//Red
 
-        let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray");
-        console.log(hit?.pickedMesh);//!DEBUG
-
         //TODO create 4 other shots coming out of the barrel in a line : * * * * *
         
         // Check if the ray did hit something eventually
-        if (hit !== null && hit.pickedMesh !== null && hit.pickedMesh.metadata === "enemy") {
-          // Check every enemy if they got hit
-          level.enemy.forEach(enemy => {
-            // Check if the tested enemy is the one that got hit
-            if (
-              hit?.pickedMesh === enemy.mesh && 
-              Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= hitDistance
-            ) {
-                  isHittingEnemy = true;
-              console.log("Shotgun hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
-              /*
-              TODO: Enemy logic 
-                - Remove the appropriate health to the enemy, 
-                - Reduce damage by distance ? (linearly with Math.hypot result above ?)
-                - Trigger pain state of the enemy
-                - Maybe change the ray hit to rough hitbox since the imps' hitbox seem a little thin
-              */
-
-              // Set the blood puff position slightly in front of the imp
-              puff.position = new BABYLON.Vector3(
-                enemy.sprt.position.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x),
-                1,
-                enemy.sprt.position.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-              );
-              //Play the blood puff animation
-              puff.playAnimation(6, 10, false, 50, () => puff.dispose());
-              
-            }
-          });
-        }
-
-        // Particle animation if the shot doesn't hit an enemy
-        if (!isHittingEnemy) {
-          if (hit !== null && hit.pickedMesh !== null && hit.pickedPoint !== null && (hit.pickedMesh.metadata === "wall" || hit.pickedMesh.metadata === "door")) {
-            // If a wall is hit
-            puff.position = new BABYLON.Vector3(
-              hit.pickedPoint.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x), 
-              1, 
-              hit.pickedPoint.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-            );
-          } else {
-            // If nothing is hit
-            puff.position = this.camera.getFrontPosition(hitDistance);
-          }
-          //Play the smoke puff animation
-          puff.playAnimation(0, 5, false, 50, () => puff.dispose());
-        }
+        this.shootRay(ray, hitDistance, level.enemy, puff);
 
         this.shotgunSound.play();
 
@@ -480,25 +329,20 @@ export class GamePlayerService {
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
 
-        let isHittingEnemy:boolean = false;
-
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
         puff.height = 1.5;
         puff.width = 1.5;
         puff.isPickable = false;
 
-        // Max distance that the shotgun can reach
+        // Max distance that the SSG can reach
         let hitDistance:number =  20.;
         
 
-        //Check if the shot did hit something eventually
+        // Create the ray
         let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
         let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
         rayHelper.show(scene, new BABYLON.Color3(0,1,0));//Green
-
-        let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray");
-        console.log(hit?.pickedMesh);//!DEBUG
 
         //TODO create 4 other shots coming out of the barrel in a square : 
         /* 
@@ -508,53 +352,7 @@ export class GamePlayerService {
         */
         
         // Check if the ray did hit something eventually
-        if (hit !== null && hit.pickedMesh !== null && hit.pickedMesh.metadata === "enemy") {
-          // Check every enemy if they got hit
-          level.enemy.forEach(enemy => {
-            // Check if the tested enemy is the one that got hit
-            if (
-              hit?.pickedMesh === enemy.mesh && 
-              Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= hitDistance
-            ) {
-                  isHittingEnemy = true;
-              console.log("SSG hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
-              /*
-              TODO: Enemy logic 
-                - Remove the appropriate health to the enemy, 
-                - Reduce damage by distance ? (linearly with Math.hypot result above ?)
-                - Trigger pain state of the enemy
-                - Maybe change the ray hit to rough hitbox since the imps' hitbox seem a little thin
-              */
-
-              // Set the blood puff position slightly in front of the imp
-              puff.position = new BABYLON.Vector3(
-                enemy.sprt.position.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x),
-                1,
-                enemy.sprt.position.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-              );
-              //Play the blood puff animation
-              puff.playAnimation(6, 10, false, 50, () => puff.dispose());
-              
-            }
-          });
-        }
-
-        // Particle animation if the shot doesn't hit an enemy
-        if (!isHittingEnemy) {
-          if (hit !== null && hit.pickedMesh !== null && hit.pickedPoint !== null && (hit.pickedMesh.metadata === "wall" || hit.pickedMesh.metadata === "door")) {
-            // If a wall is hit
-            puff.position = new BABYLON.Vector3(
-              hit.pickedPoint.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x), 
-              1, 
-              hit.pickedPoint.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-            );
-          } else {
-            // If nothing is hit
-            puff.position = this.camera.getFrontPosition(hitDistance);
-          }
-          //Play the smoke puff animation
-          puff.playAnimation(0, 5, false, 50, () => puff.dispose());
-        }
+        this.shootRay(ray, hitDistance, level.enemy, puff);
 
         this.ssgSound.play();
 
@@ -579,75 +377,23 @@ export class GamePlayerService {
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
 
-        let isHittingEnemy:boolean = false;
-
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
         puff.height = 1.5;
         puff.width = 1.5;
         puff.isPickable = false;
 
-        // Max distance that the shotgun can reach
+        // Max distance that the Plasma can reach
         let hitDistance:number =  30.;
 
 
-        //Check if the shot did hit something eventually
+        // Create the ray
         let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
         let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
         rayHelper.show(scene, new BABYLON.Color3(0,0,1));//Blue
 
-        let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray");
-        console.log(hit?.pickedMesh);//!DEBUG
-
-
         // Check if the ray did hit something eventually
-        if (hit !== null && hit.pickedMesh !== null && hit.pickedMesh.metadata === "enemy") {
-          // Check every enemy if they got hit
-          level.enemy.forEach(enemy => {
-            // Check if the tested enemy is the one that got hit
-            if (
-              hit?.pickedMesh === enemy.mesh && 
-              Math.hypot(enemy.sprt.position.x - scene.cameras[0].position.x, enemy.sprt.position.z - scene.cameras[0].position.z) <= hitDistance
-            ) {
-                  isHittingEnemy = true;
-              console.log("Plasma hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
-              /*
-              TODO: Enemy logic 
-                - Remove the appropriate health to the enemy, 
-                - Reduce damage by distance ? (linearly with Math.hypot result above ?)
-                - Trigger pain state of the enemy
-                - Maybe change the ray hit to rough hitbox since the imps' hitbox seem a little thin
-              */
-            
-              // Set the blood puff position slightly in front of the imp
-              puff.position = new BABYLON.Vector3(
-                enemy.sprt.position.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x),
-                1,
-                enemy.sprt.position.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-              );
-              //Play the blood puff animation
-              puff.playAnimation(6, 10, false, 50, () => puff.dispose());
-              
-            }
-          });
-        }
-
-        // Particle animation if the shot doesn't hit an enemy
-        if (!isHittingEnemy) {
-          if (hit !== null && hit.pickedMesh !== null && hit.pickedPoint !== null && (hit.pickedMesh.metadata === "wall" || hit.pickedMesh.metadata === "door")) {
-            // If a wall is hit
-            puff.position = new BABYLON.Vector3(
-              hit.pickedPoint.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x), 
-              1, 
-              hit.pickedPoint.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
-            );
-          } else {
-            // If nothing is hit
-            puff.position = this.camera.getFrontPosition(hitDistance);
-          }
-          //Play the smoke puff animation
-          puff.playAnimation(0, 5, false, 50, () => puff.dispose());
-        }
+        this.shootRay(ray, hitDistance, level.enemy, puff);
 
         this.plasmaSound.play();
 
@@ -674,5 +420,68 @@ export class GamePlayerService {
         return false;
       }
     }
+
+
+    /**
+     * function used to cast a ray and find what got hit
+     * @param ray ray to check collisions with
+     * @param maxDist max distance where an enemy can be
+     * @param enemies level enemies array
+     * @param puffSprt puff sprite to display where did the ray hit
+     */
+    this.shootRay = (ray:BABYLON.Ray, maxDist:number, enemies: Array<GameEnemyService>, puffSprt:BABYLON.Sprite) => {
+      let isHittingEnemy:boolean = false;
+
+      let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", true);
+      console.log(hit?.pickedMesh);//!DEBUG
+
+
+      // Check if the ray did hit an enemy
+      if (hit !== null && hit.pickedMesh !== null && hit.pickedMesh.metadata === "enemy") {
+        // Check every enemy if they got hit
+        enemies.forEach(enemy => {
+          // Check if the tested enemy is the one that got hit
+          if (hit?.pickedMesh === enemy.mesh) {
+            isHittingEnemy = true;
+            console.log("Plasma hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
+            /*
+            TODO: Enemy logic 
+              - Remove the appropriate health to the enemy, 
+              - Reduce damage by distance ? (linearly with Math.hypot result above ?)
+              - Trigger pain state of the enemy
+              - Maybe change the ray hit to rough hitbox since the imps' hitbox seem a little thin
+            */
+          
+            // Set the blood puff position slightly in front of the imp
+            puffSprt.position = new BABYLON.Vector3(
+              enemy.sprt.position.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x),
+              1,
+              enemy.sprt.position.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
+            );
+            //Play the blood puff animation
+            puffSprt.playAnimation(6, 10, false, 50, () => puffSprt.dispose());
+            
+          }
+        });
+      }
+
+     // Particle animation if the shot doesn't hit an enemy
+      if (!isHittingEnemy) {
+        if (hit !== null && hit.pickedMesh !== null && hit.pickedPoint !== null && (hit.pickedMesh.metadata === "wall" || hit.pickedMesh.metadata === "door")) {
+          // If a wall is hit
+          puffSprt.position = new BABYLON.Vector3(
+            hit.pickedPoint.x - (this.camera.getFrontPosition(.2).x - this.camera.position.x), 
+            1, 
+            hit.pickedPoint.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
+          );
+        } else {
+          // If nothing is hit
+          puffSprt.position = this.camera.getFrontPosition(maxDist);
+        }
+        //Play the smoke puff animation
+        puffSprt.playAnimation(0, 5, false, 50, () => puffSprt.dispose());
+      }
+    }
+
   }
 }

@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 
 export function distance(pos1: BABYLON.Vector3, pos2: BABYLON.Vector3){
-  let result = Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.z - pos2.z, 2));
+  let result = Math.hypot(pos1.x - pos2.x, pos1.z - pos2.z);
   return result;
 }
 
