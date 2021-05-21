@@ -239,7 +239,7 @@ export class GamePlayerService {
       if (this.equippedWeapon == 0) {
         //the shot is doable
         gameUIService.hasShot = true;
-        //TODO update the HUD ammo
+        this.ui.updateAmmoPool(this.ammos[1], this.ammos[2], this.ammos[4], this.hasBackPack);
         this.ui.updateAmmo(0);
 
         // Puff particle
@@ -272,7 +272,7 @@ export class GamePlayerService {
         //the shot is doable
         this.ammos[1] -=1;
         gameUIService.hasShot = true;
-        //TODO update the HUD ammo
+        this.ui.updateAmmoPool(this.ammos[1], this.ammos[2], this.ammos[4], this.hasBackPack);
         this.ui.updateAmmo(this.ammos[1]);
 
         // Puff particle
@@ -305,7 +305,7 @@ export class GamePlayerService {
         //the shot is doable
         this.ammos[2] -=1;
         gameUIService.hasShot = true;
-        //TODO update the HUD ammo
+        this.ui.updateAmmoPool(this.ammos[1], this.ammos[2], this.ammos[4], this.hasBackPack);
         this.ui.updateAmmo(this.ammos[2]);
 
         // Puff particle
@@ -340,7 +340,7 @@ export class GamePlayerService {
         //the shot is doable
         this.ammos[2] -=2;
         gameUIService.hasShot = true;
-        //TODO update the HUD ammo
+        this.ui.updateAmmoPool(this.ammos[1], this.ammos[2], this.ammos[4], this.hasBackPack);
         this.ui.updateAmmo(this.ammos[2]);
 
         // Puff particle
@@ -389,7 +389,7 @@ export class GamePlayerService {
         //the shot is doable
         this.ammos[4] -= 1;
         gameUIService.hasShot = true;
-        //TODO update the HUD ammo
+        this.ui.updateAmmoPool(this.ammos[1], this.ammos[2], this.ammos[4], this.hasBackPack);
         this.ui.updateAmmo(this.ammos[4]);
 
         // Puff particle
@@ -422,6 +422,7 @@ export class GamePlayerService {
         //the shot is doable
         this.ammos[4] -= 60;
         gameUIService.hasShot = true;
+        this.ui.updateAmmoPool(this.ammos[1], this.ammos[2], this.ammos[4], this.hasBackPack);
         this.ui.updateAmmo(this.ammos[4]);
 
         //TODO

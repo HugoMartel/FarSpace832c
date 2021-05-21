@@ -191,12 +191,14 @@ export class GameUIService {
 
       // font color : gray #969696   red #9a0101   yellow #f1fc59
       //ammo 
-      let ammoWindow:GUI.Image = new GUI.Image("ammoWindow", "assets/hud/statusCleaar.png");
+      /*
+      let ammoWindow:GUI.Image = new GUI.Image("ammoWindow", "assets/hud/statusClear.png");
       ammoWindow.width = "269px";
       ammoWindow.height = "275px";
       ammoWindow.top = "410px";
       ammoWindow.left = "-764px";
       this.hud.addControl(ammoWindow);
+      */
       let ammoPercent:GUI.TextBlock = new GUI.TextBlock("ammotext", "AMMO");
       ammoPercent.width = "269px";
       ammoPercent.height = "275px";
@@ -226,12 +228,14 @@ export class GameUIService {
       this.hud.addControl(this.ammoValue);
 
       //health 
-      let healthWindow:GUI.Image = new GUI.Image("healthWindow", "assets/hud/statusCleaar.png");
+      /*
+      let healthWindow:GUI.Image = new GUI.Image("healthWindow", "assets/hud/statusClear.png");
       healthWindow.width = "359px";
       healthWindow.height = "275px";
       healthWindow.top = "410px";
       healthWindow.left = "-430px";
       this.hud.addControl(healthWindow);
+      */
       let healthPercent:GUI.TextBlock = new GUI.TextBlock("healthtext", "HEALTH");
       healthPercent.width = "359px";
       healthPercent.height = "275px";
@@ -260,12 +264,14 @@ export class GameUIService {
       this.hud.addControl(healthLine);
 
       //weapon selection 
-      let weaponWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/statusCleaar.png");
+      /*
+      let weaponWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/statusClear.png");
       weaponWindow.width = "182px";
       weaponWindow.height = "275px";
       weaponWindow.top = "410px";
       weaponWindow.left = "-140px";
       this.hud.addControl(weaponWindow);
+      */
       let weaponSelect:GUI.TextBlock = new GUI.TextBlock("weaponSelct", "ARMS");
       weaponSelect.width = "182px";
       weaponSelect.height = "275px";
@@ -344,12 +350,14 @@ export class GameUIService {
       this.hud.addControl(robotLine2);
 
       //armor window
-      let armorWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/statusCleaar.png");
+      /*
+      let armorWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/statusClear.png");
       armorWindow.width = "359px";
       armorWindow.height = "275px";
       armorWindow.top = "410px";
       armorWindow.left = "350x";
       this.hud.addControl(armorWindow);
+      */
       let armorPercent:GUI.TextBlock = new GUI.TextBlock("healthtext", "ARMOR");
       armorPercent.width = "359px";
       armorPercent.height = "275px";
@@ -378,12 +386,14 @@ export class GameUIService {
       this.hud.addControl(armorLine);
 
       //inventory window
-      let inventoryWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/statusCleaar.png");
+      /*
+      let inventoryWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/statusClear.png");
       inventoryWindow.width = "89px";
       inventoryWindow.height = "275px";
       inventoryWindow.top = "410px";
       inventoryWindow.left = "594px";
       this.hud.addControl(inventoryWindow);
+      */
       let inventoryLine:GUI.Image = new GUI.Image("inventoryLine", "assets/hud/line.png");
       inventoryLine.width = "20px";
       inventoryLine.height = "300px";
@@ -432,12 +442,14 @@ export class GameUIService {
       
 
       //allAmmo window
-      let allAmmoWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/statusCleaar.png");
+      /*
+      let allAmmoWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/statusClear.png");
       allAmmoWindow.width = "259px";
       allAmmoWindow.height = "275px";
       allAmmoWindow.top = "410px";
       allAmmoWindow.left = "783px";
       this.hud.addControl(allAmmoWindow);
+      */
       let ammoPool1:GUI.TextBlock = new GUI.TextBlock("ammoPool1", "BULL ");
       ammoPool1.width = "259px";
       ammoPool1.height = "275px";
@@ -449,16 +461,16 @@ export class GameUIService {
       ammoPool1.textHorizontalAlignment = GUI.TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
       menuService.addShadow(ammoPool1);
       this.hud.addControl(ammoPool1);
-      let ammoPoolNumber1:GUI.TextBlock = new GUI.TextBlock("ammoPoolNumber1", player.ammos[1].toString() + " / " + "200");
-      ammoPoolNumber1.width = "259px";
-      ammoPoolNumber1.height = "275px";
-      ammoPoolNumber1.top = "310px";
-      ammoPoolNumber1.left = "823px";
-      ammoPoolNumber1.fontFamily = "DooM";
-      ammoPoolNumber1.color = "#f1fc59";
-      ammoPoolNumber1.fontSize = "15px";
-      menuService.addShadow(ammoPoolNumber1);
-      this.hud.addControl(ammoPoolNumber1);
+      this.ammoPoolNumber1 = new GUI.TextBlock("ammoPoolNumber1", player.ammos[1].toString() + " / " + "200");
+      this.ammoPoolNumber1.width = "259px";
+      this.ammoPoolNumber1.height = "275px";
+      this.ammoPoolNumber1.top = "310px";
+      this.ammoPoolNumber1.left = "823px";
+      this.ammoPoolNumber1.fontFamily = "DooM";
+      this.ammoPoolNumber1.color = "#f1fc59";
+      this.ammoPoolNumber1.fontSize = "15px";
+      menuService.addShadow(this.ammoPoolNumber1);
+      this.hud.addControl(this.ammoPoolNumber1);
       let ammoPool2:GUI.TextBlock = new GUI.TextBlock("ammoPool2", "SHEL "); 
       ammoPool2.width = "259px";
       ammoPool2.height = "275px";
@@ -470,16 +482,16 @@ export class GameUIService {
       ammoPool2.textHorizontalAlignment = GUI.TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
       menuService.addShadow(ammoPool2);
       this.hud.addControl(ammoPool2);
-      let ammoPoolNumber2:GUI.TextBlock = new GUI.TextBlock("ammoPoolNumber2", player.ammos[2].toString() + " / " + "50"); 
-      ammoPoolNumber2.width = "259px";
-      ammoPoolNumber2.height = "275px";
-      ammoPoolNumber2.top = "380px";
-      ammoPoolNumber2.left = "823px";
-      ammoPoolNumber2.fontFamily = "DooM";
-      ammoPoolNumber2.color = "#f1fc59";
-      ammoPoolNumber2.fontSize = "15px";
-      menuService.addShadow(ammoPoolNumber2);
-      this.hud.addControl(ammoPoolNumber2);
+      this.ammoPoolNumber2 = new GUI.TextBlock("ammoPoolNumber2", player.ammos[2].toString() + " / " + "50"); 
+      this.ammoPoolNumber2.width = "259px";
+      this.ammoPoolNumber2.height = "275px";
+      this.ammoPoolNumber2.top = "380px";
+      this.ammoPoolNumber2.left = "823px";
+      this.ammoPoolNumber2.fontFamily = "DooM";
+      this.ammoPoolNumber2.color = "#f1fc59";
+      this.ammoPoolNumber2.fontSize = "15px";
+      menuService.addShadow(this.ammoPoolNumber2);
+      this.hud.addControl(this.ammoPoolNumber2);
       let ammoPool3:GUI.TextBlock = new GUI.TextBlock("ammoPool1", "CELL "); 
       ammoPool3.width = "259px";
       ammoPool3.height = "275px";
@@ -491,16 +503,16 @@ export class GameUIService {
       ammoPool3.textHorizontalAlignment = GUI.TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
       menuService.addShadow(ammoPool3);
       this.hud.addControl(ammoPool3);
-      let ammoPoolNumber3:GUI.TextBlock = new GUI.TextBlock("ammoPoolNumber3", player.ammos[4].toString() + " / " + "300"); 
-      ammoPoolNumber3.width = "259px";
-      ammoPoolNumber3.height = "275px";
-      ammoPoolNumber3.top = "450px";
-      ammoPoolNumber3.left = "823px";
-      ammoPoolNumber3.fontFamily = "DooM";
-      ammoPoolNumber3.color = "#f1fc59";
-      ammoPoolNumber3.fontSize = "15px";
-      menuService.addShadow(ammoPoolNumber3);
-      this.hud.addControl(ammoPoolNumber3);
+      this.ammoPoolNumber3 = new GUI.TextBlock("ammoPoolNumber3", player.ammos[4].toString() + " / " + "300"); 
+      this.ammoPoolNumber3.width = "259px";
+      this.ammoPoolNumber3.height = "275px";
+      this.ammoPoolNumber3.top = "450px";
+      this.ammoPoolNumber3.left = "823px";
+      this.ammoPoolNumber3.fontFamily = "DooM";
+      this.ammoPoolNumber3.color = "#f1fc59";
+      this.ammoPoolNumber3.fontSize = "15px";
+      menuService.addShadow(this.ammoPoolNumber3);
+      this.hud.addControl(this.ammoPoolNumber3);
       
 
     }
@@ -513,7 +525,7 @@ export class GameUIService {
 
       this.currentWeaponId = id;
       player.equippedWeapon = id;
-      this.updateAmmo(id !=0 ? player.ammos[id] : -1);
+      this.updateAmmo(id != 0 ? player.ammos[(id == 1 || id == 4 ) ? 1 : ((id == 2 || id == 3) ? 2 : 3)] : -1);
 
       //select the line in the file we want to display
       this.currentWeapon.cellId = 10 * id;
@@ -541,6 +553,7 @@ export class GameUIService {
           this.currentWeaponAnimationFrames = 3;
           break;
         default:
+          this.updateAmmo(-1);
           player.equippedWeapon = 0;
           this.currentWeapon.cellId = 0;
           this.currentWeaponAnimationFrames = 3;
@@ -570,7 +583,6 @@ export class GameUIService {
     /**
      * function to change an ammo value displayed on the HUD
      * @param a ammo amount to change to
-     * @param pool ammo pool to change
      */
     this.updateAmmo = (a:number) => {
       this.ammoValue.text = a != -1 ? a.toString():"";
@@ -578,11 +590,15 @@ export class GameUIService {
 
     /**
      * function to change an ammo value displayed on the HUD
-     * @param a ammo amount to change to
-     * @param pool ammo pool to change
+     * @param a1 clips amount to change to
+     * @param a2 shells ammo amount to change to
+     * @param a3 cells amount to change to
+     * @param hasBackPack boolean to check if the player owns a backpack
      */
-    this.updateAmmoPool = (a:number, pool:number) => {
-      //this..text = a.toString();
+    this.updateAmmoPool = (a1:number, a2:number, a3:number, hasBackPack:boolean) => {
+      this.ammoPoolNumber1.text = a1 + " / " + (hasBackPack?"400":"200");
+      this.ammoPoolNumber2.text = a2 + " / " + (hasBackPack?"100":"50");
+      this.ammoPoolNumber3.text = a3 + " / " + (hasBackPack?"600":"300");  
     };
     
     /**

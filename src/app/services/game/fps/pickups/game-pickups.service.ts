@@ -7,8 +7,6 @@ import * as BABYLON from '@babylonjs/core';
   providedIn: 'root'
 })
 
-//TODO: add the sprite, cc Louis
-
 export class GamePickupsService {
   type : number;
   /*
@@ -333,37 +331,55 @@ export class GamePickupsService {
         case 16:
           player.weaponList[2] = true;
           player.equippedWeapon = 2;
-          player.ui.changeWeapon(2, this);
+          // Add ammo
+          if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) 
+            player.ammos[2] += 8;
+          else if(player.hasBackPack) 
+            player.ammos[2] = 100;
+          else
+            player.ammos[2] = 50;
+          // Update HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.changeWeapon(2, player);
           player.ui.updateWeapons(2);
-          if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) player.ammos[2] += 8;
-          else if(player.hasBackPack) player.ammos[2] = 100;
-          else player.ammos[2] = 50;
           break;
         //ssg
         case 17:
           player.weaponList[3] = true;
           player.equippedWeapon = 3;
-          player.ui.changeWeapon(3, this);
+          // Add ammo
+          if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) 
+            player.ammos[2] += 8;
+          else if(player.hasBackPack) 
+            player.ammos[2] = 100;
+          else 
+            player.ammos[2] = 50;
+          // Update HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.changeWeapon(3, player);
           player.ui.updateWeapons(3);
-          if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) player.ammos[2] += 8;
-          else if(player.hasBackPack) player.ammos[2] = 100;
-          else player.ammos[2] = 50;
           break;
         //chaingun
         case 18:
           player.weaponList[4] = true;
           player.equippedWeapon = 4;
-          player.ui.changeWeapon(4, this);
+          // Add ammo
+          if((!player.hasBackPack && player.ammos[1] + 20 <= 200) || (player.hasBackPack && player.ammos[1] + 20 <= 400)) 
+            player.ammos[1] += 20;
+          else if(player.hasBackPack) 
+            player.ammos[1] = 400;
+          else 
+            player.ammos[1] = 200;
+          // Update HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.changeWeapon(4, player);
           player.ui.updateWeapons(4);
-          if((!player.hasBackPack && player.ammos[1] + 20 <= 200) || (player.hasBackPack && player.ammos[1] + 20 <= 400)) player.ammos[1] += 20;
-          else if(player.hasBackPack) player.ammos[1] = 400;
-          else player.ammos[1] = 200;
           break;
         //rocket Launcher
         case 19:
           player.weaponList[7] = true;
           player.equippedWeapon = 7;
-          //player.ui.changeWeapon(7, this);//!not added into the game
+          //player.ui.changeWeapon(7, player);//!not added into the game
           if((!player.hasBackPack && player.ammos[3] + 2 <= 50) || (player.hasBackPack && player.ammos[3] + 2 <= 100)) player.ammos[3] += 2;
           else if(player.hasBackPack) player.ammos[3] = 100;
           else player.ammos[3] = 50;
@@ -372,21 +388,33 @@ export class GamePickupsService {
         case 20:
           player.weaponList[5] = true;
           player.equippedWeapon = 5;
-          player.ui.changeWeapon(5, this);
+          // Add ammo
+          if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) 
+            player.ammos[4] += 40;
+          else if(player.hasBackPack) 
+            player.ammos[4] = 300;
+          else 
+            player.ammos[4] = 600;
+          // Update HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.changeWeapon(5, player);
           player.ui.updateWeapons(5);
-          if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) player.ammos[4] += 40;
-          else if(player.hasBackPack) player.ammos[4] = 300;
-          else player.ammos[4] = 600;
           break;
         //BFG
         case 21:
           player.weaponList[6] = true;
           player.equippedWeapon = 6;
-          player.ui.changeWeapon(6, this);
+          // Add ammo
+          if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) 
+            player.ammos[4] += 40;
+          else if(player.hasBackPack) 
+            player.ammos[4] = 300;
+          else 
+            player.ammos[4] = 600;
+          // Update HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.changeWeapon(6, player);
           player.ui.updateWeapons(6);
-          if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) player.ammos[4] += 40;
-          else if(player.hasBackPack) player.ammos[4] = 300;
-          else player.ammos[4] = 600;
           break;
         //BERSERK
         case 22:
@@ -413,6 +441,8 @@ export class GamePickupsService {
           if((!player.hasBackPack && player.ammos[4] + 20 <=300) || (player.hasBackPack && player.ammos[4] + 20 <= 600)) player.ammos[4] += 20;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;
+          // Update HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], true);
           break;
         //red key
         case 25:
