@@ -487,16 +487,16 @@ export class GameService {
         instanceTest.position.z = y;
         //instanceTest.position.y = this.terr2Matrix[x][y];
         instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
+        instanceTest.metadata = "ground";
         instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
       }
     }
 
-    BABYLON.SceneLoader.ImportMesh("", "assets/Blender/My/1stQG/", "1stQG.glb", this.scene, (newMeshes) => {
-      newMeshes[0].position.x = 50;
-      newMeshes[0].position.z = 50;
-      newMeshes[0].position.y = this.terr2Matrix[50][50];
-    });
-
+    let fstQG: any;
+    let mouse1stQG: any;
+    this.gesMeLoadService.initMeshes(this.scene);
+    this.gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
+    this.gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);
 
     //**********************
     //*       SKYBOX       *
