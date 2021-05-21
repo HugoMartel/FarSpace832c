@@ -17,6 +17,9 @@ import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 
 import {MatrixService} from './services/game/gestion/matrix.service';
 import {TerrainService} from './services/game/gestion/terrain.service';
+import { GestionMousePickerService } from './services/game/gestion/gestion-mouse-picker.service';
+import { GestionMeshLoaderService } from './services/game/gestion/gestion-mesh-loader.service';
+
 
 @NgModule({
   declarations: [
@@ -36,7 +39,9 @@ import {TerrainService} from './services/game/gestion/terrain.service';
   providers: [
     WindowRefService,
     MatrixService,
-    TerrainService
+    TerrainService,
+    GestionMousePickerService,
+    GestionMeshLoaderService
   ],
   bootstrap: [AppComponent]
 })

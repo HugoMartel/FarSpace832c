@@ -1,4 +1,4 @@
-import { Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 import { MatrixService } from './matrix.service';
 
 @Injectable({
@@ -53,7 +53,6 @@ export class TerrainService{
         this.CheckSingle(i, j, size_x , size_y);
       }
     }
-
 
     return this.terrainMatrix;
   }

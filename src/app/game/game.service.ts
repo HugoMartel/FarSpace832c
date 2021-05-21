@@ -7,15 +7,20 @@
 //TODO: check if the doors are in the right place
 
 import { WindowRefService } from './../services/window-ref.service';
-import { TerrainService } from './../services/game/gestion/terrain.service';
 
 import { ElementRef, Injectable, NgZone, HostListener } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
+import "@babylonjs/loaders/glTF"; //don't forget to npm install --save-dev @babylonjs/core @babylonjs/loaders
 
-//services
+//services FPS
 import { GameLevelService } from '../services/game/fps/game-level.service';
 import { GamePlayerService } from '../services/game/fps/player/game-player.service';
+
+//services Gestion
+import { TerrainService } from './../services/game/gestion/terrain.service';
+import { GestionMousePickerService } from './../services/game/gestion/gestion-mouse-picker.service';
+import { GestionMeshLoaderService } from './../services/game/gestion/gestion-mesh-loader.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -36,7 +41,9 @@ export class GameService {
   public constructor(
     private ngZone: NgZone,
     private windowRef: WindowRefService,
-    private terrainService: TerrainService
+    private terrainService: TerrainService,
+    private gesMoPickService: GestionMousePickerService,
+    private gesMeLoadService: GestionMeshLoaderService
   ) {
     this.frameCounter = 0;
     this.ground = [];
@@ -456,6 +463,12 @@ export class GameService {
         instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
       }
     }
+
+    BABYLON.SceneLoader.ImportMesh("", "assets/Blender/My/1stQG/", "1stQG.glb", this.scene, (newMeshes) => {
+      newMeshes[0].position.x = 50;
+      newMeshes[0].position.z = 50;
+      newMeshes[0].position.y = this.terr2Matrix[50][50];
+    });
 
   }
 
