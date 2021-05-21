@@ -484,7 +484,12 @@ export class GameService {
         instanceTest.position.x = x;
         instanceTest.position.z = y;
         //instanceTest.position.y = this.terr2Matrix[x][y];
-        instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
+        if (x == 0 || x == 99 || y == 0 || y == 99) {
+          instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
+        } else {
+          instanceTest.scaling.y = this.terr2Matrix[x][y] + 0.05;
+          instanceTest.position.y = this.terr2Matrix[x][y]/2 + 0.025;
+        }
         instanceTest.metadata = "ground";
         instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
       }
