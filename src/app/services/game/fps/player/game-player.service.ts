@@ -201,18 +201,23 @@ export class GamePlayerService {
       if(this.armor > 0){
         //if green or only pickups, it absorbds 1/3 of the damage
         if(this.lastArmor == 0 || this.lastArmor == 1){
-          this.armor -= 1/3 * damage;
-          this.health -= 2/3 * damage;
+          this.armor -= Math.floor(damage / 3);
+          if (this.armor < 0) 
+            this.armor = 0;
+          this.health -= Math.floor(2 * damage / 3);
         }
         else{
           //else mega armor
-          this.armor -= 1/2 * damage;
-          this.health -= 1/2 * damage;
+          this.armor -= Math.floor(damage / 2);
+          this.health -= Math.floor(damage / 2);
         }
       }
       else{
-        this.health -= damage;
+        this.health -= Math.floor(damage);
       }
+
+      this.ui.updateArmor(this.armor);
+      this.ui.updateHealth(this.health);
 
     }
 
@@ -235,6 +240,7 @@ export class GamePlayerService {
         //the shot is doable
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
+        this.ui.updateAmmo(0);
 
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
@@ -267,6 +273,7 @@ export class GamePlayerService {
         this.ammos[1] -=1;
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
+        this.ui.updateAmmo(this.ammos[1]);
 
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
@@ -299,6 +306,7 @@ export class GamePlayerService {
         this.ammos[2] -=1;
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
+        this.ui.updateAmmo(this.ammos[2]);
 
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
@@ -333,6 +341,7 @@ export class GamePlayerService {
         this.ammos[2] -=2;
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
+        this.ui.updateAmmo(this.ammos[2]);
 
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
@@ -381,6 +390,7 @@ export class GamePlayerService {
         this.ammos[4] -= 1;
         gameUIService.hasShot = true;
         //TODO update the HUD ammo
+        this.ui.updateAmmo(this.ammos[4]);
 
         // Puff particle
         let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
@@ -412,6 +422,7 @@ export class GamePlayerService {
         //the shot is doable
         this.ammos[4] -= 60;
         gameUIService.hasShot = true;
+        this.ui.updateAmmo(this.ammos[4]);
 
         //TODO
 

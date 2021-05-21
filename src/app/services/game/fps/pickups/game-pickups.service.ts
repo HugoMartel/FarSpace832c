@@ -235,36 +235,46 @@ export class GamePickupsService {
         case 0:
           if(player.health + 1 <= 200) player.health += 1;
           else player.health = 200;
+          player.ui.updateHealth(player.health);
           break;
         //Armor pickup
         case 1:
-          if(player.armor + 1 <= 200) player.armor += 1;
-          else player.armor = 200;
+          player.lastArmor = 1;
+          if(player.armor + 1 <= 200) 
+            player.armor += 1;
+          player.ui.updateArmor(player.armor);
           break;
         //medikit
         case 2:
           if(player.health + 25 <= 100) player.health += 25;
           else player.health = 100;
+          player.ui.updateHealth(player.health);
           break;
         //armor green
         case 3:
           player.lastArmor = 1;
-          player.armor = 100;
+          if(player.armor <= 100) player.armor = 100;
+          player.ui.updateArmor(player.armor);
           break;
         //blue armor (megaArmor)
         case 4:
           player.lastArmor = 2;
           player.armor = 200;
+          player.ui.updateArmor(player.armor);
           break;
         //soulsphere
         case 5:
-          player.health = 200;
+          if(player.health + 100 <= 200) player.health += 100;
+          else player.health = 200;
+          player.ui.updateHealth(player.health);
           break;
         //megaSphere
         case 6:
           player.health = 200;
           player.armor = 200;
           player.lastArmor = 2;
+          player.ui.updateHealth(player.health);
+          player.ui.updateArmor(player.armor);
           break;
         //clip
         case 7:
@@ -324,6 +334,7 @@ export class GamePickupsService {
           player.weaponList[2] = true;
           player.equippedWeapon = 2;
           player.ui.changeWeapon(2, this);
+          player.ui.updateWeapons(2);
           if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) player.ammos[2] += 8;
           else if(player.hasBackPack) player.ammos[2] = 100;
           else player.ammos[2] = 50;
@@ -333,6 +344,7 @@ export class GamePickupsService {
           player.weaponList[3] = true;
           player.equippedWeapon = 3;
           player.ui.changeWeapon(3, this);
+          player.ui.updateWeapons(3);
           if((!player.hasBackPack && player.ammos[2] + 8 <= 50) || (player.hasBackPack && player.ammos[2] + 8 <= 100)) player.ammos[2] += 8;
           else if(player.hasBackPack) player.ammos[2] = 100;
           else player.ammos[2] = 50;
@@ -342,6 +354,7 @@ export class GamePickupsService {
           player.weaponList[4] = true;
           player.equippedWeapon = 4;
           player.ui.changeWeapon(4, this);
+          player.ui.updateWeapons(4);
           if((!player.hasBackPack && player.ammos[1] + 20 <= 200) || (player.hasBackPack && player.ammos[1] + 20 <= 400)) player.ammos[1] += 20;
           else if(player.hasBackPack) player.ammos[1] = 400;
           else player.ammos[1] = 200;
@@ -360,6 +373,7 @@ export class GamePickupsService {
           player.weaponList[5] = true;
           player.equippedWeapon = 5;
           player.ui.changeWeapon(5, this);
+          player.ui.updateWeapons(5);
           if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) player.ammos[4] += 40;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;
@@ -369,6 +383,7 @@ export class GamePickupsService {
           player.weaponList[6] = true;
           player.equippedWeapon = 6;
           player.ui.changeWeapon(6, this);
+          player.ui.updateWeapons(6);
           if((!player.hasBackPack && player.ammos[4] + 40 <=300) || (player.hasBackPack && player.ammos[4] + 40 <= 600)) player.ammos[4] += 40;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;
@@ -402,14 +417,17 @@ export class GamePickupsService {
         //red key
         case 25:
           player.inventory[0] = true;
+          player.ui.updateKeys(0);
           break;
         //blue key
         case 26:
           player.inventory[1] = true;
+          player.ui.updateKeys(1);
           break;
         //yellow key
         case 27:
           player.inventory[2] = true;
+          player.ui.updateKeys(2);
           break;
         default:
           //do nothing
