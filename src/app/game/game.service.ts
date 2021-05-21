@@ -430,7 +430,12 @@ export class GameService {
         [8, 5, 5],
         [10, 6, 7],
         [14, 7, 6],
-        [8, 7, 8]
+        [8, 7, 8],
+        [16, 8, 7], 
+        [17, 9, 5],
+        [18, 10, 7],
+        [20, 7, 10],
+        [21, 7, 9]
       ];
       let doorTEST:doorArray = [
         // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
