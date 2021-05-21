@@ -30,10 +30,11 @@ export class GamePlayerService {
   shotPuff: BABYLON.SpriteManager;
   shooting: boolean;
   //note: we're using the camera position as player coord
-  camera!:BABYLON.FreeCamera;
-  sphere!: BABYLON.Mesh;
+  camera:BABYLON.FreeCamera;
+  sphere: BABYLON.Mesh;
   inventory: Array<boolean>; //keys
   ammos: Array<number>;
+  ui: GameUIService;
   lockRotation: Function;
   shoot: Function;
   shootRay: Function;
@@ -58,8 +59,8 @@ export class GamePlayerService {
     * |                3 | ssg      |
     * |                4 | chaingun |
     * |                5 | plasma   |
-    * |                6 | BFG9K   |
-    * |                7 | rocket    |
+    * |                6 | BFG9K    |
+    * |                7 | rocket   |
     * |                8 | chainsaw |
     * +------------------+----------+
     */
@@ -180,7 +181,8 @@ export class GamePlayerService {
 
 
     /******    UI   ******/
-    gameUIService.displayUI();
+    this.ui = gameUIService;
+    this.ui.displayUI(this);
 
     /******FUNCTIONS******/
     //locking the ability to look up
@@ -209,6 +211,7 @@ export class GamePlayerService {
       else{
         this.health -= damage;
       }
+
     }
 
 

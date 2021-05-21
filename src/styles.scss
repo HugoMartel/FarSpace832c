@@ -96,6 +96,11 @@ a {
   font-style: normal;
 }
 
+@font-face {
+  font-family: "DooM";
+  src: url("./assets/fonts/DooM.ttf") format("truetype");
+}
+
 body {
   font-family: Arial;
   font-size: 12px;
