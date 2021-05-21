@@ -277,13 +277,13 @@ export class GameUIService {
       fourthWeapon.top = "350px";
       fourthWeapon.left = "-105px";
       ui.addControl(fourthWeapon);
-      let fifthWeapon:GUI.Image = new GUI.Image("fifthWeapon", player.weaponList[6] ? "assets/hud/6light.png" : "assets/hud/6dark.png");
+      let fifthWeapon:GUI.Image = new GUI.Image("fifthWeapon", player.weaponList[5] ? "assets/hud/6light.png" : "assets/hud/6dark.png");
       fifthWeapon.width = "59px";
       fifthWeapon.height = "59px";
       fifthWeapon.top = "410px";
       fifthWeapon.left = "-185px";
       ui.addControl(fifthWeapon);
-      let sixthWeapon:GUI.Image = new GUI.Image("sixthWeapon", player.weaponList[7] ? "assets/hud/7light.png" : "assets/hud/7dark.png");
+      let sixthWeapon:GUI.Image = new GUI.Image("sixthWeapon", player.weaponList[6] ? "assets/hud/7light.png" : "assets/hud/7dark.png");
       sixthWeapon.width = "59px";
       sixthWeapon.height = "59px";
       sixthWeapon.top = "410px";
@@ -294,7 +294,7 @@ export class GameUIService {
 
 
       //robot cam
-      let robotWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/robotCam.png");
+      let robotWindow:GUI.Image = new GUI.Image("weaponWindow", "assets/hud/robotHead.png");
       robotWindow.width = "179px";
       robotWindow.height = "275px";
       robotWindow.top = "410px";
@@ -408,7 +408,7 @@ export class GameUIService {
       allAmmoWindow.top = "410px";
       allAmmoWindow.left = "783px";
       ui.addControl(allAmmoWindow);
-      let ammoPool1:GUI.TextBlock = new GUI.TextBlock("ammoPool1", "BULL " + player.ammos[1].toString() + "/" + "200");
+      let ammoPool1:GUI.TextBlock = new GUI.TextBlock("ammoPool1", "BULL ");
       ammoPool1.width = "259px";
       ammoPool1.height = "275px";
       ammoPool1.top = "310px";
@@ -419,7 +419,17 @@ export class GameUIService {
       ammoPool1.textHorizontalAlignment = GUI.TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
       menuService.addShadow(ammoPool1);
       ui.addControl(ammoPool1);
-      let ammoPool2:GUI.TextBlock = new GUI.TextBlock("ammoPool2", "SHEL " + player.ammos[2].toString() + "/" + "50");
+      let ammoPoolNumber1:GUI.TextBlock = new GUI.TextBlock("ammoPoolNumber1", player.ammos[1].toString() + " / " + "200");
+      ammoPoolNumber1.width = "259px";
+      ammoPoolNumber1.height = "275px";
+      ammoPoolNumber1.top = "310px";
+      ammoPoolNumber1.left = "823px";
+      ammoPoolNumber1.fontFamily = "DooM";
+      ammoPoolNumber1.color = "#f1fc59";
+      ammoPoolNumber1.fontSize = "15px";
+      menuService.addShadow(ammoPoolNumber1);
+      ui.addControl(ammoPoolNumber1);
+      let ammoPool2:GUI.TextBlock = new GUI.TextBlock("ammoPool2", "SHEL "); 
       ammoPool2.width = "259px";
       ammoPool2.height = "275px";
       ammoPool2.top = "380px";
@@ -430,7 +440,17 @@ export class GameUIService {
       ammoPool2.textHorizontalAlignment = GUI.TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
       menuService.addShadow(ammoPool2);
       ui.addControl(ammoPool2);
-      let ammoPool3:GUI.TextBlock = new GUI.TextBlock("ammoPool1", "CELL " + player.ammos[4].toString() + "/" + "300");
+      let ammoPoolNumber2:GUI.TextBlock = new GUI.TextBlock("ammoPoolNumber2", player.ammos[2].toString() + " / " + "50"); 
+      ammoPoolNumber2.width = "259px";
+      ammoPoolNumber2.height = "275px";
+      ammoPoolNumber2.top = "380px";
+      ammoPoolNumber2.left = "823px";
+      ammoPoolNumber2.fontFamily = "DooM";
+      ammoPoolNumber2.color = "#f1fc59";
+      ammoPoolNumber2.fontSize = "15px";
+      menuService.addShadow(ammoPoolNumber2);
+      ui.addControl(ammoPoolNumber2);
+      let ammoPool3:GUI.TextBlock = new GUI.TextBlock("ammoPool1", "CELL "); 
       ammoPool3.width = "259px";
       ammoPool3.height = "275px";
       ammoPool3.top = "450px";
@@ -441,6 +461,16 @@ export class GameUIService {
       ammoPool3.textHorizontalAlignment = GUI.TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
       menuService.addShadow(ammoPool3);
       ui.addControl(ammoPool3);
+      let ammoPoolNumber3:GUI.TextBlock = new GUI.TextBlock("ammoPoolNumber3", player.ammos[4].toString() + " / " + "300"); 
+      ammoPoolNumber3.width = "259px";
+      ammoPoolNumber3.height = "275px";
+      ammoPoolNumber3.top = "450px";
+      ammoPoolNumber3.left = "823px";
+      ammoPoolNumber3.fontFamily = "DooM";
+      ammoPoolNumber3.color = "#f1fc59";
+      ammoPoolNumber3.fontSize = "15px";
+      menuService.addShadow(ammoPoolNumber3);
+      ui.addControl(ammoPoolNumber3);
       
 
     }
