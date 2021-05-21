@@ -432,6 +432,7 @@ export class GameService {
       new BABYLON.Vector3(50, 50, 50),
       this.scene
     );
+    this.scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
     //this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
     //this.plane.rotation.x = Math.PI/2;
@@ -464,8 +465,6 @@ export class GameService {
         instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.size_z-1-this.terr2Matrix[x][y]]);
       }
     }
-    let fstQG: any;
-    let mouse1stQG: any;
     this.gesMeLoadService.initMeshes(this.scene);
     this.gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
     this.gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);

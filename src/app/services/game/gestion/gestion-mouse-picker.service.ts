@@ -20,13 +20,30 @@ export class GestionMousePickerService {
         if (pickInfo !== null && pickInfo.hit && pickInfo.pickedMesh !== null) {
           //console.log([pickInfo.pickedMesh.position.x, pickInfo.pickedMesh.position.z, pickInfo.pickedMesh.metadata]);
           if (pickInfo.pickedMesh.metadata == "ground") {
+
+            let pasContent = new BABYLON.StandardMaterial("pasContent", scene);
+            pasContent.ambientColor = new BABYLON.Color3(1, 0, 0);
+            let content = new BABYLON.StandardMaterial("content", scene);
+            content.ambientColor = new BABYLON.Color3(0, 1, 0);
+
+
             this.gesMeLoadService.baseMeshes[0].position.x = pickInfo.pickedMesh.position.x;
             this.gesMeLoadService.baseMeshes[0].position.z = pickInfo.pickedMesh.position.z;
-            this.gesMeLoadService.baseMeshes[0].position.y = matrix[pickInfo.pickedMesh.position.x][pickInfo.pickedMesh.position.z];
+            this.gesMeLoadService.baseMeshes[0].position.y = matrix[pickInfo.pickedMesh.position.x][pickInfo.pickedMesh.position.z]+0.05;
             this.gesMeLoadService.baseMeshes[0].getChildMeshes().forEach((element: any) => {
               element.isVisible = true;
+              element.material = content;
+            });
+
+          }else {
+            this.gesMeLoadService.baseMeshes[0].getChildMeshes().forEach((element: any) => {
+              element.isVisible = false;
             });
           }
+        }else {
+          this.gesMeLoadService.baseMeshes[0].getChildMeshes().forEach((element: any) => {
+            element.isVisible = false;
+          });
         }
       } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 0) {
 
