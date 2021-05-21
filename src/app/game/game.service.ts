@@ -141,11 +141,6 @@ export class GameService {
       //************************************************************************
 
       //this.createFPSScene(canvas, levelTEST);
-      /*
-        <video width="320" height="240" controls>
-          <source src="/build/videos/arcnet.io(7-sec).mp4" type=video/mp4>
-        </video>
-      */
       let introVideo:HTMLVideoElement = document.createElement("video");
       introVideo.width = canvas.nativeElement.width;
       introVideo.height = canvas.nativeElement.height;
@@ -153,23 +148,26 @@ export class GameService {
       introVideo.loop = false;
       introVideo.muted = false;
       introVideo.controls = true;
-      introVideo.style.position = "absolute";
-      introVideo.style.top = "50px";
-      introVideo.style.zIndex = "1";
       introVideo.textContent = "Sorry, your browser doesn't support embedded videos.";
       let introSource:HTMLSourceElement = document.createElement("source");
       introSource.src = "assets/videos/intro.mp4";
       introSource.type = "video/mp4";
       introVideo.appendChild(introSource);
         
-      let videoContainer = document.getElementById("gameWindow");
-      if (videoContainer !== null)
-        videoContainer.appendChild(introVideo);
+      let videoContainer = document.getElementById("gameWindowBody");
+      if (videoContainer !== null) {
+        videoContainer.prepend(introVideo);
+        canvas.nativeElement.style.display = "none";
+        this.createPlanetScene(canvas);
+      }
 
-      this.createPlanetScene(canvas);
-
-
-      this.animate();
+      introVideo.addEventListener('ended', (event:Event) => {
+        event.preventDefault();
+        videoContainer?.removeChild(introVideo);
+        canvas.nativeElement.style.display = "block";
+        
+        this.animate();
+      });
     });
   }
 
