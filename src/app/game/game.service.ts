@@ -505,6 +505,7 @@ export class GameService {
     }
 
     this.gesMeLoadService.initMeshes(this.scene);
+    this.gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
     this.gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
     this.gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);
 

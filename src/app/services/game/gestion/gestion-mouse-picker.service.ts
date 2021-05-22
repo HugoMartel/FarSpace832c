@@ -34,7 +34,7 @@ export class GestionMousePickerService {
           this.isPlacable = true;
           for (let x = -1; x < 2; x++) {
             for (let y = -1; y < 2; y++) {
-              if (matrix[this.lastPosX][this.lastPosY] != matrix[this.lastPosX+x][this.lastPosY+y]) {
+              if (matrix[this.lastPosX][this.lastPosY] != matrix[this.lastPosX+x][this.lastPosY+y] || this.gesMeLoadService.buildingsMatrix[this.lastPosX+x][this.lastPosY+y]) {
                 this.isPlacable = false;
               }
             }
