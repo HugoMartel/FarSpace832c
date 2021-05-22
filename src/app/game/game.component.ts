@@ -26,7 +26,7 @@ export class GameComponent implements OnInit {
     });
 
     this.engServ.createMenuScene(this.gameCanvas);
-    
+
     this.engServ.animate();
   }
 

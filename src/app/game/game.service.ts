@@ -7,15 +7,15 @@
 //TODO: check if the doors are in the right place
 
 import { WindowRefService } from './../services/window-ref.service';
-import { TerrainService } from './../services/game/gestion/terrain.service';
 
 import { MenuService } from './../services/menu/menu.service';
 
 import { ElementRef, Injectable, NgZone, HostListener } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 import * as GUI from '@babylonjs/gui';
+import "@babylonjs/loaders/glTF"; //don't forget to npm install --save-dev @babylonjs/core @babylonjs/loaders
 
-//services
+//services FPS
 import { GameLevelService } from '../services/game/fps/game-level.service';
 import { GamePlayerService } from '../services/game/fps/player/game-player.service';
 import { GameUIService } from '../services/game/fps/game-ui.service';
@@ -29,10 +29,15 @@ type pickupArray = Array<Array<number>>;
 type wallArray = Array<Array<number>>;
 type doorArray = Array<Array<number>>;
 
+//services Gestion
+import { TerrainService } from './../services/game/gestion/terrain.service';
+import { GestionMousePickerService } from './../services/game/gestion/gestion-mouse-picker.service';
+import { GestionMeshLoaderService } from './../services/game/gestion/gestion-mesh-loader.service';
+
 @Injectable({ providedIn: 'root' })
 export class GameService {
 
-  private size_z: number = 25;
+  private size_z: number = 30;
   private terr2Matrix: any[] = [];
 
   public canvas!: HTMLCanvasElement;
@@ -42,13 +47,16 @@ export class GameService {
   private ground!: Array<BABYLON.Mesh>;
   public fullscreen: Function;
   private plane!: BABYLON.Mesh;
+  private GroundBoxes!: BABYLON.Mesh;
   public keyPressed: Array<String>;
 
   public constructor(
     private ngZone: NgZone,
     private menuService: MenuService,
     private windowRef: WindowRefService,
-    private terrainService: TerrainService
+    private terrainService: TerrainService,
+    private gesMoPickService: GestionMousePickerService,
+    private gesMeLoadService: GestionMeshLoaderService
   ) {
     this.frameCounter = 0;
     this.ground = [];
@@ -420,6 +428,12 @@ export class GameService {
 
     playButton.onPointerClickObservable.add((eventData: GUI.Vector2WithInfo, eventState: BABYLON.EventState):void => {
       this.resetScene();
+
+      //************************************************************************
+      //*                           FPS or Gestion                             *
+      //************************************************************************
+
+      /*
       let enemyTEST:enemyArray = [
         // [[type], [coordx, coordz, state], etc]
         [[1], [4, 4, 0], [5, 5, 0], [-7, -7, 0]]
@@ -466,10 +480,38 @@ export class GameService {
         switchesTest,
         1
       );
+      this.createFPSScene(canvas, levelTEST);//! will not be used in the future
+      */
 
-      this.createFPSScene(canvas, levelTEST);
+      ///*
+      let introVideo:HTMLVideoElement = document.createElement("video");
+      introVideo.width = canvas.nativeElement.width;
+      introVideo.height = canvas.nativeElement.height;
+      introVideo.autoplay = true;
+      introVideo.loop = false;
+      introVideo.muted = false;
+      introVideo.controls = true;
+      introVideo.textContent = "Sorry, your browser doesn't support embedded videos.";
+      let introSource:HTMLSourceElement = document.createElement("source");
+      introSource.src = "assets/videos/intro.mp4";
+      introSource.type = "video/mp4";
+      introVideo.appendChild(introSource);
 
-      this.animate();
+      let videoContainer = document.getElementById("gameWindowBody");
+      if (videoContainer !== null) {
+        videoContainer.prepend(introVideo);
+        canvas.nativeElement.style.display = "none";
+        this.createPlanetScene(canvas);
+      }
+
+      introVideo.addEventListener('ended', (event:Event) => {
+        event.preventDefault();
+        videoContainer?.removeChild(introVideo);
+        canvas.nativeElement.style.display = "block";
+
+        this.animate();
+      });
+      //*/
     });
   }
 
@@ -687,7 +729,7 @@ export class GameService {
     let wallMesh = BABYLON.MeshBuilder.CreateBox("wall", {size :1, height: 3}, this.scene);
     wallMesh.metadata = "wall";
     wallMesh.material = wallMaterial;
-    
+
     wallMesh.isVisible = false;
     wallMesh.isPickable = true;
     wallMesh.checkCollisions = false;
@@ -723,11 +765,11 @@ export class GameService {
         wall2.checkCollisions = true;
       }
     }
-    
-    
+
+
 
     //adding the pickeable items:
-    for(let i of level.pickups) i.init(); 
+    for(let i of level.pickups) i.init();
     //adding the doors
     for(let i of level.doors) i.init(this.scene, -1);
     //adding the switches
@@ -770,7 +812,7 @@ export class GameService {
       //* checking if e is pressed:
       if (this.keyPressed.includes('e')) {
         //shooting a ray
-        let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);	
+        let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);
         let hit = this.scene.pickWithRay(ray);
         for (let i of level.doors) {
           if (i.mesh == hit?.pickedMesh) {
@@ -859,6 +901,8 @@ export class GameService {
     });
 
     this.engine.hideLoadingUI();
+
+    this.animate();
   }
 
 
@@ -874,6 +918,7 @@ export class GameService {
 
     // Then, load the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
+    this.engine.displayLoadingUI();
 
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
@@ -882,7 +927,7 @@ export class GameService {
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
     let aboveCamera:BABYLON.FreeCamera = new BABYLON.FreeCamera(
       'camera1',
-      new BABYLON.Vector3(50, 55, 10),
+      new BABYLON.Vector3(0, 55, 10),
       this.scene
     );
 
@@ -898,33 +943,71 @@ export class GameService {
       new BABYLON.Vector3(50, 50, 50),
       this.scene
     );
+    this.scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
-    this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
-    this.plane.rotation.x = Math.PI/2;
+    //this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
+    //this.plane.rotation.x = Math.PI/2;
+    this.GroundBoxes = BABYLON.MeshBuilder.CreateBox("GroundBoxes", {width: 1, height: 1, depth: 1}, this.scene);
 
     let testMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial("testMat", this.scene);
     testMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
-    this.plane.material = testMat;
+    //this.plane.material = testMat;
+    this.GroundBoxes.material = testMat;
 
-    this.plane.registerInstancedBuffer("color", 4);
-    this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
+    //this.plane.registerInstancedBuffer("color", 4);
+    //this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
+    this.GroundBoxes.registerInstancedBuffer("color", 4);
+    this.GroundBoxes.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
 
-    let testColorPalette: number[] = [];
+    let colorPaletteRed: number[] = [];
+    let colorPaletteGreen: number[] = [];
+    let colorPaletteBlue: number[] = [];
     for (let i = 0; i < this.size_z; i++) {
-      testColorPalette[i] = i/this.size_z;
-      testColorPalette[i+this.size_z] = 1-(i/this.size_z);
+      let tmp: number = (30*(i+1)/(this.size_z+1));
+      colorPaletteRed[i] = ((0.0000272718*tmp**5)-(0.00200717*tmp**4)+(0.0503205*tmp**3)-(0.466441*tmp**2)+(1.38804*tmp)+6.6)/25.6;
+      colorPaletteGreen[i] = (Math.exp((i+1-0.62-(this.size_z/1.95))/((39/200)*this.size_z))+13)/25.6;
+      colorPaletteBlue[i] = ((0.000167911*tmp**4)-(0.00955384*tmp**3)+(0.169536*tmp**2)-(0.307887*tmp)+2.6)/25.6;
     }
+    //console.log(colorPaletteRed, colorPaletteGreen, colorPaletteBlue);
 
+    //console.log(testColorPalette);
     for (let x = 0; x < this.terr2Matrix.length; x++) {
       for (let y = 0; y < this.terr2Matrix[x].length; y++) {
-        let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
+        //let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
+        let instanceTest:BABYLON.InstancedMesh = this.GroundBoxes.createInstance("tplane " + (x*y+y));
         instanceTest.position.x = x;
         instanceTest.position.z = y;
-        instanceTest.position.y = this.terr2Matrix[x][y];
-
-        instanceTest.instancedBuffers.color = new BABYLON.Color4(testColorPalette[this.terr2Matrix[x][y]], 0, testColorPalette[this.terr2Matrix[x][y] + this.size_z]);
+        //instanceTest.position.y = this.terr2Matrix[x][y];
+        if (x == 0 || x == 99 || y == 0 || y == 99) {
+          instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
+        } else {
+          instanceTest.scaling.y = this.terr2Matrix[x][y] + 0.05;
+          instanceTest.position.y = this.terr2Matrix[x][y]/2 + 0.025;
+        }
+        instanceTest.metadata = "ground";
+        let tmp: number = this.terr2Matrix[x][y];
+        instanceTest.instancedBuffers.color = new BABYLON.Color4(colorPaletteRed[tmp], colorPaletteGreen[tmp], colorPaletteBlue[tmp]);
       }
     }
+
+    this.gesMeLoadService.initMeshes(this.scene);
+    this.gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
+    this.gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
+    this.gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);
+
+    //**********************
+    //*       SKYBOX       *
+    //**********************
+    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
+    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/cubemapDebug/", this.scene);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
+
+    this.engine.hideLoadingUI();
 
   }
 
