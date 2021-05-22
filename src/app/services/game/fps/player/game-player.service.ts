@@ -433,7 +433,6 @@ export class GamePlayerService {
       }
       //no ammo (or unknown weapon (shouldn't happen))
       else {
-        //TODO: play click sound (no bullets)
         return false;
       }
     }

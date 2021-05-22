@@ -279,33 +279,45 @@ export class GamePickupsService {
           if((!player.hasBackPack && player.ammos[1] + 10 <= 200) || (player.hasBackPack && player.ammos[1] + 10 <= 400)) player.ammos[1] += 10;
           else if(player.hasBackPack) player.ammos[1] = 400;
           else player.ammos[1] = 200;
+          // Update the HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.updateAmmo(player.ammos[1]);
           break;
         //bullet box
         case 8:
           if((!player.hasBackPack && player.ammos[1] + 50 <= 200) || (player.hasBackPack && player.ammos[1] + 50 <= 400)) player.ammos[1] += 50;
           else if(player.hasBackPack) player.ammos[1] = 400;
           else player.ammos[1] = 200;
+          // Update the HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.updateAmmo(player.ammos[1]);
           break;
         //4 shells
         case 9:
           if((!player.hasBackPack && player.ammos[2] + 4 <= 50) || (player.hasBackPack && player.ammos[2] + 4 <= 100)) player.ammos[2] += 4;
           else if(player.hasBackPack) player.ammos[2] = 100;
           else player.ammos[2] = 50;
+          // Update the HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.updateAmmo(player.ammos[2]);
           break
         //box of shell
         case 10:
           if((!player.hasBackPack && player.ammos[2] + 20 <= 50) || (player.hasBackPack && player.ammos[2] + 20 <= 100)) player.ammos[2] += 20;
           else if(player.hasBackPack) player.ammos[2] = 100;
           else player.ammos[2] = 50;
+          // Update the HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.updateAmmo(player.ammos[2]);
           break
         //1 rocket
-        case 11:
+        case 11://! not used
           if((!player.hasBackPack && player.ammos[3] + 1 <= 50) || (player.hasBackPack && player.ammos[3] + 1 <= 100)) player.ammos[3] += 1;
           else if(player.hasBackPack) player.ammos[3] = 100;
           else player.ammos[3] = 50;
           break
         //box of rocket
-        case 12:
+        case 12://! not used
           if((!player.hasBackPack && player.ammos[3] + 5 <= 50) || (player.hasBackPack && player.ammos[3] + 5 <= 100)) player.ammos[3] += 5;
           else if(player.hasBackPack) player.ammos[3] = 100;
           else player.ammos[3] = 50;
@@ -315,15 +327,21 @@ export class GamePickupsService {
           if((!player.hasBackPack && player.ammos[4] + 20 <=300) || (player.hasBackPack && player.ammos[4] + 20 <= 600)) player.ammos[4] += 20;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;
+          // Update the HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.updateAmmo(player.ammos[4]);
           break;
         //cell energy
         case 14:
           if((!player.hasBackPack && player.ammos[4] + 100 <=300) || (player.hasBackPack && player.ammos[4] + 100 <= 600)) player.ammos[4] += 100;
           else if(player.hasBackPack) player.ammos[4] = 300;
           else player.ammos[4] = 600;
+          // Update the HUD
+          player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
+          player.ui.updateAmmo(player.ammos[4]);
           break;
         //chainsaw
-        case 15:
+        case 15://! not used
           player.weaponList[8] = true;
           player.equippedWeapon = 8;
           break;
