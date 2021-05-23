@@ -35,7 +35,7 @@ export class AccountService {
             this.snackBar.open(response.fail, "close", {duration: 3000});
         } else if (response.error !== undefined) {
           console.error(response.error);
-          this.snackBar.open("An error occurred during your register...", "close", {duration: 3000});
+          this.snackBar.open("An error occurred during your login...", "close", {duration: 3000});
         }
       }
     });

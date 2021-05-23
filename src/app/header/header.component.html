@@ -13,14 +13,25 @@
     </span>
     <span class="filler"></span>
     <span class="account">
+         {{ "connected()"?this.getCookie('username'):"error"}}
+       <ng-template [ngIf]="!connected()">
         <a class="toolbarElement" routerLink="/login" routerLinkActive="active" id="loginLink">
-            <button class="connectButton">Login</button>
-        </a>
+                <button class="connectButton">Login</button>
+            </a>     
+        </ng-template> 
     </span>
     <span class="account">
-        <a class="toolbarElement" routerLink="/register" routerLinkActive="active" id="registerLink">
+        <ng-template [ngIf]="connected()">
+            <a class="toolbarElement" id="registerLink" (click)="Disconect()">
+                <button class="connectButton">Disconect</button>
+            </a>
+        </ng-template>
+        <ng-template [ngIf]="!connected()">
+            <a class="toolbarElement" routerLink="/register" routerLinkActive="active" id="registerLink">
             <button class="connectButton">Register</button>
         </a>
+    </ng-template>
     </span>
 </mat-toolbar>
+
 <div class="footer-separator title-bar inactive"></div>
