@@ -30,6 +30,7 @@ import { TerrainService } from './../services/game/gestion/terrain.service';
 import { GestionMousePickerService } from './../services/game/gestion/gestion-mouse-picker.service';
 import { GestionMeshLoaderService } from './../services/game/gestion/gestion-mesh-loader.service';
 import { MatrixService } from '../services/game/gestion/matrix.service';
+import { GestionHudService } from './../services/game/gestion/gestion-hud.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -959,6 +960,8 @@ export class GameService {
 
     this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
 
+    let hudService = new GestionHudService;
+
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
@@ -996,6 +999,9 @@ export class GameService {
       this.scene
     );
     this.scene.ambientColor = new BABYLON.Color3(1, 1, 1);
+
+    //create gestion hud
+    hudService.displayGoal(this.scene);
 
     //this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
     //this.plane.rotation.x = Math.PI/2;
