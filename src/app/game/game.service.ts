@@ -1,10 +1,8 @@
 //TODO: change the cone to a realy player model ?
-//TODO: creates IA (aled)
 //TODO: change camera borders cause it looks like a fatass rn
 //TODO ++++: add player death check
 //TODO: add a way to the enemy to talk
 
-//TODO: check if the doors are in the right place
 
 import { WindowRefService } from './../services/window-ref.service';
 
@@ -71,12 +69,14 @@ export class GameService {
       [17, 9, 5],
       [18, 10, 7],
       [20, 7, 10],
-      [21, 7, 9]
+      [21, 7, 9],
+      [23, -7, -7],
+      [22, -12, 4],
     ];
     let doorTMP:doorArray = [
       // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
-      [14, 13, -1, 0, 0], 
-      [-14, -13, -1, 0, 1]
+      [14, 13, 2, 0, 0], 
+      [-14, -13, 1, 0, 1]
     ];
     let wallTMP:wallArray = [
       // coordX, coordZ
@@ -664,7 +664,25 @@ export class GameService {
 
       }
     });
-
+    
+    //**********************
+    //*       MUSIC        *
+    //**********************
+    //playing both music
+    let startMusic = new BABYLON.Sound("music", "assets/sound/music/fpsStart.wav", this.scene, () => {
+      startMusic.play();
+    }, {
+      volume: 3,
+      loop: false,
+    });
+    startMusic.onended = () => {
+      let secondMusic = new BABYLON.Sound("music", "assets/sound/music/fpsLoop.wav", this.scene, () => {
+        secondMusic.play();
+      }, {
+        volume: 3,
+        loop: true,
+      });
+    };
     //**********************
     //*       SKYBOX       *
     //**********************
@@ -807,6 +825,13 @@ export class GameService {
       player.lockRotation();
       //checking if a pickup has to be removed:
       level.pickups.filter(pick => !pick.remove);
+      //checking death:
+      if(player.dead){
+        //TODO: add death and reload screen etc
+        //onDeath
+        return;
+        //this.createFPSScene(canvas, this.levels[0])
+      }
       //checking if sprinting:
       if (this.keyPressed.includes('Shift')) 
         player.camera.speed = 0.5;
@@ -820,16 +845,16 @@ export class GameService {
       //* checking if e is pressed:
       if (this.keyPressed.includes('e')) {
         //shooting a ray
-        let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);
-        let hit = this.scene.pickWithRay(ray);
+        let ray = player.camera.getForwardRay(5)
+        let hit = this.scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
         for (let i of level.doors) {
           if (i.mesh == hit?.pickedMesh) {
-            i.open(player.camera.position, player.inventory, this.scene);
+            i.open(player.camera.position, player.inventory, this.scene, uiService);
             break;
           } 
         }
         for (let i of level.switches) {
-          if (i.mesh == hit?.pickedMesh) {
+          if (i.mesh == hit?.pickedMesh || i.topMesh == hit?.pickedMesh) {
             i.on();
             break; 
           }
@@ -876,12 +901,12 @@ export class GameService {
       for(let i = 0; i < level.enemy.length; ++i){
         //if the enemy fire something, then we move it
         if(level.enemy[i].projectile !== undefined){
-          level.enemy[i].projectile.move(this.scene, player);
+          level.enemy[i].projectile.move(this.scene, player, this.frameCounter);
         }
       }
       //checking if player taking pickup
       for(let i of level.pickups){
-        i.check(player, this.scene);
+        i.check(player, this.scene, this.frameCounter);
       }
 
       // Slow down the animations
@@ -945,18 +970,24 @@ export class GameService {
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
     
-    // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
-    let aboveCamera:BABYLON.FreeCamera = new BABYLON.FreeCamera(
+    // create a ArcRotateCamera, and set its position to (x:5, y:10, z:-20 )
+    let aboveCamera = new BABYLON.ArcRotateCamera(
       'camera1',
-      new BABYLON.Vector3(0, 55, 10),
+      -Math.PI / 4,
+      -Math.PI / 2,
+      12,
+      new BABYLON.Vector3(50, 30, 50),
       this.scene
     );
-
-    // target the camera to scene origin
-    aboveCamera.setTarget(BABYLON.Vector3.Zero());
+    aboveCamera.position = new BABYLON.Vector3(0, 70, 0)
 
     // attach the camera to the canvas
     aboveCamera.attachControl(this.canvas, false);
+    //locking the camera
+    aboveCamera.upperBetaLimit = 1.2;
+    aboveCamera.lowerRadiusLimit = 15;
+    aboveCamera.upperRadiusLimit = 125;
+    aboveCamera.panningDistanceLimit = 0.1;
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(

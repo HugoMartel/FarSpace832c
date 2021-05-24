@@ -14,3 +14,9 @@ export function computeAngle(origin: BABYLON.Vector3, target: BABYLON.Vector3){
   if(Math.asin(zdiff / d) < 0) angle *= -1;
   return angle;
 }
+
+export function delay(n: number){
+  return new Promise(function(resolve){
+    setTimeout(resolve, n*1000);
+  })
+}

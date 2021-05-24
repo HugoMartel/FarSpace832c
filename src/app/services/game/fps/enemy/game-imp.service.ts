@@ -49,8 +49,9 @@ export class GameImpService extends GameEnemyService {
      * Function to call when the imp will enter his attack states to attackFar
      * @param player: the player
      * @param scene Babylon scene associated with the game
+     * @param frames: the number of frames in the renderLoop
      */
-    this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene) => {
+    this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene, frames: number) => {
       if(this.projectile != undefined && this.projectile.toMove) return false;
       this.projectile = new GameFireballService([this.sprt.position.x + 1 * Math.cos(this.angle), this.sprt.position.z + 1 * Math.sin(this.angle)], [player.camera.position.x, player.camera.position.z], scene);
       let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/enemies/imp/attackFar.wav", scene, () => {
@@ -71,9 +72,10 @@ export class GameImpService extends GameEnemyService {
     * Function to call when the imp will enter his attack states to attackNear
     * @param player: the player
     * @param scene Babylon scene associated with the game
+    * @param frames the number of frames in the renderLoop
     */
-    this.attackNear = (player: GamePlayerService, scene: BABYLON.Scene) => {
-      player.applyDamage(10);
+    this.attackNear = (player: GamePlayerService, scene: BABYLON.Scene, frames: number) => {
+      player.applyDamage(10, frames);
       //playing sound:
       let sound = new BABYLON.Sound("music", "../../../assets/sound/fps/enemies/imp/attackNear.wav", scene, () => {
         sound.play();
