@@ -136,8 +136,6 @@ export class GameUIService {
       //add the weapon to the this.hud
       this.hud.addControl(this.currentWeapon);
 
-      // Init life and ammo
-      //TODO
 
       //first layer of hud
       let hudWindow:GUI.Image = new GUI.Image("hudWindow", "assets/hud/statusBackground.png");
@@ -525,7 +523,7 @@ export class GameUIService {
 
       this.currentWeaponId = id;
       player.equippedWeapon = id;
-      this.updateAmmo(id != 0 ? player.ammos[(id == 1 || id == 4 ) ? 1 : ((id == 2 || id == 3) ? 2 : 3)] : -1);
+      this.updateAmmo(id != 0 ? player.ammos[(id == 1 || id == 4 ) ? 1 : ((id == 2 || id == 3) ? 2 : 4)] : -1);
 
       //select the line in the file we want to display
       this.currentWeapon.cellId = 10 * id;
