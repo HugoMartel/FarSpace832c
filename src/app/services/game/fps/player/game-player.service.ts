@@ -231,6 +231,9 @@ export class GamePlayerService {
       }
       this.ui.updateArmor(this.armor);
       this.ui.updateHealth(this.health);
+
+      if (this.dead)
+        onDeath();
     }
 
 
