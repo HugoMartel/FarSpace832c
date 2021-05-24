@@ -142,11 +142,11 @@ export class GamePickupsService {
           */
         case 16:
           this.sprt = new BABYLON.Sprite("shotgun", this.sprtMng);
-          this.sprt.cellIndex = 64;
+          this.sprt.cellIndex = 68;
           break;
         case 17:
           this.sprt = new BABYLON.Sprite("ssg", this.sprtMng);
-          this.sprt.cellIndex = 68;
+          this.sprt.cellIndex = 64;
           break;
         case 18:
           this.sprt = new BABYLON.Sprite("chaingun", this.sprtMng);

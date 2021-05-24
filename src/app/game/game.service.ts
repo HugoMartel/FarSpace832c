@@ -666,7 +666,25 @@ export class GameService {
 
       }
     });
-
+    
+    //**********************
+    //*       MUSIC        *
+    //**********************
+    //playing both music
+    let startMusic = new BABYLON.Sound("music", "assets/sound/music/fpsStart.wav", this.scene, () => {
+      startMusic.play();
+    }, {
+      volume: 3,
+      loop: false,
+    });
+    startMusic.onended = () => {
+      let secondMusic = new BABYLON.Sound("music", "assets/sound/music/fpsLoop.wav", this.scene, () => {
+        secondMusic.play();
+      }, {
+        volume: 3,
+        loop: true,
+      });
+    };
     //**********************
     //*       SKYBOX       *
     //**********************
@@ -812,6 +830,7 @@ export class GameService {
       //checking death:
       if(player.dead){
         //TODO: add death and reload screen etc
+        //this.createFPSScene(canvas, this.levels[0])
       }
       //checking if sprinting:
       if (this.keyPressed.includes('Shift')) 
