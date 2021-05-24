@@ -845,8 +845,8 @@ export class GameService {
       //* checking if e is pressed:
       if (this.keyPressed.includes('e')) {
         //shooting a ray
-        let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, BABYLON.Matrix.Identity(), player.camera);
-        let hit = this.scene.pickWithRay(ray);
+        let ray = player.camera.getForwardRay(5)
+        let hit = this.scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
         for (let i of level.doors) {
           if (i.mesh == hit?.pickedMesh) {
             i.open(player.camera.position, player.inventory, this.scene);
@@ -854,7 +854,7 @@ export class GameService {
           } 
         }
         for (let i of level.switches) {
-          if (i.mesh == hit?.pickedMesh) {
+          if (i.mesh == hit?.pickedMesh || i.topMesh == hit?.pickedMesh) {
             i.on();
             break; 
           }
@@ -970,18 +970,24 @@ export class GameService {
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
     
-    // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
-    let aboveCamera:BABYLON.FreeCamera = new BABYLON.FreeCamera(
+    // create a ArcRotateCamera, and set its position to (x:5, y:10, z:-20 )
+    let aboveCamera = new BABYLON.ArcRotateCamera(
       'camera1',
-      new BABYLON.Vector3(0, 55, 10),
+      -Math.PI / 4,
+      -Math.PI / 2,
+      12,
+      new BABYLON.Vector3(50, 30, 50),
       this.scene
     );
-
-    // target the camera to scene origin
-    aboveCamera.setTarget(BABYLON.Vector3.Zero());
+    aboveCamera.position = new BABYLON.Vector3(0, 70, 0)
 
     // attach the camera to the canvas
     aboveCamera.attachControl(this.canvas, false);
+    //locking the camera
+    aboveCamera.upperBetaLimit = 1.2;
+    aboveCamera.lowerRadiusLimit = 15;
+    aboveCamera.upperRadiusLimit = 125;
+    aboveCamera.panningDistanceLimit = 0.1;
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(

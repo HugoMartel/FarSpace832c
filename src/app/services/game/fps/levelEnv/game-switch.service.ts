@@ -10,6 +10,7 @@ export class GameSwitchService {
   state: boolean;
   coord: Array<number>;
   mesh!: BABYLON.Mesh;
+  topMesh!: BABYLON.Mesh;
   init: Function;
   on: Function;
 
@@ -27,17 +28,17 @@ export class GameSwitchService {
     this.init = (scene: BABYLON.Scene) => {
       this.mesh = BABYLON.MeshBuilder.CreateBox("switch", {size :1, height: 1}, scene);
       //adding a infinite tall mesh on top of the crate to allow the picking with ray without issue (the ray passing above the mesh)
-      let infiniteTall = BABYLON.MeshBuilder.CreateBox("switchInfinite", {size: 1, height: 2}, scene);
-      infiniteTall.position = new BABYLON.Vector3(this.coord[0], 2, this.coord[1]);
-      infiniteTall.checkCollisions = true;
-      infiniteTall.isPickable = true;
-      infiniteTall.metadata = "switch";
+      this.topMesh = BABYLON.MeshBuilder.CreateBox("switchInfinite", {size: 1, height: 2}, scene);
+      this.topMesh.position = new BABYLON.Vector3(this.coord[0], 2, this.coord[1]);
+      this.topMesh.checkCollisions = true;
+      this.topMesh.isPickable = true;
+      this.topMesh.metadata = "switch";
       //adding a invisible mat
       let invisibleMat = new BABYLON.StandardMaterial("Emat", scene);
       invisibleMat.emissiveColor = BABYLON.Color3.FromHexString('#ff9900');
       invisibleMat.specularPower = 128;
       invisibleMat.alpha = 0;
-      infiniteTall.material = invisibleMat;
+      this.topMesh.material = invisibleMat;
       this.mesh.position = new BABYLON.Vector3(this.coord[0], 0.5, this.coord[1]);
       this.mesh.metadata = "switch";
       this.mesh.checkCollisions = true;
