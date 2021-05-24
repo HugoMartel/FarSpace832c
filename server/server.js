@@ -15,6 +15,8 @@ const https = require("https");
 const cors = require("cors");
 const query = require("./db/query");
 const jwt = require('jsonwebtoken');
+const io = require('socket.io')(https);
+
 //const expressJwt = require('express-jwt');
 const hsKey = fs.readFileSync(__dirname + "/../ssl/server.key").toString();
 const hsCert = fs.readFileSync(__dirname + "/../ssl/server.crt").toString();
@@ -66,7 +68,7 @@ app.post("/login/",
     body("password").trim().isLength({ min: 8 }).escape(),
     (req, res) => {
         const errors = validationResult(req);
-
+        
         if (!errors.isEmpty()) {
             console.error(errors);
             res.json({ error: "Your request couldn't be processed..." });
@@ -78,24 +80,14 @@ app.post("/login/",
             query.getUser(req.body.email, req.body.password, (user) => {
                 // if the user isn't already in the database
                 if (user !== undefined) {
-                    console.log(user);
-
+                    let cookieDurationTime=new Date(Date.now() + 3600*2*1000);//+2h
                     // Success message to the frontend
-                    let time = new Date();
-                    time = time.setTime(time.getTime() + 2 * 60 * 60 * 1000);
-
-                    console.log(time);
-
-                    time = time.toUTCString();
-                    console.log(time);
-                    let expires = "expires=" + time + ";";
                     let token = jwt.sign({ userId: user.id }, 'RANDOM_TOKEN_SECRET', { expiresIn: '2h' });
-                    res.cookie("token", token + ';' + expires);
-                    res.cookie("username", user.username);
-                    res.cookie("builds", user.builds);
+                    res.cookie("token", token,{expires:cookieDurationTime,secure:true});
+                    res.cookie("username", user.username,{expires:cookieDurationTime,secure:true});
+                    res.cookie("builds", user.builds,{expires:cookieDurationTime,secure:true});
                     res.json({ message: "You were successfully logged in!" });
                 } else {
-                    //a bouger plus tard
                     res.json({ fail: "Wrong credentials..." });
                 }
             });
@@ -144,6 +136,21 @@ app.post("/register/",
         }
 
     });
+    io.on('connection', (socket) => {
+        console.log("hi");
+        socket.on("token", (token) => {
+            try {
+                jwt.verify(token,'RANDOM_TOKEN_SECRET');
+            }
+            catch(err)
+            {
+                socket.emit("destroyCookie");
+                console.log("token invalide");
+            }
+
+        });
+    });
+      
 
 //****************************
 //*       Server Start       *
@@ -151,12 +158,6 @@ app.post("/register/",
 // Make the server use port 4200
 server.listen(port, () => {
     console.log("Server is up and running on https://localhost:" + port + "/");
-    /* let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE0LCJpYXQiOjE2MjE1ODE3NjUsImV4cCI6MTYyMTY2ODE2NX0.UW_A_GMHf5h9-I0czjMb_Y96m1ODMNTy_nmqdSZk_DQ";
-     console.log(token);
-     const checkIfAuthenticated = expressJwt({
-         secret: 'RANDOM_TOKEN_SECRET'
-     });
-     console.log(checkIfAuthenticated);*/
 });
 
 //****************************

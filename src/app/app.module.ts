@@ -16,8 +16,10 @@ import { ProjectComponent } from './project/project.component';
 import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { WindowRefService } from './services/window-ref.service';
+const config: SocketIoConfig = { url: 'https://localhost:4200', options: {} };
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,6 +32,8 @@ import { WindowRefService } from './services/window-ref.service';
     RegisterComponent,
   ],
   imports: [
+    FormsModule,
+    SocketIoModule.forRoot(config),
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,

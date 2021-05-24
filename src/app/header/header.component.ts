@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { connected } from 'node:process';
 import { browser } from 'protractor';
+import { Socket } from 'ngx-socket-io';
+import { isObject } from 'util';
 
 @Component({
   selector: 'app-header',
@@ -8,19 +10,16 @@ import { browser } from 'protractor';
   styleUrls: ['./header.component.scss']
 })
 
-
 export class HeaderComponent implements OnInit {
 
-  constructor() { }
+  constructor(private socket: Socket) { }
+  
   
   ngOnInit(): void {
-    console.log('hi its me Mario');
-    if(this.getCookie('token')!=null){
-      let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE0LCJpYXQiOjE2MjE1ODE3NjUsImV4cCI6MTYyMTY2ODE2NX0.UW_A_GMHf5h9-I0czjMb_Y96m1ODMNTy_nmqdSZk_DQ";
-   
-    }
-
+  
   }
+  
+
 
   deleteCookie(name: string) {
     const date:Date = new Date();
@@ -47,22 +46,9 @@ export class HeaderComponent implements OnInit {
     return this.getCookie('token')?true: false;
   }
   
-  Disconect(){/*
-    browser.cookies.remove('Connexion')*/
-    let test:string|null = this.getCookie('username');
-    console.log(test);
+  Disconect(){
     this.deleteCookie('token');
     this.deleteCookie('username');
-    
-    //document.getElementById(connected).style.display = none;
+    this.deleteCookie('Builds');
   }
 }
-
-/*
-if (browser.cookies.get('Connexion')!=null){
-  //document.getElementById(connected).style.display = none;
-  // console.log("test");
-}
-function Deconnexion(){
-  
-}*/
