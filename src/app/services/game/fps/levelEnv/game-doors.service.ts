@@ -2,11 +2,10 @@ import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
 import { GamePlayerService } from '../player/game-player.service'
 import * as stuff from '../randomFunctions/random-functions.service'
+import { GameUIService } from '../game-ui.service'
 @Injectable({
   providedIn: 'root'
 })
-
-//TODO: add sound & add event checker
 
 export class GameDoorsService {
   coord : Array<number>;
@@ -72,13 +71,28 @@ export class GameDoorsService {
       if(this.rotate) this.mesh.rotation.y += Math.PI / 2
     }
 
-    this.open = (coords: BABYLON.Vector3, keys: Array<boolean>, scene: BABYLON.Scene) => {
+    this.open = (coords: BABYLON.Vector3, keys: Array<boolean>, scene: BABYLON.Scene, ui: GameUIService|undefined) => {
       let distance = Math.sqrt(Math.pow(this.mesh.position.x - coords.x, 2) + Math.pow(this.mesh.position.z - coords.z , 2));
       if(distance > 3) return;
       //tODO: add switch:
       else if(this.switchNeeded) return;
       //TODO: add message for the player
-      else if(this.key != -1 && !keys[this.key]) return;
+      else if(this.key != -1 && !keys[this.key]){
+        switch(this.key){
+          case 0:
+            ui?.showDoorText("red ");
+            break;
+          case 1:
+            ui?.showDoorText("blue ");
+            break;
+          case 2:
+            ui?.showDoorText("yellow ");
+            break;
+          default:
+            ui?.showDoorText("");
+            break;
+        }
+      }
       //else opening the door
       else{
         this.toOpen = true;

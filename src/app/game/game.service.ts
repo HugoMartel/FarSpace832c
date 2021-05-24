@@ -1,10 +1,8 @@
 //TODO: change the cone to a realy player model ?
-//TODO: creates IA (aled)
 //TODO: change camera borders cause it looks like a fatass rn
 //TODO ++++: add player death check
 //TODO: add a way to the enemy to talk
 
-//TODO: check if the doors are in the right place
 
 import { WindowRefService } from './../services/window-ref.service';
 
@@ -19,8 +17,6 @@ import "@babylonjs/loaders/glTF"; //don't forget to npm install --save-dev @baby
 import { GameLevelService } from '../services/game/fps/game-level.service';
 import { GamePlayerService } from '../services/game/fps/player/game-player.service';
 import { GameUIService } from '../services/game/fps/game-ui.service';
-//tmp
-import { GameFireballService } from '../services/game/fps/attacks/game-fireball.service';
 import * as stuff from '../services/game/fps/randomFunctions/random-functions.service'
 
 // Types defines
@@ -80,8 +76,8 @@ export class GameService {
     ];
     let doorTMP:doorArray = [
       // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
-      [14, 13, -1, 0, 0], 
-      [-14, -13, -1, 0, 1]
+      [14, 13, 2, 0, 0], 
+      [-14, -13, 1, 0, 1]
     ];
     let wallTMP:wallArray = [
       // coordX, coordZ
@@ -849,7 +845,7 @@ export class GameService {
         let hit = this.scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
         for (let i of level.doors) {
           if (i.mesh == hit?.pickedMesh) {
-            i.open(player.camera.position, player.inventory, this.scene);
+            i.open(player.camera.position, player.inventory, this.scene, uiService);
             break;
           } 
         }

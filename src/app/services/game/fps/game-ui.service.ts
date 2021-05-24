@@ -5,12 +5,13 @@ import * as GUI from '@babylonjs/gui';
 
 import { GamePlayerService } from './player/game-player.service';
 import { MenuService } from '../../menu/menu.service';
-
+import * as lib from './randomFunctions/random-functions.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameUIService {
+  doorText: boolean;
   currentWeapon:GUI.Image;
   currentWeaponId:number;
   currentWeaponAnimationFrames:number;
@@ -41,9 +42,11 @@ export class GameUIService {
   updateAmmoPool:Function;
   updateKeys:Function;
   updateWeapons:Function;
+  showDoorText: Function;
 
   constructor(scene: BABYLON.Scene, menuService: MenuService) {
 
+    this.doorText = false;
     this.hasShot = false;
     this.currentWeapon = new GUI.Image("weapons", "assets/textures/weapons.png");
     //width and height of the sprite
@@ -645,6 +648,25 @@ export class GameUIService {
       }
     };
 
+    this.showDoorText = async (key: string) => {
+      if(!this.doorText){
+        this.doorText = true;
+        let text:string = "You need a " + key + "key to open this door";
+        let doorDisplay = new GUI.TextBlock("doorText", text);
+        doorDisplay.color = "#9a0101";
+        doorDisplay.fontFamily = "DooM";
+        doorDisplay.top = "-350px";
+        doorDisplay.fontSize = "40px";
+        doorDisplay.shadowColor = "black";
+        doorDisplay.shadowOffsetX = 1;
+        doorDisplay.shadowOffsetY = 1;
+        doorDisplay.shadowBlur = 1;
+        this.hud.addControl(doorDisplay);
+        await lib.delay(3);
+        this.doorText = false;
+        doorDisplay.dispose();
+      }
+    }
   }
 
 }
