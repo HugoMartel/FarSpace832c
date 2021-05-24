@@ -540,8 +540,45 @@ export class GameService {
 
     let uiService = new GameUIService(this.scene, this.menuService);
     let player = new GamePlayerService(this.scene, this.canvas, uiService, () => {
-      //TODO - TT
-      //GUI.Button
+      //adding a background
+      let guiDeath = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+      let rect1 = new GUI.Rectangle();
+      rect1.width = this.canvas.width;
+      rect1.height = this.canvas.height;
+      rect1.cornerRadius = 20;
+      rect1.color = "#f1fc59";
+      rect1.alpha = 0.75;
+      rect1.thickness = 4;
+      rect1.background = "#9a0101";
+      guiDeath.addControl(rect1);
+      //adding the textbox
+      let text:string = "You're dead, restart ?";
+      let doorDisplay = new GUI.TextBlock("", text);
+      doorDisplay.color = "black";
+      doorDisplay.fontFamily = "DooM";
+      doorDisplay.top = "-350px";
+      doorDisplay.fontSize = "40px";
+      doorDisplay.shadowColor = "white";
+      doorDisplay.shadowOffsetX = 1;
+      doorDisplay.shadowOffsetY = 1;
+      doorDisplay.shadowBlur = 1;
+      guiDeath.addControl(doorDisplay);
+      //adding the button
+      let button = GUI.Button.CreateSimpleButton("resetButton", "Restart");
+      button.width = 0.2;
+      button.cornerRadius = 20;
+      button.fontFamily = "DooM";
+      button.height = "100px";
+      button.fontSize = "35px";
+      button.color = "#9a0101";
+      button.background = "black";
+      guiDeath.addControl(button);
+      //on reset
+      button.onPointerClickObservable.add(() => {
+        this.resetScene();
+        //TODO: change this line in the future
+        this.createFPSScene(canvas, this.levels[0]);
+      });
     });
 
     //Add the camera, to be shown as a cone and surrounding collision volume
