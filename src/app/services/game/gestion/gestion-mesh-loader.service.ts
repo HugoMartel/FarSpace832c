@@ -28,7 +28,7 @@ export class GestionMeshLoaderService {
         this.baseMeshes.push(newMeshes[0]);
       });
 
-   }
+  }
 
   public load1stQG(posX: number, posY: number, scene: any, matrix: any[]) {
     BABYLON.SceneLoader.ImportMesh("", "assets/Blender/My/1stQG/", "1stQG.glb", scene, (newMeshes) => {

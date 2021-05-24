@@ -11,7 +11,7 @@ export class GestionMousePickerService {
   private lastPosX: number = 0;
   private lastPosY: number = 0;
 
-  constructor(private gesMeLoadService: GestionMeshLoaderService) { }
+  constructor(private gesMeLoadService: GestionMeshLoaderService, onEnd: Function) { }
 
   public addMouseListener(scene:BABYLON.Scene, matrix: any[]) {
     /* Add the mouse events */
@@ -56,6 +56,11 @@ export class GestionMousePickerService {
         if (this.isPlacable) {
           this.gesMeLoadService.load1stQG(this.lastPosX, this.lastPosY, scene, matrix);
           this.isPlacable = false;
+
+          //TODO display info on the module you just placed and switch to FPS when the info is done displaying
+          /*
+          onEnd();
+          */
         }
       }else {}
     });

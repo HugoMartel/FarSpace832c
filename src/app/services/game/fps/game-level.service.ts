@@ -74,8 +74,9 @@ export class GameLevelService {
     * |     2 | type   |
     * +-------+--------+
     */
-    @Inject(Number) private env:number)
-    { 
+    @Inject(Number) private env:number,
+    onWin: Function
+  ) { 
     this.walls = wallsC;
     this.envi = env;
     this.enemy = [];
@@ -100,6 +101,6 @@ export class GameLevelService {
     for(let i = 0; i < pickupC.length; ++i) this.pickups.push(new GamePickupsService(pickupC[i]));
     //adding the doors:
     for(let i = 0; i < doorsC.length; ++i) this.doors.push(new GameDoorsService([doorsC[i][0], doorsC[i][1]], doorsC[i][2], doorsC[i][3] ? true : false, doorsC[i][4] ? true : false, this.env));
-    for(let i = 0; i < switchesC.length; ++i) this.switches.push(new GameSwitchService([switchesC[i][0], switchesC[i][1]], switchesC[i][2]));
+    for(let i = 0; i < switchesC.length; ++i) this.switches.push(new GameSwitchService([switchesC[i][0], switchesC[i][1]], switchesC[i][2], onWin));
   }
 }

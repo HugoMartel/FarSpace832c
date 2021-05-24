@@ -33,6 +33,7 @@ type doorArray = Array<Array<number>>;
 import { TerrainService } from './../services/game/gestion/terrain.service';
 import { GestionMousePickerService } from './../services/game/gestion/gestion-mouse-picker.service';
 import { GestionMeshLoaderService } from './../services/game/gestion/gestion-mesh-loader.service';
+import { MatrixService } from '../services/game/gestion/matrix.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -49,15 +50,68 @@ export class GameService {
   private plane!: BABYLON.Mesh;
   private GroundBoxes!: BABYLON.Mesh;
   public keyPressed: Array<String>;
+  public levels: GameLevelService[] = [];
 
   public constructor(
     private ngZone: NgZone,
     private menuService: MenuService,
     private windowRef: WindowRefService,
-    private terrainService: TerrainService,
-    private gesMoPickService: GestionMousePickerService,
-    private gesMeLoadService: GestionMeshLoaderService
+    private terrainService: TerrainService
   ) {
+    // Create the FPS Levels
+    let enemyTMP:enemyArray = [
+      // [[type], [coordx, coordz, state], etc]
+      [[1], [4, 4, 0], [5, 5, 0], [-7, -7, 0]]
+    ];
+    let objectsTMP:pickupArray = [
+      // [type, coordx, coordz]
+      [8, 7, 7], 
+      [8, 5, 5],
+      [10, 6, 7],
+      [14, 7, 6],
+      [8, 7, 8],
+      [16, 8, 7], 
+      [17, 9, 5],
+      [18, 10, 7],
+      [20, 7, 10],
+      [21, 7, 9]
+    ];
+    let doorTMP:doorArray = [
+      // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
+      [14, 13, -1, 0, 0], 
+      [-14, -13, -1, 0, 1]
+    ];
+    let wallTMP:wallArray = [
+      // coordX, coordZ
+      [1, 4],
+      [1, 3],
+      [1, 5],
+      [2, 5],
+      [3, 5],
+      [12, 13],
+      [12, 14],[12, 15], [12, 16], [12, 17], [12, 18], [12, 19],
+      [16, 13], [16, 14], [16, 15], [16, 16], [16, 17], [16, 18], [16, 19],
+    ];
+
+    let switchesTMP = [
+      [11, 11, 0]
+    ];
+
+    this.levels.push(new GameLevelService(
+      wallTMP,
+      enemyTMP,
+      objectsTMP,
+      doorTMP,
+      switchesTMP,
+      1,
+      () => {
+        this.resetScene();
+        //TODO Win screen (BABYLON GUI ?)
+        this.createPlanetScene(new ElementRef<HTMLCanvasElement>(this.canvas));//! will need to adjust the args
+        this.animate();
+      }
+    ));
+
     this.frameCounter = 0;
     this.ground = [];
     this.keyPressed = [];
@@ -433,57 +487,11 @@ export class GameService {
       //*                           FPS or Gestion                             *
       //************************************************************************
 
-      /*
-      let enemyTEST:enemyArray = [
-        // [[type], [coordx, coordz, state], etc]
-        [[1], [4, 4, 0], [5, 5, 0], [-7, -7, 0]]
-      ];
-      let objectsTEST:pickupArray = [
-        // [type, coordx, coordz]
-        [8, 7, 7], 
-        [8, 5, 5],
-        [10, 6, 7],
-        [14, 7, 6],
-        [8, 7, 8],
-        [16, 8, 7], 
-        [17, 9, 5],
-        [18, 10, 7],
-        [20, 7, 10],
-        [21, 7, 9]
-      ];
-      let doorTEST:doorArray = [
-        // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
-        [14, 13, -1, 0, 0], 
-        [-14, -13, -1, 0, 1]
-      ];
-      let wallTEST:wallArray = [
-        // coordX, coordZ
-        [1, 4],
-        [1, 3],
-        [1, 5],
-        [2, 5],
-        [3, 5],
-        [12, 13],
-        [12, 14],[12, 15], [12, 16], [12, 17], [12, 18], [12, 19],
-        [16, 13], [16, 14], [16, 15], [16, 16], [16, 17], [16, 18], [16, 19],
-      ];
-
-      let switchesTest = [
-        [11, 11, 0]
-      ];
-
-      let levelTEST:GameLevelService = new GameLevelService(
-        wallTEST,
-        enemyTEST,
-        objectsTEST,
-        doorTEST,
-        switchesTest,
-        1
-      );
-      this.createFPSScene(canvas, levelTEST);//! will not be used in the future
-      */
-
       ///*
+      this.createFPSScene(canvas, this.levels[0]);//! will not be used in the future
+      //*/
+
+      /*
       let introVideo:HTMLVideoElement = document.createElement("video");
       introVideo.width = canvas.nativeElement.width;
       introVideo.height = canvas.nativeElement.height;
@@ -511,7 +519,7 @@ export class GameService {
 
         this.animate();
       });
-      //*/
+      */
     });
   }
 
@@ -911,6 +919,19 @@ export class GameService {
   //********************
   public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>): void {
 
+    let matrixService: MatrixService = new MatrixService;
+    let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService)
+    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, () => {
+      // FPS transition
+      this.resetScene();
+      //TODO Transition screen (BABYLON GUI ?)
+      this.createFPSScene(
+        new ElementRef<HTMLCanvasElement>(this.canvas), 
+        this.levels[0]
+      );
+      this.animate();
+    });
+
     this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
 
     // The first step is to get the reference of the canvas element from our HTML document
@@ -965,7 +986,7 @@ export class GameService {
     for (let i = 0; i < this.size_z; i++) {
       let tmp: number = (30*(i+1)/(this.size_z+1));
       colorPaletteRed[i] = ((0.0000272718*tmp**5)-(0.00200717*tmp**4)+(0.0503205*tmp**3)-(0.466441*tmp**2)+(1.38804*tmp)+6.6)/25.6;
-      colorPaletteGreen[i] = (Math.exp((i+1-0.62-(this.size_z/1.95))/((39/200)*this.size_z))+13)/25.6;
+      colorPaletteGreen[i] = ( Math.exp(((5.1282*i + 2.9744) / this.size_z) - 2.6298) + 13 ) / 25.6;
       colorPaletteBlue[i] = ((0.000167911*tmp**4)-(0.00955384*tmp**3)+(0.169536*tmp**2)-(0.307887*tmp)+2.6)/25.6;
     }
     //console.log(colorPaletteRed, colorPaletteGreen, colorPaletteBlue);
@@ -990,10 +1011,10 @@ export class GameService {
       }
     }
 
-    this.gesMeLoadService.initMeshes(this.scene);
-    this.gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
-    this.gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
-    this.gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);
+    gesMeLoadService.initMeshes(this.scene);
+    gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
+    gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
+    gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);
 
     //**********************
     //*       SKYBOX       *

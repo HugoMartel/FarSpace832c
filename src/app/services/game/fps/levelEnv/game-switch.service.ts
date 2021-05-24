@@ -15,7 +15,8 @@ export class GameSwitchService {
 
   constructor(
     coordC: Array<number>, 
-    @Inject(Number) private typeC: number
+    @Inject(Number) private typeC: number,
+    onWin: Function
   ) {
     // Init the switch object's properties
     this.coord = coordC;
@@ -40,7 +41,7 @@ export class GameSwitchService {
         switch (this.type) {
           //end of level:
           case 0:
-            console.log("alo comment je return un truc la ?");
+            onWin();
             break;
           default:
             break;
