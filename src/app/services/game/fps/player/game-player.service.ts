@@ -197,6 +197,10 @@ export class GamePlayerService {
     }
 
     this.applyDamage = (damage: number, frame: number) => {
+      if (this.dead) {
+        return;
+      }
+
       if(this.isImmune){
         console.log(frame - this.frameSinceImmune);
         if(frame - this.frameSinceImmune > 1000){
@@ -231,6 +235,9 @@ export class GamePlayerService {
       }
       this.ui.updateArmor(this.armor);
       this.ui.updateHealth(this.health);
+
+      if (this.dead)
+        onDeath();
     }
 
 

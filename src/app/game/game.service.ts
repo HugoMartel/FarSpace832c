@@ -773,7 +773,6 @@ export class GameService {
       wallInstance.isPickable = true;
     }
 
-    //TODO: check if there are doubles on the border
     for(let i = -20; i < 20; i++) {
       for(let j of [20, -20]){
         let wall1:BABYLON.InstancedMesh = wallMesh.createInstance("box1");
@@ -826,13 +825,7 @@ export class GameService {
       player.lockRotation();
       //checking if a pickup has to be removed:
       level.pickups.filter(pick => !pick.remove);
-      //checking death:
-      if(player.dead){
-        //TODO: add death and reload screen etc
-        //onDeath
-        return;
-        //this.createFPSScene(canvas, this.levels[0])
-      }
+
       //checking if sprinting:
       if (this.keyPressed.includes('Shift')) 
         player.camera.speed = 0.5;
