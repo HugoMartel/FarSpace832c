@@ -281,7 +281,8 @@ export class GamePickupsService {
           else player.ammos[1] = 200;
           // Update the HUD
           player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
-          player.ui.updateAmmo(player.ammos[1]);
+          if (player.equippedWeapon == 1 || player.equippedWeapon == 4)
+            player.ui.updateAmmo(player.ammos[1]);
           break;
         //bullet box
         case 8:
@@ -290,7 +291,8 @@ export class GamePickupsService {
           else player.ammos[1] = 200;
           // Update the HUD
           player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
-          player.ui.updateAmmo(player.ammos[1]);
+          if (player.equippedWeapon == 1 || player.equippedWeapon == 4)
+            player.ui.updateAmmo(player.ammos[1]);
           break;
         //4 shells
         case 9:
@@ -299,7 +301,8 @@ export class GamePickupsService {
           else player.ammos[2] = 50;
           // Update the HUD
           player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
-          player.ui.updateAmmo(player.ammos[2]);
+          if (player.equippedWeapon == 2 || player.equippedWeapon == 3)
+            player.ui.updateAmmo(player.ammos[2]);
           break
         //box of shell
         case 10:
@@ -308,7 +311,8 @@ export class GamePickupsService {
           else player.ammos[2] = 50;
           // Update the HUD
           player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
-          player.ui.updateAmmo(player.ammos[2]);
+          if (player.equippedWeapon == 2 || player.equippedWeapon == 3)
+            player.ui.updateAmmo(player.ammos[2]);
           break
         //1 rocket
         case 11://! not used
@@ -329,7 +333,8 @@ export class GamePickupsService {
           else player.ammos[4] = 600;
           // Update the HUD
           player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
-          player.ui.updateAmmo(player.ammos[4]);
+          if (player.equippedWeapon == 5 || player.equippedWeapon == 6)
+            player.ui.updateAmmo(player.ammos[4]);
           break;
         //cell energy
         case 14:
@@ -338,7 +343,8 @@ export class GamePickupsService {
           else player.ammos[4] = 600;
           // Update the HUD
           player.ui.updateAmmoPool(player.ammos[1], player.ammos[2], player.ammos[4], player.hasBackPack);
-          player.ui.updateAmmo(player.ammos[4]);
+          if (player.equippedWeapon == 5 || player.equippedWeapon == 6)
+            player.ui.updateAmmo(player.ammos[4]);
           break;
         //chainsaw
         case 15://! not used

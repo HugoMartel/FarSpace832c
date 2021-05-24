@@ -19,8 +19,6 @@ import "@babylonjs/loaders/glTF"; //don't forget to npm install --save-dev @baby
 import { GameLevelService } from '../services/game/fps/game-level.service';
 import { GamePlayerService } from '../services/game/fps/player/game-player.service';
 import { GameUIService } from '../services/game/fps/game-ui.service';
-//tmp
-import { GameFireballService } from '../services/game/fps/attacks/game-fireball.service';
 import * as stuff from '../services/game/fps/randomFunctions/random-functions.service'
 
 // Types defines
@@ -47,7 +45,6 @@ export class GameService {
   public frameCounter: number;
   private ground!: Array<BABYLON.Mesh>;
   public fullscreen: Function;
-  private plane!: BABYLON.Mesh;
   private GroundBoxes!: BABYLON.Mesh;
   public keyPressed: Array<String>;
   public levels: GameLevelService[] = [];
@@ -541,7 +538,10 @@ export class GameService {
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     let uiService = new GameUIService(this.scene, this.menuService);
-    let player = new GamePlayerService(this.scene, this.canvas, uiService);
+    let player = new GamePlayerService(this.scene, this.canvas, uiService, () => {
+      //TODO - TT
+      //GUI.Button
+    });
 
     //Add the camera, to be shown as a cone and surrounding collision volume
     /*var viewCamera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 8, -2), this.scene);

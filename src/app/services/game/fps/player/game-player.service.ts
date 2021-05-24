@@ -3,10 +3,8 @@ import * as BABYLON from '@babylonjs/core';
 
 import { GameUIService } from '../game-ui.service';
 import { GameLevelService } from '../game-level.service';
-import { Vector2 } from '@babylonjs/core';
 import * as stuff from '../randomFunctions/random-functions.service'
 import { GameEnemyService } from '../game-enemy.service';
-import { distance } from '../randomFunctions/random-functions.service';
 
 //TODO: add imunty & bersek
 //TODO: add a function to end the the game when no health 
@@ -42,7 +40,7 @@ export class GamePlayerService {
   shootRay: Function;
   applyDamage: Function;
 
-  constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement, gameUIService: GameUIService){ 
+  constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement, gameUIService: GameUIService, onDeath:Function) { 
 
     this.health = 100;
     this.hasBackPack = false;
@@ -232,6 +230,9 @@ export class GamePlayerService {
       if (gameUIService.hasShot) 
         return false;// The gun is already firing
 
+      let puffAnim = async (puff:BABYLON.Sprite, n:number) => {
+        puff.playAnimation(0+n*6, 4 + n*6, false, 50, () => puff.dispose());
+      }
 
       //***************
       //*     FIST    *
@@ -239,11 +240,9 @@ export class GamePlayerService {
       if (this.equippedWeapon == 0) {
         //the shot is doable
         gameUIService.hasShot = true;
-        this.ui.updateAmmoPool(this.ammos[1], this.ammos[2], this.ammos[4], this.hasBackPack);
-        this.ui.updateAmmo(0);
 
         // Puff particle
-        let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
+        let puff:BABYLON.Sprite = new BABYLON.Sprite("puff", this.shotPuff);
         puff.height = 1.5;
         puff.width = 1.5;
         puff.isPickable = false;
@@ -258,7 +257,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(1,1,1));//White
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
+        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene);
 
         this.fistSound.play();
 
@@ -276,7 +275,7 @@ export class GamePlayerService {
         this.ui.updateAmmo(this.ammos[1]);
 
         // Puff particle
-        let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
+        let puff:BABYLON.Sprite = new BABYLON.Sprite("puff", this.shotPuff);
         puff.height = 1.5;
         puff.width = 1.5;
         puff.isPickable = false;
@@ -291,7 +290,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(0,0,0));//Black
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
+        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene);
 
         this.pistolSound.play();
 
@@ -308,25 +307,35 @@ export class GamePlayerService {
         this.ui.updateAmmoPool(this.ammos[1], this.ammos[2], this.ammos[4], this.hasBackPack);
         this.ui.updateAmmo(this.ammos[2]);
 
-        // Puff particle
-        let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
-        puff.height = 1.5;
-        puff.width = 1.5;
-        puff.isPickable = false;
-
         // Max distance that the shotgun can reach
         let hitDistance:number =  30.;
-        
 
-        // Create the ray
-        let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
-        let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
-        rayHelper.show(scene, new BABYLON.Color3(1,0,0));//Red
+        // Puff particle
+        let puffs:Array<BABYLON.Sprite> = new Array(5);
+        for (let i = 0; i < 5; ++i) {
+          puffs[i] = new BABYLON.Sprite("puff" + i.toString(), this.shotPuff);
+          puffs[i].height = 1.5;
+          puffs[i].width = 1.5;
+          puffs[i].isPickable = false;
+        }
 
-        //TODO create 4 other shots coming out of the barrel in a line : * * * * *
-        
-        // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
+
+        // Create the 5 shots
+        for (let i = 0; i < 5; ++i) {
+          // Create the ray
+          let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
+          let alpha = (- Math.PI / 12) + i * Math.PI / 24;
+          ray.direction = new BABYLON.Vector3(
+            Math.cos(alpha) * ray.direction.x - Math.sin(alpha) * ray.direction.z,
+            ray.direction.y,
+            Math.sin(alpha) * ray.direction.x + Math.cos(alpha) * ray.direction.z
+          );
+          let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
+          rayHelper.show(scene, new BABYLON.Color3(1,0,0));//Red
+
+          // Check if the ray did hit something eventually
+          this.shootRay(ray, hitDistance, level.enemy, puffs[i], puffAnim, scene);
+        }
 
         this.shotgunSound.play();
 
@@ -344,7 +353,7 @@ export class GamePlayerService {
         this.ui.updateAmmo(this.ammos[2]);
 
         // Puff particle
-        let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
+        let puff:BABYLON.Sprite = new BABYLON.Sprite("puff", this.shotPuff);
         puff.height = 1.5;
         puff.width = 1.5;
         puff.isPickable = false;
@@ -393,7 +402,7 @@ export class GamePlayerService {
         this.ui.updateAmmo(this.ammos[4]);
 
         // Puff particle
-        let puff:BABYLON.Sprite = new BABYLON.Sprite("enemy", this.shotPuff);
+        let puff:BABYLON.Sprite = new BABYLON.Sprite("puff", this.shotPuff);
         puff.height = 1.5;
         puff.width = 1.5;
         puff.isPickable = false;
@@ -408,7 +417,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(0,0,1));//Blue
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff, scene);
+        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene);
 
         this.plasmaSound.play();
 
@@ -445,8 +454,9 @@ export class GamePlayerService {
      * @param enemies level enemies array
      * @param puffSprt puff sprite to display where did the ray hit
      */
-    this.shootRay = (ray:BABYLON.Ray, maxDist:number, enemies: Array<GameEnemyService>, puffSprt:BABYLON.Sprite, scene: BABYLON.Scene) => {
+    this.shootRay = (ray:BABYLON.Ray, maxDist:number, enemies: Array<GameEnemyService>, puffSprt:BABYLON.Sprite, puffAnim:Function, scene: BABYLON.Scene) => {
       let isHittingEnemy:boolean = false;
+
 
       let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
       console.log(hit?.pickedMesh);//!DEBUG
@@ -532,7 +542,7 @@ export class GamePlayerService {
               enemy.sprt.position.z - (this.camera.getFrontPosition(.2).z - this.camera.position.z)
             );
             //Play the blood puff animation
-            puffSprt.playAnimation(6, 10, false, 50, () => puffSprt.dispose());
+            puffAnim(puffSprt, 1);
             
           }
         });
@@ -549,10 +559,10 @@ export class GamePlayerService {
           );
         } else {
           // If nothing is hit
-          puffSprt.position = this.camera.getFrontPosition(maxDist);
+          puffSprt.position = ray.direction.multiplyByFloats(ray.length, ray.length, ray.length).addInPlace(ray.origin);
         }
         //Play the smoke puff animation
-        puffSprt.playAnimation(0, 5, false, 50, () => puffSprt.dispose());
+        puffAnim(puffSprt, 0);
       }
     }
 
