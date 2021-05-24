@@ -826,6 +826,8 @@ export class GameService {
       //checking death:
       if(player.dead){
         //TODO: add death and reload screen etc
+        //onDeath
+        return;
         //this.createFPSScene(canvas, this.levels[0])
       }
       //checking if sprinting:

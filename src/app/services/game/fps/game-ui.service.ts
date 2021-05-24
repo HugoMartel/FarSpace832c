@@ -648,6 +648,10 @@ export class GameUIService {
       }
     };
 
+    /**
+    * function to show the text when you can't open a door
+    * @param key: string with the color key & a space
+    */
     this.showDoorText = async (key: string) => {
       if(!this.doorText){
         this.doorText = true;
