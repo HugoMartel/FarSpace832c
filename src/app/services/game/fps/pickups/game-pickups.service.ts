@@ -205,7 +205,7 @@ export class GamePickupsService {
      * @param player player that picked up the collectible
      * @param scene babylon scene
      */
-    this.pickingUp = (player: GamePlayerService, scene: BABYLON.Scene) => {
+    this.pickingUp = (player: GamePlayerService, scene: BABYLON.Scene, frame: number) => {
       if(this.remove) return; 
       this.remove = true;
       this.sprt.dispose();
@@ -438,10 +438,12 @@ export class GamePickupsService {
         case 22:
           player.health = 100;
           player.onBerserk = true;
+          player.ui.updateHealth(player.health);
           break;
         //imunity
         case 23:
           player.isImmune = true;
+          player.frameSinceImmune = frame;
           break;
         //backpack
         case 24:
@@ -485,10 +487,10 @@ export class GamePickupsService {
     }
 
     //TODO: verifier le radius (0.5)
-    this.check = (player: GamePlayerService, scene: BABYLON.Scene) => {
+    this.check = (player: GamePlayerService, scene: BABYLON.Scene, frames: number) => {
       let distance = Math.sqrt(Math.pow(this.coord[0] - player.camera.position.x, 2) + Math.pow(this.coord[1] - player.camera.position.z , 2));
       if(distance <= 0.75){
-        this.pickingUp(player, scene);
+        this.pickingUp(player, scene, frames);
         return true;
       }
       else return false;

@@ -15,6 +15,7 @@ import { distance } from '../randomFunctions/random-functions.service';
 })
 export class GamePlayerService {
   health: number;
+  dead: boolean;
   armor: number;
   lastArmor: number;
   hasBackPack: boolean;
@@ -51,6 +52,7 @@ export class GamePlayerService {
     this.frameSinceImmune = 0;
     this.armor = 0;
     this.lastArmor = 0;
+    this.dead = false;
     /*
     * +------------------+----------+
     * | weaponlist Index |  weapon  |
@@ -196,7 +198,15 @@ export class GamePlayerService {
       return;
     }
 
-    this.applyDamage = (damage: number) => {
+    this.applyDamage = (damage: number, frame: number) => {
+      if(this.isImmune){
+        console.log(frame - this.frameSinceImmune);
+        if(frame - this.frameSinceImmune > 1000){
+          this.isImmune = false;
+          this.frameSinceImmune = 0;
+        }
+        else return;
+      }
       //checking the armor
       if(this.armor > 0){
         //if green or only pickups, it absorbds 1/3 of the damage
@@ -212,13 +222,17 @@ export class GamePlayerService {
           this.health -= Math.floor(damage / 2);
         }
       }
+      //else no armor
       else{
         this.health -= Math.floor(damage);
       }
-
+      //if dead
+      if(this.health <= 0){ 
+        this.dead = true;
+        this.health = 0;
+      }
       this.ui.updateArmor(this.armor);
       this.ui.updateHealth(this.health);
-
     }
 
 

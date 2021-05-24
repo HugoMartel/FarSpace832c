@@ -45,12 +45,12 @@ export class GameFireballService {
     this.angle = Math.acos(this.xdiff / d);
     if(Math.asin(this.ydiff / d) < 0) this.angle *= -1;
 
-    this.move = (scene: BABYLON.Scene, player: GamePlayerService) => {
+    this.move = (scene: BABYLON.Scene, player: GamePlayerService, frames: number) => {
       if(!this.toMove) return;
       //checking collision:
       //if moving the sprite, and hitting the player
       else if(Math.sqrt(Math.pow(this.coord[0] - player.camera.position.x, 2) + Math.pow(this.coord[1] - player.camera.position.z, 2)) < 1.2){
-        player.applyDamage(20);
+        player.applyDamage(20, frames);
         this.toMove = false;
         this.sprt.stopAnimation();
         let sound = new BABYLON.Sound("music", "assets/sound/fps/enemies/imp/fireballHit.wav", scene, () => {

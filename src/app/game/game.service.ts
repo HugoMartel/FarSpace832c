@@ -74,7 +74,9 @@ export class GameService {
       [17, 9, 5],
       [18, 10, 7],
       [20, 7, 10],
-      [21, 7, 9]
+      [21, 7, 9],
+      [23, -7, -7],
+      [22, -12, 4],
     ];
     let doorTMP:doorArray = [
       // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
@@ -807,6 +809,10 @@ export class GameService {
       player.lockRotation();
       //checking if a pickup has to be removed:
       level.pickups.filter(pick => !pick.remove);
+      //checking death:
+      if(player.dead){
+        //TODO: add death and reload screen etc
+      }
       //checking if sprinting:
       if (this.keyPressed.includes('Shift')) 
         player.camera.speed = 0.5;
@@ -876,12 +882,12 @@ export class GameService {
       for(let i = 0; i < level.enemy.length; ++i){
         //if the enemy fire something, then we move it
         if(level.enemy[i].projectile !== undefined){
-          level.enemy[i].projectile.move(this.scene, player);
+          level.enemy[i].projectile.move(this.scene, player, this.frameCounter);
         }
       }
       //checking if player taking pickup
       for(let i of level.pickups){
-        i.check(player, this.scene);
+        i.check(player, this.scene, this.frameCounter);
       }
 
       // Slow down the animations

@@ -185,7 +185,7 @@ export class GameEnemyService {
               this.framesinceNearAttack = frames;
               //changing the state to play the animation
               this.state = 4;
-              this.attackNear(player, scene);
+              this.attackNear(player, scene, frames);
               this.sprt.stopAnimation();
               this.playAnimation();
             }
@@ -206,7 +206,7 @@ export class GameEnemyService {
             //if it has been more than 150 frames since last far attack, we can do another one
             //we're passing the function as condition because the function is checking if an attack is possible
             //cf if the fireball isn't in the world anymore, to avoid bugs
-            else if (this.attackFar(player, scene)){
+            else if (this.attackFar(player, scene, frames)){
               this.frameSinceFarAttack = frames;
               //changing the state to play animation
               this.state = 3;
@@ -345,7 +345,7 @@ export class GameEnemyService {
           if(frames - this.framesinceNearAttack >= 100){
             this.framesinceNearAttack = frames;
             this.state = 4;
-            this.attackNear(player, scene);
+            this.attackNear(player, scene, frames);
             this.sprt.stopAnimation();
             this.playAnimation();
           }
@@ -363,7 +363,7 @@ export class GameEnemyService {
             }
           }
           //shooting (working)
-          else if (this.attackFar(player, scene)){
+          else if (this.attackFar(player, scene, frames)){
             this.frameSinceFarAttack = frames;
             //attack far;
             this.state = 3;
@@ -399,8 +399,9 @@ export class GameEnemyService {
     * calling to try an attack near
     * @param player: the player
     * @param scene: the babylon scene
+    * @param frames the number of frames in the renderLoop
     */
-    this.attackNear = (player: GamePlayerService, scene: BABYLON.Scene) => {
+    this.attackNear = (player: GamePlayerService, scene: BABYLON.Scene, frames: number) => {
       //no general definition for now
       return false;
     }
@@ -409,8 +410,9 @@ export class GameEnemyService {
     * calling to try an far near
     * @param player: the player
     * @param scene: the babylon scene
+    * @param frames the number of frames in the renderLoop
     */
-    this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene) => {
+    this.attackFar = (player: GamePlayerService, scene: BABYLON.Scene, frames: number) => {
       //no general definition for now
       return false;
     }
