@@ -1047,7 +1047,7 @@ export class GameService {
 
     let matrixService: MatrixService = new MatrixService;
     let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService);
-    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, this.buildList, () => {
+    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, () => {
       // FPS transition
       this.resetScene();
       //TODO Transition screen (BABYLON GUI ?)
@@ -1110,10 +1110,10 @@ export class GameService {
       }
     }
 
-    gesMeLoadService.initMeshes(this.scene);
+    gesMeLoadService.initMeshes(this.scene, this.levelNumber);
     gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
     gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
-    gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);
+    gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
 
     //**********************
     //*       SKYBOX       *
