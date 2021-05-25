@@ -1,8 +1,6 @@
 //TODO: change the cone to a realy player model ?
 //TODO: change camera borders cause it looks like a fatass rn
-//TODO ++++: add player death check
 //TODO: add a way to the enemy to talk
-
 
 import { WindowRefService } from './../services/window-ref.service';
 
@@ -30,6 +28,7 @@ import { TerrainService } from './../services/game/gestion/terrain.service';
 import { GestionMousePickerService } from './../services/game/gestion/gestion-mouse-picker.service';
 import { GestionMeshLoaderService } from './../services/game/gestion/gestion-mesh-loader.service';
 import { MatrixService } from '../services/game/gestion/matrix.service';
+import { GestionHudService } from './../services/game/gestion/gestion-hud.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -46,7 +45,15 @@ export class GameService {
   public fullscreen: Function;
   private GroundBoxes!: BABYLON.Mesh;
   public keyPressed: Array<String>;
-  public levels: GameLevelService[] = [];
+
+  public level!: GameLevelService;
+  //levels stuff:
+  public allWalls: Array<Array<Array<number>>>;
+  public allEnemies: Array<Array<Array<Array<number>>>>;
+  public allPickups: Array<Array<Array<number>>>;
+  public allDoors: Array<Array<Array<number>>>;
+  public allSwitches: Array<Array<Array<number>>>;
+  public levelNumber: number;
 
   public constructor(
     private ngZone: NgZone,
@@ -54,62 +61,6 @@ export class GameService {
     private windowRef: WindowRefService,
     private terrainService: TerrainService
   ) {
-    // Create the FPS Levels
-    let enemyTMP:enemyArray = [
-      // [[type], [coordx, coordz, state], etc]
-      [[1], [4, 4, 0], [5, 5, 0], [-7, -7, 0]]
-    ];
-    let objectsTMP:pickupArray = [
-      // [type, coordx, coordz]
-      [8, 7, 7], 
-      [8, 5, 5],
-      [10, 6, 7],
-      [14, 7, 6],
-      [8, 7, 8],
-      [16, 8, 7], 
-      [17, 9, 5],
-      [18, 10, 7],
-      [20, 7, 10],
-      [21, 7, 9],
-      [23, -7, -7],
-      [22, -12, 4],
-    ];
-    let doorTMP:doorArray = [
-      // coordX, coordZ, key Needed (-1, 0, 1, 2), rotate (0 or 1), switchNeeded (0 or 1)
-      [14, 13, 2, 0, 0], 
-      [-14, -13, 1, 0, 1]
-    ];
-    let wallTMP:wallArray = [
-      // coordX, coordZ
-      [1, 4],
-      [1, 3],
-      [1, 5],
-      [2, 5],
-      [3, 5],
-      [12, 13],
-      [12, 14],[12, 15], [12, 16], [12, 17], [12, 18], [12, 19],
-      [16, 13], [16, 14], [16, 15], [16, 16], [16, 17], [16, 18], [16, 19],
-    ];
-
-    let switchesTMP = [
-      [11, 11, 0]
-    ];
-
-    this.levels.push(new GameLevelService(
-      wallTMP,
-      enemyTMP,
-      objectsTMP,
-      doorTMP,
-      switchesTMP,
-      1,
-      () => {
-        this.resetScene();
-        //TODO Win screen (BABYLON GUI ?)
-        this.createPlanetScene(new ElementRef<HTMLCanvasElement>(this.canvas));//! will need to adjust the args
-        this.animate();
-      }
-    ));
-
     this.frameCounter = 0;
     this.ground = [];
     this.keyPressed = [];
@@ -118,7 +69,73 @@ export class GameService {
       if (this.engine && !this.engine.isFullscreen)
         this.engine.enterFullscreen(false);
     }
+    //defining the levelNumber
+    this.levelNumber = 0;
 
+    //defining the levels var
+    this.allWalls = [
+      //LEVEL 1
+      [
+        [1, 4],
+        [1, 3],
+        [1, 5],
+        [2, 5],
+        [3, 5],
+        [12, 13],
+        [12, 14],[12, 15], [12, 16], [12, 17], [12, 18], [12, 19],
+        [16, 13], [16, 14], [16, 15], [16, 16], [16, 17], [16, 18], [16, 19],
+      ],
+      //LEVEL 1
+    ]
+    //all enemy
+    this.allEnemies = [
+      [
+        //LEVEL 0:
+        [[1], [4, 4, 0], [5, 5, 0], [-7, -7, 0]],
+      ],
+      //LEVEL 1
+    ];
+    //all pickups:
+    this.allPickups = [
+      [
+        //LEVEL 0
+        // [type, coordx, coordz]
+        [8, 7, 7], 
+        [8, 5, 5],
+        [10, 6, 7],
+        [14, 7, 6],
+        [8, 7, 8],
+        [16, 8, 7], 
+        [17, 9, 5],
+        [18, 10, 7],
+        [20, 7, 10],
+        [21, 7, 9],
+        [23, -7, -7],
+        [22, -12, 4],
+      ],
+      [
+      //LEVEL 1
+      ]
+    ];
+    //all doors
+    this.allDoors = [
+      [
+        //LEVEL 0 
+        [14, 13, 2, 0, 0], 
+        [-14, -13, 1, 0, 1]
+      ],
+      [
+        //LEVEL 1
+      ]
+    ];
+    //all switches
+    this.allSwitches = [
+      [
+        //level 0
+        [11, 11, 0],
+      ],
+    ];
+  
   }
 
 
@@ -486,7 +503,7 @@ export class GameService {
       //************************************************************************
 
       ///*
-      this.createFPSScene(canvas, this.levels[0]);//! will not be used in the future
+      this.createFPSScene(canvas);//! will not be used in the future
       //*/
 
       /*
@@ -524,9 +541,9 @@ export class GameService {
   //**********************
   //*      Shooter       *
   //**********************
-  public createFPSScene(canvas: ElementRef<HTMLCanvasElement>, level: GameLevelService): void {
+  public createFPSScene(canvas: ElementRef<HTMLCanvasElement>): void {
     this.isFPS = true;
-
+    
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
@@ -542,9 +559,65 @@ export class GameService {
 
     let uiService = new GameUIService(this.scene, this.menuService);
     let player = new GamePlayerService(this.scene, this.canvas, uiService, () => {
-      //TODO - TT
-      //GUI.Button
+      //adding a background
+      let guiDeath = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+      let rect1 = new GUI.Rectangle();
+      rect1.width = this.canvas.width;
+      rect1.height = this.canvas.height;
+      rect1.cornerRadius = 20;
+      rect1.color = "#f1fc59";
+      rect1.alpha = 0.75;
+      rect1.thickness = 4;
+      rect1.background = "#9a0101";
+      guiDeath.addControl(rect1);
+      //adding the textbox
+      let text:string = "You're dead, restart ?";
+      let doorDisplay = new GUI.TextBlock("", text);
+      doorDisplay.color = "black";
+      doorDisplay.fontFamily = "DooM";
+      doorDisplay.top = "-350px";
+      doorDisplay.fontSize = "40px";
+      doorDisplay.shadowColor = "white";
+      doorDisplay.shadowOffsetX = 1;
+      doorDisplay.shadowOffsetY = 1;
+      doorDisplay.shadowBlur = 1;
+      guiDeath.addControl(doorDisplay);
+      //adding the button
+      let button = GUI.Button.CreateSimpleButton("resetButton", "Restart");
+      button.width = 0.2;
+      button.cornerRadius = 20;
+      button.fontFamily = "DooM";
+      button.height = "100px";
+      button.fontSize = "35px";
+      button.color = "#9a0101";
+      button.background = "black";
+      guiDeath.addControl(button);
+      //on reset
+      button.onPointerClickObservable.add(() => {
+        this.resetScene();
+        
+        //TODO: change this line in the future
+        this.createFPSScene(canvas);
+      });
     });
+
+    //creating the level:
+    // Create the FPS Levels
+
+    this.level = new GameLevelService(
+      this.allWalls[this.levelNumber],
+      this.allEnemies[this.levelNumber],
+      this.allPickups[this.levelNumber],
+      this.allDoors[this.levelNumber],
+      this.allSwitches[this.levelNumber],
+      1,
+      () => {
+        this.resetScene();
+        //TODO Win screen (BABYLON GUI ?)
+        this.createPlanetScene(new ElementRef<HTMLCanvasElement>(this.canvas));//! will need to adjust the args
+        this.animate();
+      }
+    );
 
     //Add the camera, to be shown as a cone and surrounding collision volume
     /*var viewCamera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 8, -2), this.scene);
@@ -567,7 +640,7 @@ export class GameService {
       //! BABYLON.PointerInput.LeftClick means right click...)
       if (ptInfo.type === BABYLON.PointerEventTypes.POINTERDOWN && ptInfo.event.button === 0) {
         player.shooting = true;
-        player.shoot(this.scene, level, this.canvas, this.frameCounter);
+        player.shoot(this.scene, this.level, this.canvas, this.frameCounter);
       } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 0) {
         player.shooting = false;
       }
@@ -716,7 +789,7 @@ export class GameService {
     // GROUND
     let groundMat = new BABYLON.StandardMaterial('groundMat', this.scene);
     //checking env for the texture
-    switch(level.envi){
+    switch(this.level.envi){
       case 1:
         groundMat.diffuseTexture = new BABYLON.Texture("assets/textures/Env1/ground.jpeg", this.scene);
         break;
@@ -726,7 +799,7 @@ export class GameService {
     // WALL
     let wallMaterial =  new BABYLON.StandardMaterial("wallMat", this.scene);
     //checking env for the texture
-    switch(level.envi) {
+    switch(this.level.envi) {
       case 1:
         wallMaterial.diffuseTexture = new BABYLON.Texture("assets/textures/Env1/wall.png", this.scene);
         break;
@@ -769,11 +842,11 @@ export class GameService {
     wallMesh.checkCollisions = false;
     wallMesh.alwaysSelectAsActiveMesh = false;
 
-    for (let i = 0; i < level.walls.length; ++i) {
+    for (let i = 0; i < this.level.walls.length; ++i) {
       let wallInstance:BABYLON.InstancedMesh = wallMesh.createInstance("wallInstance"+i);
       wallInstance.metadata = "wall";
-      wallInstance.position.x = level.walls[i][0];
-      wallInstance.position.z = level.walls[i][1];
+      wallInstance.position.x = this.level.walls[i][0];
+      wallInstance.position.z = this.level.walls[i][1];
       wallInstance.position.y = 1;
       wallInstance.alwaysSelectAsActiveMesh = true;
       wallInstance.checkCollisions = true;
@@ -802,17 +875,17 @@ export class GameService {
 
 
     //adding the pickeable items:
-    for(let i of level.pickups) i.init();
+    for(let i of this.level.pickups) i.init();
     //adding the doors
-    for(let i of level.doors) i.init(this.scene, -1);
+    for(let i of this.level.doors) i.init(this.scene, -1);
     //adding the switches
-    for(let i of level.switches) i.init(this.scene);
+    for(let i of this.level.switches) i.init(this.scene);
 
     //creating the enemy:
     //TODO: move the animation into init
-    for(let i = 0; i < level.enemy.length; ++i){
-      level.enemy[i].init(this.scene);
-      level.enemy[i].playAnimation();
+    for(let i = 0; i < this.level.enemy.length; ++i){
+      this.level.enemy[i].init(this.scene);
+      this.level.enemy[i].playAnimation();
     }
 
     //Gravity and Collisions Enabled
@@ -831,7 +904,7 @@ export class GameService {
       //locking the camera on x axis (ghetto way)
       player.lockRotation();
       //checking if a pickup has to be removed:
-      level.pickups.filter(pick => !pick.remove);
+      this.level.pickups.filter(pick => !pick.remove);
 
       //checking if sprinting:
       if (this.keyPressed.includes('Shift')) 
@@ -841,20 +914,20 @@ export class GameService {
 
 
       //* Pathfinding
-      for(let i of level.enemy) i.IA(player, this.scene, this.frameCounter, level.doors);
+      for(let i of this.level.enemy) i.IA(player, this.scene, this.frameCounter, this.level.doors);
 
       //* checking if e is pressed:
       if (this.keyPressed.includes('e')) {
         //shooting a ray
         let ray = player.camera.getForwardRay(5)
         let hit = this.scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
-        for (let i of level.doors) {
+        for (let i of this.level.doors) {
           if (i.mesh == hit?.pickedMesh) {
             i.open(player.camera.position, player.inventory, this.scene, uiService);
             break;
           } 
         }
-        for (let i of level.switches) {
+        for (let i of this.level.switches) {
           if (i.mesh == hit?.pickedMesh || i.topMesh == hit?.pickedMesh) {
             i.on();
             break; 
@@ -863,7 +936,7 @@ export class GameService {
       }
 
       //* Checking to open or close doors
-      for (let i of level.doors){
+      for (let i of this.level.doors){
         if (i.toOpen){
           if (i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene, player);
           if (i.mesh.position.y <= 4) i.mesh.position.y += 0.1;
@@ -877,7 +950,7 @@ export class GameService {
         else{
           let isAyoneUnderTheDoor = false;
           if (!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 300){
-            for(let j of level.enemy){
+            for(let j of this.level.enemy){
               if(stuff.distance(i.mesh.position, j.mesh.position) <= 3) isAyoneUnderTheDoor = true; 
             }
             if(3 >= stuff.distance(i.mesh.position, player.camera.position)) isAyoneUnderTheDoor = true;
@@ -899,14 +972,14 @@ export class GameService {
       }
 
       //* check every enemy if attacked then move the fireball
-      for(let i = 0; i < level.enemy.length; ++i){
+      for(let i = 0; i < this.level.enemy.length; ++i){
         //if the enemy fire something, then we move it
-        if(level.enemy[i].projectile !== undefined){
-          level.enemy[i].projectile.move(this.scene, player, this.frameCounter);
+        if(this.level.enemy[i].projectile !== undefined){
+          this.level.enemy[i].projectile.move(this.scene, player, this.frameCounter);
         }
       }
       //checking if player taking pickup
-      for(let i of level.pickups){
+      for(let i of this.level.pickups){
         i.check(player, this.scene, this.frameCounter);
       }
 
@@ -924,7 +997,7 @@ export class GameService {
             uiService.hasShot = false;// Shot is done
             // Is the playing still pressing the shoot button ?
             if (player.shooting) {
-              player.shoot(this.scene, level, this.canvas);// Shoot again then
+              player.shoot(this.scene, this.level, this.canvas, this.frameCounter);// Shoot again then
             }
           } else 
             ++uiService.currentWeapon.cellId;// If the animation isn't done yet
@@ -947,6 +1020,8 @@ export class GameService {
     this.isFPS = false;
 
     this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
+
+    let hudService = new GestionHudService;
 
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
@@ -985,10 +1060,7 @@ export class GameService {
       // FPS transition
       this.resetScene();
       //TODO Transition screen (BABYLON GUI ?)
-      this.createFPSScene(
-        new ElementRef<HTMLCanvasElement>(this.canvas), 
-        this.levels[0]
-      );
+      this.createFPSScene(new ElementRef<HTMLCanvasElement>(this.canvas));
     });
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
@@ -998,6 +1070,9 @@ export class GameService {
       this.scene
     );
     this.scene.ambientColor = new BABYLON.Color3(1, 1, 1);
+
+    //create gestion hud
+    hudService.displayGoal(this.scene);
 
     //this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
     //this.plane.rotation.x = Math.PI/2;

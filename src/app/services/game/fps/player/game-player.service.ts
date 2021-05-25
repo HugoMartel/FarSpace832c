@@ -247,7 +247,7 @@ export class GamePlayerService {
      * @param level GameLevelService used to store the current level (especially the enemies)
      * @param canvas HTML Canvas to get the center point to shoot the picking ray
      */
-    this.shoot = (scene:BABYLON.Scene, level:GameLevelService, canvas:HTMLCanvasElement) => {
+    this.shoot = (scene:BABYLON.Scene, level:GameLevelService, canvas:HTMLCanvasElement, frame: number) => {
       if (gameUIService.hasShot) 
         return false;// The gun is already firing
 
@@ -278,7 +278,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(1,1,1));//White
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene);
+        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene, frame);
 
         this.fistSound.play();
 
@@ -311,7 +311,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(0,0,0));//Black
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene);
+        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene, frame);
 
         this.pistolSound.play();
 
@@ -355,7 +355,7 @@ export class GamePlayerService {
           rayHelper.show(scene, new BABYLON.Color3(1,0,0));//Red
 
           // Check if the ray did hit something eventually
-          this.shootRay(ray, hitDistance, level.enemy, puffs[i], puffAnim, scene);
+          this.shootRay(ray, hitDistance, level.enemy, puffs[i], puffAnim, scene, frame);
         }
 
         this.shotgunSound.play();
@@ -401,7 +401,7 @@ export class GamePlayerService {
           rayHelper.show(scene, new BABYLON.Color3(0,1,0));//Green
 
           // Check if the ray did hit something eventually
-          this.shootRay(ray, hitDistance, level.enemy, puffs[i], puffAnim, scene);
+          this.shootRay(ray, hitDistance, level.enemy, puffs[i], puffAnim, scene, frame);
         }
 
         this.ssgSound.play();
@@ -444,7 +444,7 @@ export class GamePlayerService {
         rayHelper.show(scene, new BABYLON.Color3(0,0,1));//Blue
 
         // Check if the ray did hit something eventually
-        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene);
+        this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene, frame);
 
         this.plasmaSound.play();
 
@@ -482,24 +482,34 @@ export class GamePlayerService {
      * @param enemies level enemies array
      * @param puffSprt puff sprite to display where did the ray hit
      */
-    this.shootRay = (ray:BABYLON.Ray, maxDist:number, enemies: Array<GameEnemyService>, puffSprt:BABYLON.Sprite, puffAnim:Function, scene: BABYLON.Scene) => {
+    this.shootRay = (ray:BABYLON.Ray, maxDist:number, enemies: Array<GameEnemyService>, puffSprt:BABYLON.Sprite, puffAnim:Function, scene: BABYLON.Scene, frame: number) => {
       let isHittingEnemy:boolean = false;
 
 
       let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
       console.log(hit?.pickedMesh);//!DEBUG
 
+      //waking up near enemy:
+      for(let i of enemies){
+        if(stuff.distance(i.mesh.position, this.camera.position) <= 20 && (i.state == 0 || i.state == 1)){
+          i.state = 5;
+          i.framesSinceHit = frame;
+          i.playSound("wakeup", scene);
+        }
+      }
 
       // Check if the ray did hit an enemy
       if (hit !== null && hit.pickedMesh !== null && hit.pickedMesh.metadata === "enemy") {
         // Check every enemy if they got hit
         enemies.forEach(enemy => {
           //checking the distance with each enemy to wake up
-          if(stuff.distance(enemy.sprt.position, this.camera.position) < 30 && (enemy.state == 0 || enemy.state == 1)){
+          if(stuff.distance(enemy.sprt.position, this.camera.position) <= 20 && (enemy.state == 0 || enemy.state == 1)){
             //waking him up
             enemy.state = 5;
             //playing the good sound
             enemy.playSound("wakeup", scene);
+            //setting the enemy frames since hit
+            enemy.framesSinceHit = frame;
           }
           // Check if the tested enemy is the one that got hit
           if (hit?.pickedMesh === enemy.mesh) {

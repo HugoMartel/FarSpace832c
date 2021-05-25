@@ -22,6 +22,7 @@ export class GameEnemyService {
   frameSinceFarAttack: number;
   framesinceNearAttack: number;
   framesSinceOldAngle: number;
+  framesSinceHit: number;
   oldAngle: number;
   sprtMng!: BABYLON.SpriteManager;
   sprt !: BABYLON.Sprite;
@@ -48,6 +49,7 @@ export class GameEnemyService {
     this.angle = 0;
     this.speed = 0.01;
     this.framesSinceOldAngle = 0;
+    this.framesSinceHit = 0;
     //STATE: 0 = sleep
     //       1 = ambush
     //       2 = death
@@ -70,7 +72,7 @@ export class GameEnemyService {
       //setting up the mesh
       this.setup(scene);
       if(this.mesh !== undefined && this.sprtMng !== undefined){
-        let enemyMat1 = new BABYLON.StandardMaterial("Emat", scene);
+        let enemyMat1 = new BABYLON. StandardMaterial("Emat", scene);
         enemyMat1.emissiveColor = BABYLON.Color3.FromHexString('#ff9900');
         enemyMat1.specularPower = 128;
         enemyMat1.alpha = 0;
@@ -131,15 +133,20 @@ export class GameEnemyService {
       //computing the distance between the player and the mob, so we can wake him up if the player is near
       let distanceFromPlayer = stuff.distance(player.camera.position, this.sprt.position);
       //if the enemy is too far away then put it to sleep
-      if(distanceFromPlayer >= 20){
+      if(distanceFromPlayer >= 20 && this.state == 5 && frames - this.framesSinceHit > 1500){
         this.state = 0;
+        this.framesSinceHit = frames;
         this.sprt.stopAnimation();
         this.playAnimation();
+        return;
       }
       //if the player is near the enemy and the enemy is sleeping then wake up;
-      if((this.state == 0 || this.state == 1) && stuff.distance(player.camera.position, this.sprt.position) < 10){ 
-        this.state = 5;
-        this.playSound("wakeup", scene);
+      if(this.state == 0 || this.state == 1){ 
+        if(stuff.distance(player.camera.position, this.sprt.position) <= 7){
+          this.state = 5;
+          this.playSound("wakeup", scene);
+        }
+        else return;
       }
       //setting the lowest distance from a front facing mesh to infinity
       let minimumMeshDistance = 999999999;
