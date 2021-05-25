@@ -13,7 +13,7 @@ export class GestionMousePickerService {
 
   constructor(private gesMeLoadService: GestionMeshLoaderService, onEnd: Function) { }
 
-  public addMouseListener(scene:BABYLON.Scene, matrix: any[]) {
+  public addMouseListener(scene:BABYLON.Scene, matrix: any[], buildList: any[]) {
     /* Add the mouse events */
     scene.onPointerObservable.add((ptInfo:BABYLON.PointerInfo) => {
       ptInfo.event.preventDefault();
@@ -24,14 +24,16 @@ export class GestionMousePickerService {
         let pickInfo:BABYLON.PickingInfo|null = scene.pick(scene.pointerX, scene.pointerY, undefined);
         if (pickInfo !== null && pickInfo.hit && pickInfo.pickedMesh !== null && pickInfo.pickedMesh.metadata == "ground") {
 
+          // Get the last mouse position in memory to load the module in the correct position
           this.lastPosX = pickInfo.pickedMesh.position.x;
           this.lastPosY = pickInfo.pickedMesh.position.z;
 
-          console.log(this.gesMeLoadService.baseMeshes);
-          this.gesMeLoadService.baseMeshes[0].position.x = this.lastPosX;
-          this.gesMeLoadService.baseMeshes[0].position.z = this.lastPosY;
-          this.gesMeLoadService.baseMeshes[0].position.y = matrix[this.lastPosX][this.lastPosY] + 0.05;
+          // Save the mouse position for the mesh
+          this.gesMeLoadService.baseMeshes[buildList.length].position.x = this.lastPosX;
+          this.gesMeLoadService.baseMeshes[buildList.length].position.z = this.lastPosY;
+          this.gesMeLoadService.baseMeshes[buildList.length].position.y = matrix[this.lastPosX][this.lastPosY]+0.05;
 
+          // Test if the module is placable at this position
           this.isPlacable = true;
           for (let x = -1; x < 2; x++) {
             for (let y = -1; y < 2; y++) {
@@ -41,30 +43,46 @@ export class GestionMousePickerService {
             }
           }
 
+          // Change the module color relative to its pacability
           let placableColor = new BABYLON.StandardMaterial("isPlacable", scene);
           this.isPlacable ? placableColor.ambientColor = new BABYLON.Color3(0, 1, 0) : placableColor.ambientColor = new BABYLON.Color3(1, 0, 0);
 
-          this.gesMeLoadService.baseMeshes[0].getChildMeshes().forEach((element: any) => {
+          this.gesMeLoadService.baseMeshes[buildList.length].getChildMeshes().forEach((element: any) => {
             element.isVisible = true;
             element.material = placableColor;
           });
       }else {
-        this.gesMeLoadService.baseMeshes[0].getChildMeshes().forEach((element: any) => {
+        this.gesMeLoadService.baseMeshes[buildList.length].getChildMeshes().forEach((element: any) => {
           element.isVisible = false;
         });
       }
+
     // Detect right click to place a module
     } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 1) {
         if (this.isPlacable) {
-          this.gesMeLoadService.load1stQG(this.lastPosX, this.lastPosY, scene, matrix);
+          this.gesMeLoadService.baseMeshes[buildList.length].getChildMeshes().forEach((element: any) => {
+            element.isVisible = true;
+            element.material = null;
+          });
+          buildList.push([this.lastPosX, this.lastPosY]);
+          if (this.gesMeLoadService.baseMeshes.length <= buildList.length) {
+            
+            
+            //TODO display info on the module you just placed and switch to FPS when the info is done displaying
+            /*
+            onEnd();
+            */
+
+
+
+            buildList = [];
+          }
+
           this.isPlacable = false;
 
-          //TODO display info on the module you just placed and switch to FPS when the info is done displaying
-          /*
-          onEnd();
-          */
         }
-      }else {}
+
+      }
     });
   }
 

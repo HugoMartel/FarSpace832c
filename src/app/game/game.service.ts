@@ -1,7 +1,3 @@
-//TODO: change the cone to a realy player model ?
-//TODO: change camera borders cause it looks like a fatass rn
-//TODO: add a way to the enemy to talk
-
 import { WindowRefService } from './../services/window-ref.service';
 
 import { MenuService } from './../services/menu/menu.service';
@@ -17,12 +13,6 @@ import { GamePlayerService } from '../services/game/fps/player/game-player.servi
 import { GameUIService } from '../services/game/fps/game-ui.service';
 import * as stuff from '../services/game/fps/randomFunctions/random-functions.service'
 
-// Types defines
-type enemyArray = Array<Array<Array<number>>>;
-type pickupArray = Array<Array<number>>;
-type wallArray = Array<Array<number>>;
-type doorArray = Array<Array<number>>;
-
 //services Gestion
 import { TerrainService } from './../services/game/gestion/terrain.service';
 import { GestionMousePickerService } from './../services/game/gestion/gestion-mouse-picker.service';
@@ -35,6 +25,7 @@ export class GameService {
 
   private size_z: number = 30;
   private terr2Matrix: any[] = [];
+  private buildList: any[] = [];
 
   public canvas!: HTMLCanvasElement;
   public engine!: BABYLON.Engine;
@@ -1056,7 +1047,7 @@ export class GameService {
 
     let matrixService: MatrixService = new MatrixService;
     let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService);
-    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, () => {
+    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, this.buildList, () => {
       // FPS transition
       this.resetScene();
       //TODO Transition screen (BABYLON GUI ?)
