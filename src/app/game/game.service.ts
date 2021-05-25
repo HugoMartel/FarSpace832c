@@ -42,6 +42,7 @@ export class GameService {
   private scene!: BABYLON.Scene;
   public frameCounter: number;
   private ground!: Array<BABYLON.Mesh>;
+  public isFPS: boolean;
   public fullscreen: Function;
   private GroundBoxes!: BABYLON.Mesh;
   public keyPressed: Array<String>;
@@ -112,17 +113,16 @@ export class GameService {
     this.frameCounter = 0;
     this.ground = [];
     this.keyPressed = [];
+    this.isFPS = false;
     this.fullscreen = () => {
-      //true is to lock the mouse inside
-      this.engine.enterFullscreen(true);
-      if (document.pointerLockElement !== this.canvas) {
-        this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.msRequestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock || false;
-        this.canvas.requestPointerLock();
-      }
+      if (this.engine && !this.engine.isFullscreen)
+        this.engine.enterFullscreen(false);
     }
+
   }
 
 
+  //==================================================================================================================================================
   //**********************
   //*       Reset        *
   //**********************
@@ -133,6 +133,7 @@ export class GameService {
   }
 
 
+  //==================================================================================================================================================
   //**********************
   //*       Menu         *
   //**********************
@@ -513,23 +514,25 @@ export class GameService {
         event.preventDefault();
         videoContainer?.removeChild(introVideo);
         canvas.nativeElement.style.display = "block";
-
-        this.animate();
       });
       */
     });
   }
 
 
+  //==================================================================================================================================================
   //**********************
   //*      Shooter       *
   //**********************
   public createFPSScene(canvas: ElementRef<HTMLCanvasElement>, level: GameLevelService): void {
+    this.isFPS = true;
+
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
     // Create the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);
+    this.engine.enterPointerlock();
     this.engine.displayLoadingUI();
     let animationFrameSkipper = 0;
 
@@ -648,20 +651,21 @@ export class GameService {
       }
     };
 
+
+    /* Add the mouse events */
+    this.scene.onPointerObservable.add(mouseEvent);
+
+    /* Add the keyboard events */
+    this.scene.onKeyboardObservable.add(keyboardEvent);
+
     // On click event, request pointer lock
-    this.canvas.addEventListener('pointerdown', (evt:Event) => {
+    this.canvas.addEventListener('pointerup', (evt:Event) => {
       evt.preventDefault();
 	  	//true/false check if we're locked, faster than checking pointerlock on each single click.
-      if (document.pointerLockElement !== this.canvas) {
+      if (this.isFPS && document.pointerLockElement !== this.canvas) {
         this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.msRequestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock || false;
         this.canvas.requestPointerLock();
-
-        /* Add the mouse events */
-        this.scene.onPointerObservable.add(mouseEvent);
-
-        /* Add the keyboard events */
-        this.scene.onKeyboardObservable.add(keyboardEvent);
-
+        this.engine.enterPointerlock();
       }
     });
     
@@ -689,7 +693,11 @@ export class GameService {
     let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
     let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
     skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/cubemapDebug/", this.scene);
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(
+      "assets/textures/skybox/skyboxRedderSun/", 
+      this.scene, 
+      ["_pz.png","_ny.png","_nx.png","_px.png","_nz.png","_py.png"],
+    );
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
     skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
     skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
@@ -927,28 +935,16 @@ export class GameService {
     });
 
     this.engine.hideLoadingUI();
-
     this.animate();
   }
 
 
+  //==================================================================================================================================================
   //********************
   //*     Terrain      *
   //********************
   public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>): void {
-
-    let matrixService: MatrixService = new MatrixService;
-    let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService)
-    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, () => {
-      // FPS transition
-      this.resetScene();
-      //TODO Transition screen (BABYLON GUI ?)
-      this.createFPSScene(
-        new ElementRef<HTMLCanvasElement>(this.canvas), 
-        this.levels[0]
-      );
-      this.animate();
-    });
+    this.isFPS = false;
 
     this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
 
@@ -956,7 +952,8 @@ export class GameService {
     this.canvas = canvas.nativeElement;
 
     // Then, load the Babylon 3D engine:
-    this.engine = new BABYLON.Engine(this.canvas, true);
+    this.engine = new BABYLON.Engine(this.canvas, true);//? if too laggy disable antialiasing
+    this.engine.exitPointerlock();
     this.engine.displayLoadingUI();
 
     // create a basic BJS Scene object
@@ -975,12 +972,24 @@ export class GameService {
     aboveCamera.position = new BABYLON.Vector3(0, 70, 0)
 
     // attach the camera to the canvas
-    aboveCamera.attachControl(this.canvas, false);
+    aboveCamera.attachControl(this.canvas, true);
     //locking the camera
     aboveCamera.upperBetaLimit = 1.2;
     aboveCamera.lowerRadiusLimit = 15;
     aboveCamera.upperRadiusLimit = 125;
     aboveCamera.panningDistanceLimit = 0.1;
+
+    let matrixService: MatrixService = new MatrixService;
+    let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService);
+    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, () => {
+      // FPS transition
+      this.resetScene();
+      //TODO Transition screen (BABYLON GUI ?)
+      this.createFPSScene(
+        new ElementRef<HTMLCanvasElement>(this.canvas), 
+        this.levels[0]
+      );
+    });
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
@@ -1046,13 +1055,14 @@ export class GameService {
     let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
     let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
     skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/cubemapDebug/", this.scene);
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/skyboxRedderSun/", this.scene, ["_px.png","_py.png","_nx.png","_pz.png","_ny.png","_nz.png"]);
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
     skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
     skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
     skybox.material = skyboxMaterial;
 
     this.engine.hideLoadingUI();
+    this.animate();
 
   }
 

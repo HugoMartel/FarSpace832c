@@ -27,9 +27,10 @@ export class GestionMousePickerService {
           this.lastPosX = pickInfo.pickedMesh.position.x;
           this.lastPosY = pickInfo.pickedMesh.position.z;
 
+          console.log(this.gesMeLoadService.baseMeshes);
           this.gesMeLoadService.baseMeshes[0].position.x = this.lastPosX;
           this.gesMeLoadService.baseMeshes[0].position.z = this.lastPosY;
-          this.gesMeLoadService.baseMeshes[0].position.y = matrix[this.lastPosX][this.lastPosY]+0.05;
+          this.gesMeLoadService.baseMeshes[0].position.y = matrix[this.lastPosX][this.lastPosY] + 0.05;
 
           this.isPlacable = true;
           for (let x = -1; x < 2; x++) {
@@ -52,7 +53,8 @@ export class GestionMousePickerService {
           element.isVisible = false;
         });
       }
-    } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 0) {
+    // Detect right click to place a module
+    } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 1) {
         if (this.isPlacable) {
           this.gesMeLoadService.load1stQG(this.lastPosX, this.lastPosY, scene, matrix);
           this.isPlacable = false;
