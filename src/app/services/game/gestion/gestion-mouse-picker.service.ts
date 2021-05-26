@@ -36,7 +36,6 @@ export class GestionMousePickerService {
           // Test if the module is placable at this position
           this.isPlacable = true;
 
-          //TODO change double XY depending on building
           let dx:number = 0;
           let fx:number = 0;
           let dy:number = 0;
