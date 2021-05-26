@@ -26,6 +26,8 @@ Just an end of the year project for our second year in Junia ISEN.
 
 **Server:** [Node](https://nodejs.org/en/), [Express](https://expressjs.com/), [MySQL](https://www.mysql.com/) [Socket.io](https://socket.io/)
 
+## What is it ?
+FarSpace832c is a first person shooter game that will make you learn a whole lot of things about spacial colonization and exoplanets. Based on scientific reports, this game invite you to explore the current possibilities of the space conquest. Your robot has arrived on Gliese 832C, an explonet considered as "81% fit to live". Your mission: gather the resources that are required in order to develop a human colony, in view of the arrival of human settlers. In order not to get bored, your robot is going to simulate live action phase as he is collecting ressource, it is up to you to come to the end and build your base ! 
   
 ## Installation 
 
@@ -56,8 +58,9 @@ Then, simply connect to `https://localhost:4200` or your custom hostname!
 
   
 ## Demo
----
+
 ### First Person Shooter, a Doom Like:
+
 ---
 
 ![fpsFirstScreen](doc/screenShots/fpsScreen0.png)
