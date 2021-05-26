@@ -135,7 +135,7 @@ export class GameService {
   //**********************
   //*       Reset        *
   //**********************
-  public resetScene():void {
+  public async resetScene() {
     this.engine.stopRenderLoop();
     this.scene.dispose();
     this.engine.dispose();
@@ -147,7 +147,7 @@ export class GameService {
   //**********************
   //*       Menu         *
   //**********************
-  public createMenuScene(canvas: ElementRef<HTMLCanvasElement>):void {
+  public async createMenuScene(canvas: ElementRef<HTMLCanvasElement>) {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
@@ -534,7 +534,7 @@ export class GameService {
   //**********************
   //*      Shooter       *
   //**********************
-  public createFPSScene(canvas: ElementRef<HTMLCanvasElement>): void {
+  public async createFPSScene(canvas: ElementRef<HTMLCanvasElement>) {
     this.isFPS = true;
 
     // The first step is to get the reference of the canvas element from our HTML document
@@ -1013,7 +1013,7 @@ export class GameService {
   //********************
   //*     Terrain      *
   //********************
-  public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>, isGenerated: boolean): void {
+  public async createPlanetScene(canvas: ElementRef<HTMLCanvasElement>, isGenerated: boolean) {
     this.isFPS = false;
 
     if (!isGenerated)
