@@ -12,7 +12,6 @@ export class GameDoorsService {
   key : number;
   env: number
   rotate: boolean;
-  switchNeeded: boolean;
   mesh!: BABYLON.Mesh;
   state: boolean
   toOpen: boolean;
@@ -36,11 +35,10 @@ export class GameDoorsService {
   * +-----------------+--------------------------------------+
   */
 
-  constructor(coordC: Array<number>, @Inject(Number) private keyC:number, @Inject(Boolean) private switchNeededC: boolean, @Inject(Boolean) private rotateC: boolean, @Inject(Number) private envC: number) {
+  constructor(coordC: Array<number>, @Inject(Number) private keyC:number,  @Inject(Boolean) private rotateC: boolean, @Inject(Number) private envC: number) {
     this.coord = coordC;
     this.env = envC;
     this.key = keyC;
-    this.switchNeeded = switchNeededC;
     this.rotate = rotateC;
     this.toOpen = false;
     this.toClose = false;
@@ -75,7 +73,6 @@ export class GameDoorsService {
       let distance = Math.sqrt(Math.pow(this.mesh.position.x - coords.x, 2) + Math.pow(this.mesh.position.z - coords.z , 2));
       if(distance > 3) return;
       //tODO: add switch:
-      else if(this.switchNeeded) return;
       //TODO: add message for the player
       else if(this.key != -1 && !keys[this.key]){
         switch(this.key){

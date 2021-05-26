@@ -54,6 +54,8 @@ export class GameService {
   public allDoors: Array<Array<Array<number>>>;
   public allSwitches: Array<Array<Array<number>>>;
   public levelNumber: number;
+  public allPlayerSpawn: Array<BABYLON.Vector3>;
+  public allMapSize: Array<number>;
 
   public constructor(
     private ngZone: NgZone,
@@ -70,22 +72,20 @@ export class GameService {
         this.engine.enterFullscreen(false);
     }
     //defining the levelNumber
-    this.levelNumber = 0;
+    this.levelNumber = 1;
 
     //defining the levels var
     this.allWalls = [
-      //LEVEL 1
+      //note: [coordX, coordZ, size, true for x/ false for y]
+      //LEVEL TMP
       [
-        [1, 4],
-        [1, 3],
-        [1, 5],
-        [2, 5],
-        [3, 5],
-        [12, 13],
-        [12, 14],[12, 15], [12, 16], [12, 17], [12, 18], [12, 19],
-        [16, 13], [16, 14], [16, 15], [16, 16], [16, 17], [16, 18], [16, 19],
+
       ],
       //LEVEL 1
+      [
+        [0, -3, 4, 0], [0, 4, 4, 0], [1, 6, 5, 0], [2, 6, 2, 1], [7, 6, 4, 1], [11, 5, 2, 0], [12, 6, 6, 1], [2, 11, 7, 1], [1, -2, 3, 1], [3, -6, 4, 0], [4, -6, 4, 1], [7, -5, 4, 0], [8, -2, 3, 1], [9, -7, 6, 0], [2, -8, 7, 1], [1, -11, 3, 0], [-8, -10, 9, 1], [-8, -16, 6, 0], [-8, -16, 9, 1], [1, -15, 1, 1], [2, -16, 8, 1], [10, -16, 5, 0], [11, -12, 5, 1], [15, -14, 2, 0], [16, -15, 5, 1], [21, -14, 7, 0], [16, -7, 5, 1], [16, -6, 4, 0], [14, -2, 1, 1], [15, -2, 6, 0], [10, -1, 1, 0], [11, 4, 4, 1], [2, 11, 7, 1], [9, 10, 13, 1], [16, 0, 6, 0], [17, -1, 5, 1], [22, 0, 10, 0], [21, 6, 1, 1], [-11, -4, 11, 1], [-23, -3, 13, 1], [-11, -2, 1, 1], [-11, 2, 2, 0], [-24, -2, 5, 0], [-23, 3, 12, 1], [-12, 4, 14, 0], [-11, 16, 10, 1], [-1, 7, 11, 0], [-8, 11, 1, 1], [-9, 13, 1, 1],
+        [-11, 7, 4, 1], [-4, 7, 4, 1], [-14, -2, 2, 0], [-20, 1, 2, 0], [-19, 1, 2, 0], [-5, 1, 2, 0], [-6, 1, 2, 0], [6, -14, 2, 0], [13, -6, 3, 1], [13, -7, 3, 1], [15, -8, 1, 1]
+      ],
     ]
     //all enemy
     this.allEnemies = [
@@ -94,6 +94,9 @@ export class GameService {
         [[1], [4, 4, 0], [5, 5, 0], [-7, -7, 0]],
       ],
       //LEVEL 1
+      [
+        [[1], [2, 1, 0], [-5, -2, 0], [-7, 5, 0], [-6, 10, 0], [-22, 1, 0], [5, 8, 0], [14, 8, 0], [18, 4, 0], [20, 4, 0], [11, -6, 0], [19, -13, 0], [7, -15, 0]],
+      ]
     ];
     //all pickups:
     this.allPickups = [
@@ -115,17 +118,53 @@ export class GameService {
       ],
       [
       //LEVEL 1
+      //red key:
+      [25, -21, 0],
+      //blue key
+      [26, 19, 1],
+      //yellow key
+      [27, 18, -13],
+      //shotgun
+      [16 ,-6, 15],
+      //some shells
+      [9, 0, -11], [9, 0, -15],
+      //health
+      [2, 20, 1], [2, -22, -1], [2, -3, -13], [2, 2, -9],
+      //some armor pickups
+      [1, 5, 0], [1, 5, 1], [1, 5, 2], [1, 0, 5], [1, 0, 6], [1, 1, 6],
+      [1, -12, 1], [1, -12, 2], [1, -13, 2], [1, -14, 2],
+      //some health pickups
+      [0, 10, 5], [0, 10, 4], [0, 9, 5], [0, -11, 8], [0, -9, 8], [0, -10, 8],
+      [0, -15, 2], [0, -16, 2], [0, -17, 2], [0, -17, 1], [0, 2, -10], [0, 3, -9],
+      //some clips
+      [7, 14, 3], [1, 7, 11], [1, 8, 11], [7, 14, -3], [7, 15, -3], [7, 14, -4],
+      //one green armor
+      [3, 19, 2],
       ]
     ];
     //all doors
     this.allDoors = [
       [
         //LEVEL 0 
-        [14, 13, 2, 0, 0], 
-        [-14, -13, 1, 0, 1]
+        //note:
+        //CoordX, coordZ, key, rotation
+        //rotation 0 = parallele a abs
+        [14, 13, 2, 0], 
+        [-14, -13, 1, 1]
       ],
       [
         //LEVEL 1
+        //needing nothing
+        [5, -2, -1, 0],
+        [-11, 0, -1, 1],
+        //needing a red key
+        [5, 6, 0, 0],
+        [19, 6, 0, 0],
+        //needing a blue key
+        [12, -2, 1, 0],
+        [15, -10, 1, 1],
+        //needing a yellow key
+        [1, -13, 2, 1],
       ]
     ];
     //all switches
@@ -134,8 +173,25 @@ export class GameService {
         //level 0
         [11, 11, 0],
       ],
+      [
+        //level 1
+        [-5 ,-13, 0],
+      ],
     ];
-  
+    //setting spawns:
+    this.allPlayerSpawn = [
+      //level 0
+      new BABYLON.Vector3(0, 0, 0),
+      //level 1
+      new BABYLON.Vector3(5, 0, -4)
+    ]
+    //setting the map sizes:
+    this.allMapSize = [
+      //level 0:
+      40,
+      //level 1:
+      46
+    ]
   }
 
 
@@ -558,7 +614,7 @@ export class GameService {
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     let uiService = new GameUIService(this.scene, this.menuService);
-    let player = new GamePlayerService(this.scene, this.canvas, uiService, () => {
+    let player = new GamePlayerService(this.scene, this.canvas, uiService, this.allPlayerSpawn[this.levelNumber],() => {
       //adding a background
       let guiDeath = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
       let rect1 = new GUI.Rectangle();
@@ -600,7 +656,6 @@ export class GameService {
         this.createFPSScene(canvas);
       });
     });
-
     //creating the level:
     // Create the FPS Levels
 
@@ -808,29 +863,6 @@ export class GameService {
     }
 
     //**********************
-    //*       GROUND       *
-    //**********************
-    // Adding a ground so we can walk on something
-    let groundMesh = BABYLON.MeshBuilder.CreateGround("ground", {width:1, height:1});
-    groundMesh.material = groundMat;
-    groundMesh.isVisible = false;
-    groundMesh.isPickable = false;
-    groundMesh.checkCollisions = true;
-    groundMesh.alwaysSelectAsActiveMesh = true;
-
-    for(let i = -20; i <= 20; ++i){
-      for(let j = -20; j <= 20; ++j){
-        let groundInstance:BABYLON.InstancedMesh = groundMesh.createInstance("groundInstance"+i);
-        groundInstance.position.x = i;
-        groundInstance.position.z = j;
-        groundInstance.isVisible = true;
-        groundInstance.isPickable = false;
-        groundInstance.checkCollisions = true;
-        groundInstance.alwaysSelectAsActiveMesh = false;
-      }
-    }
-
-    //**********************
     //*       WALLS        *
     //**********************
     let wallMesh = BABYLON.MeshBuilder.CreateBox("wall", {size :1, height: 3}, this.scene);
@@ -842,19 +874,28 @@ export class GameService {
     wallMesh.checkCollisions = false;
     wallMesh.alwaysSelectAsActiveMesh = false;
 
-    for (let i = 0; i < this.level.walls.length; ++i) {
-      let wallInstance:BABYLON.InstancedMesh = wallMesh.createInstance("wallInstance"+i);
-      wallInstance.metadata = "wall";
-      wallInstance.position.x = this.level.walls[i][0];
-      wallInstance.position.z = this.level.walls[i][1];
-      wallInstance.position.y = 1;
-      wallInstance.alwaysSelectAsActiveMesh = true;
-      wallInstance.checkCollisions = true;
-      wallInstance.isPickable = true;
+    for (let i = 0; i < this.allWalls[this.levelNumber].length; ++i) {
+      for(let j = 0; j < this.allWalls[this.levelNumber][i][2]; ++j){
+        let wallInstance:BABYLON.InstancedMesh = wallMesh.createInstance("wallInstance"+i);
+        wallInstance.metadata = "wall";
+        //going on x+
+        if(this.allWalls[this.levelNumber][i][3] == 1){
+          wallInstance.position.x = this.level.walls[i][0] + j;
+          wallInstance.position.z = this.level.walls[i][1];
+        }
+        else{
+          wallInstance.position.x = this.level.walls[i][0];
+          wallInstance.position.z = this.level.walls[i][1] + j;
+        }
+        wallInstance.position.y = 1;
+        wallInstance.alwaysSelectAsActiveMesh = true;
+        wallInstance.checkCollisions = true;
+        wallInstance.isPickable = true;
+      }
     }
 
-    for(let i = -20; i < 20; i++) {
-      for(let j of [20, -20]){
+    for(let i = -this.allMapSize[this.levelNumber]/2; i < this.allMapSize[this.levelNumber]/2; ++i){
+      for(let j of [-this.allMapSize[this.levelNumber]/2, this.allMapSize[this.levelNumber]/2]){
         let wall1:BABYLON.InstancedMesh = wallMesh.createInstance("box1");
         let wall2:BABYLON.InstancedMesh = wallMesh.createInstance("box2");
         wall1.metadata = "wall";
@@ -869,6 +910,30 @@ export class GameService {
         wall2.isPickable = true;
         wall1.checkCollisions = true;
         wall2.checkCollisions = true;
+      }
+    }
+
+    //**********************
+    //*       GROUND       *
+    //**********************
+    // Adding a ground so we can walk on something
+    let groundMesh = BABYLON.MeshBuilder.CreateGround("ground", {width:1, height:1});
+    groundMesh.material = groundMat;
+    groundMesh.isVisible = false;
+    groundMesh.isPickable = false;
+    groundMesh.checkCollisions = true;
+    groundMesh.alwaysSelectAsActiveMesh = true;
+
+    for(let i = -this.allMapSize[this.levelNumber]/2; i <= 1/2 * this.allMapSize[this.levelNumber]; ++i){
+      for(let j = -this.allMapSize[this.levelNumber]/2; j <= this.allMapSize[this.levelNumber]/2; ++j){
+        //adding the ground
+        let groundInstance:BABYLON.InstancedMesh = groundMesh.createInstance("groundInstance"+i);
+        groundInstance.position.x = i;
+        groundInstance.position.z = j;
+        groundInstance.isVisible = true;
+        groundInstance.isPickable = false;
+        groundInstance.checkCollisions = true;
+        groundInstance.alwaysSelectAsActiveMesh = false;
       }
     }
 

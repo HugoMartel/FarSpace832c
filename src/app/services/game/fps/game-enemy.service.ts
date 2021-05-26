@@ -142,7 +142,7 @@ export class GameEnemyService {
       }
       //if the player is near the enemy and the enemy is sleeping then wake up;
       if(this.state == 0 || this.state == 1){ 
-        if(stuff.distance(player.camera.position, this.sprt.position) <= 7){
+        if(stuff.distance(player.camera.position, this.sprt.position) <= 4){
           this.state = 5;
           this.playSound("wakeup", scene);
         }

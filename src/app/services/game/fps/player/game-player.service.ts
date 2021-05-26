@@ -41,7 +41,7 @@ export class GamePlayerService {
   shootRay: Function;
   applyDamage: Function;
 
-  constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement, gameUIService: GameUIService, onDeath:Function) { 
+  constructor(scene: BABYLON.Scene, canvas: HTMLCanvasElement, gameUIService: GameUIService, spawnCoord: BABYLON.Vector3,onDeath:Function) { 
 
     this.health = 100;
     this.hasBackPack = false;
@@ -152,7 +152,7 @@ export class GamePlayerService {
     this.shotPuff.isPickable = false;
     
 
-    this.camera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 1, -3), scene);
+    this.camera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(spawnCoord.x, 1, spawnCoord.z), scene);
     this.camera.setTarget(new BABYLON.Vector3(0, 1, 1));
     // create a FreeCamera, and set its position to (x:5, y:10, z:-20 )
     // attach the camera to the canvas and adding a few controls

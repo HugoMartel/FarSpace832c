@@ -245,7 +245,6 @@ export class GamePickupsService {
         //medikit
         case 2:
           if(player.health + 25 <= 100) player.health += 25;
-          else player.health = 100;
           player.ui.updateHealth(player.health);
           break;
         //armor green
@@ -495,7 +494,7 @@ export class GamePickupsService {
     //TODO: verifier le radius (0.5)
     this.check = (player: GamePlayerService, scene: BABYLON.Scene, frames: number) => {
       let distance = Math.sqrt(Math.pow(this.coord[0] - player.camera.position.x, 2) + Math.pow(this.coord[1] - player.camera.position.z , 2));
-      if(distance <= 0.75){
+      if(distance <= 1.25){
         this.pickingUp(player, scene, frames);
         return true;
       }
