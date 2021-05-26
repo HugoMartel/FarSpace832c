@@ -72,8 +72,6 @@ export class GameDoorsService {
     this.open = (coords: BABYLON.Vector3, keys: Array<boolean>, scene: BABYLON.Scene, ui: GameUIService|undefined) => {
       let distance = Math.sqrt(Math.pow(this.mesh.position.x - coords.x, 2) + Math.pow(this.mesh.position.z - coords.z , 2));
       if(distance > 3) return;
-      //tODO: add switch:
-      //TODO: add message for the player
       else if(this.key != -1 && !keys[this.key]){
         switch(this.key){
           case 0:

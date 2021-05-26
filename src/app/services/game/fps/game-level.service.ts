@@ -8,8 +8,6 @@ import { GamePickupsService } from '../fps/pickups/game-pickups.service'
 
 @Injectable({providedIn: 'root'})
 
-//TODO: add the health and armor pickup (incoming)
-
 export class GameLevelService {
   walls : Array<Array<number>>;
   enemy: Array<GameEnemyService>; 

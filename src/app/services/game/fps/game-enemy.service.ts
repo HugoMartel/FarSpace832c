@@ -7,10 +7,6 @@ import * as stuff from './randomFunctions/random-functions.service'
 import { GameDoorsService } from "./levelEnv/game-doors.service"
 @Injectable({ providedIn: 'root' })
 
-//TODO: maybe try to see if we have some problems with the doors
-
-//TODO: when enemy is ded we need to remove the mesh
-
 export class GameEnemyService {
   coord: Array<number>;
   health: number;
@@ -87,6 +83,7 @@ export class GameEnemyService {
         this.sprt.isPickable = true;
         this.mesh.checkCollisions = true;
         this.mesh.material = enemyMat1;
+        this.playAnimation();
       }
     }
 

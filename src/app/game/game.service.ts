@@ -63,7 +63,8 @@ export class GameService {
         this.engine.enterFullscreen(false);
     }
     //defining the levelNumber
-    this.levelNumber = 3;
+    //!NEVER 0: 0 is the debug level
+    this.levelNumber = 1;
 
     //defining the levels var
     this.allWalls = [
@@ -850,8 +851,7 @@ export class GameService {
       this.engine.stopRenderLoop();
     });
     //creating the level:
-    // Create the FPS Levels
-
+    //Create the FPS Levels
     this.level = new GameLevelService(
       this.allWalls[this.levelNumber],
       this.allEnemies[this.levelNumber],
@@ -861,14 +861,14 @@ export class GameService {
       1,
       () => {
         this.resetScene();
-        //TODO Win screen (BABYLON GUI ?)
         this.createPlanetScene(new ElementRef<HTMLCanvasElement>(this.canvas));//! will need to adjust the args
         this.animate();
       }
     );
-
+    
+    //DEBUG
     //Add the camera, to be shown as a cone and surrounding collision volume
-    /*var viewCamera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 8, -2), this.scene);
+    /*let viewCamera = new BABYLON.UniversalCamera("viewCamera", new BABYLON.Vector3(0, 8, -2), this.scene);
     viewCamera.parent = player.camera;
     viewCamera.setTarget(new BABYLON.Vector3(0, -0.0001, 1));
     if(this.scene != null && this.scene.activeCameras != null){
@@ -1088,6 +1088,7 @@ export class GameService {
     }
     wallMesh.freezeWorldMatrix();
     /*
+    //OLD: creating some walls arround the map
     for(let i = -this.allMapSize[this.levelNumber]/2; i < this.allMapSize[this.levelNumber]/2; ++i){
       for(let j of [-this.allMapSize[this.levelNumber]/2, this.allMapSize[this.levelNumber]/2]){
         let wall1:BABYLON.InstancedMesh = wallMesh.createInstance("box1");
@@ -1142,18 +1143,14 @@ export class GameService {
     for(let i of this.level.switches) i.init(this.scene);
 
     //creating the enemy:
-    //TODO: move the animation into init
     for(let i = 0; i < this.level.enemy.length; ++i){
       this.level.enemy[i].init(this.scene);
-      this.level.enemy[i].playAnimation();
     }
 
     //Gravity and Collisions Enabled
     this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
     this.scene.collisionsEnabled = true;
     for(let i = 0; i < this.ground.length; ++i) this.ground[i].checkCollisions = true;
-    // generates the world x-y-z axis for better understanding
-    this.showWorldAxis(8);
 
     //**************************
     //* REGISTER BEFORE RENDER *
@@ -1421,91 +1418,4 @@ export class GameService {
       });
     });
   }
-
-  //**********************
-  //*       Debug        *
-  //**********************
-  /**
-   * creates the world axes
-   *
-   * Source: https://doc.babylonjs.com/snippets/world_axes
-   *
-   * @param size number
-   */
-  public showWorldAxis(size: number): void {
-    const makeTextPlane = (text: string, color: string, textSize: number) => {
-      const dynamicTexture = new BABYLON.DynamicTexture(
-        'DynamicTexture',
-        50,
-        this.scene,
-        true
-      );
-      dynamicTexture.hasAlpha = true;
-      dynamicTexture.drawText(
-        text,
-        5,
-        40,
-        'bold 36px Arial',
-        color,
-        'transparent',
-        true
-      );
-      const plane = BABYLON.Mesh.CreatePlane('TextPlane', textSize, this.scene, true);
-      const material = new BABYLON.StandardMaterial('TextPlaneMaterial', this.scene);
-      material.backFaceCulling = false;
-      material.specularColor = new BABYLON.Color3(0, 0, 0);
-      material.diffuseTexture = dynamicTexture;
-      plane.material = material;
-
-      return plane;
-    };
-
-    const axisX = BABYLON.Mesh.CreateLines(
-      'axisX',
-      [
-        BABYLON.Vector3.Zero(),
-        new BABYLON.Vector3(size, 0, 0),
-        new BABYLON.Vector3(size * 0.95, 0.05 * size, 0),
-        new BABYLON.Vector3(size, 0, 0),
-        new BABYLON.Vector3(size * 0.95, -0.05 * size, 0),
-      ],
-      this.scene
-    );
-
-    axisX.color = new BABYLON.Color3(1, 0, 0);
-    const xChar = makeTextPlane('X', 'red', size / 10);
-    xChar.position = new BABYLON.Vector3(0.9 * size, -0.05 * size, 0);
-
-    const axisY = BABYLON.Mesh.CreateLines(
-      'axisY',
-      [
-        BABYLON.Vector3.Zero(),
-        new BABYLON.Vector3(0, size, 0),
-        new BABYLON.Vector3(-0.05 * size, size * 0.95, 0),
-        new BABYLON.Vector3(0, size, 0),
-        new BABYLON.Vector3(0.05 * size, size * 0.95, 0),
-      ],
-      this.scene
-    );
-
-    axisY.color = new BABYLON.Color3(0, 1, 0);
-    const yChar = makeTextPlane('Y', 'green', size / 10);
-    yChar.position = new BABYLON.Vector3(0, 0.9 * size, -0.05 * size);
-
-    const axisZ = BABYLON.Mesh.CreateLines(
-      'axisZ',
-      [
-        BABYLON.Vector3.Zero(),
-        new BABYLON.Vector3(0, 0, size),
-        new BABYLON.Vector3(0, -0.05 * size, size * 0.95),
-        new BABYLON.Vector3(0, 0, size),
-        new BABYLON.Vector3(0, 0.05 * size, size * 0.95),
-      ],
-      this.scene
-    );
-
-    axisZ.color = new BABYLON.Color3(0, 0, 1);
-    const zChar = makeTextPlane('Z', 'blue', size / 10);
-    zChar.position = new BABYLON.Vector3(0, 0.05 * size, 0.9 * size);
-    }
 }

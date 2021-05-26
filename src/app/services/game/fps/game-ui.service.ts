@@ -93,7 +93,6 @@ export class GameUIService {
       this.hud.addControl(crosshairHorizontalRect);
 
     //this will init the chosen weapon
-      //TODO: add the texture for all weapon and create display function
       switch (this.currentWeaponId) {
         // Fist
         case 0:

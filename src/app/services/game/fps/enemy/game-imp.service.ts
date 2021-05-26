@@ -97,7 +97,6 @@ export class GameImpService extends GameEnemyService {
     * @param scene: the babylon scene
     */
     this.playSound = (name: String, scene: BABYLON.Scene) => {
-      //TODO: check the random
       //playing a pain sound
       if(this.sound != undefined) this.sound.stop();
       if (name == "injured"){

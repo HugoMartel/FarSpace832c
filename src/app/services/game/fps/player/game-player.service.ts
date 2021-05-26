@@ -6,8 +6,6 @@ import { GameLevelService } from '../game-level.service';
 import * as stuff from '../randomFunctions/random-functions.service'
 import { GameEnemyService } from '../game-enemy.service';
 
-//TODO: add imunty & bersek
-//TODO: add a function to end the the game when no health 
 @Injectable({
   providedIn: 'root'
 })
@@ -202,7 +200,6 @@ export class GamePlayerService {
       }
 
       if(this.isImmune){
-        console.log(frame - this.frameSinceImmune);
         if(frame - this.frameSinceImmune > 1000){
           this.isImmune = false;
           this.frameSinceImmune = 0;
@@ -487,7 +484,7 @@ export class GamePlayerService {
 
 
       let hit:BABYLON.PickingInfo|null = scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
-      console.log(hit?.pickedMesh);//!DEBUG
+      //console.log(hit?.pickedMesh);//!DEBUG
 
       //waking up near enemy:
       for(let i of enemies){
@@ -514,7 +511,7 @@ export class GamePlayerService {
           // Check if the tested enemy is the one that got hit
           if (hit?.pickedMesh === enemy.mesh) {
             isHittingEnemy = true;
-            console.log("Plasma hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
+            //console.log("Plasma hit at " + enemy.sprtMng.name + "(" + enemy.coord + "), hp: " + enemy.health);//! DEBUG
             let hitDistance = stuff.distance(hit.pickedMesh.position, this.camera.position);
             //removing the enemy HP
             let damage = 0;

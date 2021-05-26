@@ -1,7 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
-
-//TODO: add clean texture
 @Injectable({
   providedIn: 'root'
 })

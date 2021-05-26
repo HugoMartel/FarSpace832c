@@ -493,7 +493,6 @@ export class GamePickupsService {
       return;
     }
 
-    //TODO: verifier le radius (0.5)
     this.check = (player: GamePlayerService, scene: BABYLON.Scene, frames: number) => {
       let distance = Math.sqrt(Math.pow(this.coord[0] - player.camera.position.x, 2) + Math.pow(this.coord[1] - player.camera.position.z , 2));
       if(distance <= 1.25){
