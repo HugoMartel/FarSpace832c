@@ -3,10 +3,8 @@
 
 Just an end of the year project for our second year in Junia ISEN.
 
-**TODO** better desc
 
-
-![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
+![Logo](src/assets/FarSpace832c.png)
 
     
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
@@ -26,7 +24,7 @@ Just an end of the year project for our second year in Junia ISEN.
 
 **Client:** [Angular](https://angular.io/), [Babylonjs](https://www.babylonjs.com/), [98.css](https://jdan.github.io/98.css/)
 
-**Server:** [Node](https://nodejs.org/en/), [Express](https://expressjs.com/), [MySQL](https://www.mysql.com/)
+**Server:** [Node](https://nodejs.org/en/), [Express](https://expressjs.com/), [MySQL](https://www.mysql.com/) [Socket.io](https://socket.io/)
 
   
 ## Installation 
@@ -38,6 +36,7 @@ Install the project
   cd FarSpace832c
   npm install
   npm run build
+  
 ```
     
 ## Run the project
@@ -57,7 +56,25 @@ Then, simply connect to `https://localhost:4200` or your custom hostname!
 
   
 ## Demo
+---
+### First Person Shooter, a Doom Like:
+---
 
-**Add screenshots or gifs**
+![fpsFirstScreen](doc/screenShots/fpsScreen0.png)
+This is one part of the game we created, were you'll be the small robot on this unknown planet, dreaming of fighting hordes of enemy while searching for the precious crate of resources.
 
-  
+![fpsSecondScreen](doc/screenShots/fpsScreen1.png)
+
+This part of the game will bring you some classic 
+[doom 1993](https://github.com/id-Software/DOOM) 
+vibes, all written using javascript, [Babylonjs](https://www.babylonjs.com/)
+. The enemies also have a small IA, telling them where to go and when to shoot following the action of the player (thanks [TT-txt](https://www.github.com/TT-txt)
+). While performing this bloody massacre and searching, you will be earing one smooth of a track composed by [Pierre Mazure](https://github.com/pierremaz).
+
+---
+
+### Management Game, when learning is fun
+
+![gestionScreen](doc/screenShots/gestion.png)
+
+In this part of the game you will learn some stuff about space exploration, and you'll create your own base on this new planet: 832C. Remember that the terrain is generated randomly at every game restart (thanks - [Louis Manouvrier](https://www.github.com/Spac3Drunk)).
