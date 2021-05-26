@@ -22,7 +22,7 @@ FarSpace832c is a first person shooter game that will make you learn a whole lot
 
 **Client:** [Angular](https://angular.io/), [Babylonjs](https://www.babylonjs.com/), [98.css](https://jdan.github.io/98.css/)
 
-**Server:** [Node](https://nodejs.org/en/), [Express](https://expressjs.com/), [MySQL](https://www.mysql.com/) [Socket.io](https://socket.io/)
+**Server:** [Node](https://nodejs.org/en/), [Express](https://expressjs.com/), [MySQL](https://www.mysql.com/), [Socket.io](https://socket.io/)
 
   
 ## Installation 
