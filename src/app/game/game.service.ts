@@ -19,6 +19,7 @@ import { GestionMousePickerService } from './../services/game/gestion/gestion-mo
 import { GestionMeshLoaderService } from './../services/game/gestion/gestion-mesh-loader.service';
 import { MatrixService } from '../services/game/gestion/matrix.service';
 import { GestionHudService } from './../services/game/gestion/gestion-hud.service';
+import { GestionSlidesService } from '../services/game/gestion/gestion-slides.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -516,7 +517,7 @@ export class GameService {
       if (videoContainer !== null) {
         videoContainer.prepend(introVideo);
         canvas.nativeElement.style.display = "none";
-        this.createPlanetScene(canvas);
+        this.createPlanetScene(canvas, false);
       }
 
       introVideo.addEventListener('ended', (event:Event) => {
@@ -549,6 +550,24 @@ export class GameService {
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
+
+    //**********************
+    //*       SKYBOX       *
+    //**********************
+    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
+    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(
+      "assets/textures/skybox/skyboxRedderSun/",
+      this.scene,
+      ["_pz.png","_ny.png","_nx.png","_px.png","_nz.png","_py.png"],
+    );
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
+
+    // INIT SERVICES
     let uiService = new GameUIService(this.scene, this.menuService);
     let player = new GamePlayerService(this.scene, this.canvas, uiService, () => {
       //adding a background
@@ -604,9 +623,10 @@ export class GameService {
       this.allSwitches[this.levelNumber],
       1,
       () => {
+        ++this.levelNumber;
         this.resetScene();
         //TODO Win screen (BABYLON GUI ?)
-        this.createPlanetScene(new ElementRef<HTMLCanvasElement>(this.canvas));//! will need to adjust the args
+        this.createPlanetScene(new ElementRef<HTMLCanvasElement>(this.canvas), true);
         this.animate();
       }
     );
@@ -752,21 +772,6 @@ export class GameService {
         loop: true,
       });
     };
-    //**********************
-    //*       SKYBOX       *
-    //**********************
-    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
-    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-    skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(
-      "assets/textures/skybox/skyboxRedderSun/",
-      this.scene,
-      ["_pz.png","_ny.png","_nx.png","_px.png","_nz.png","_py.png"],
-    );
-    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-    skybox.material = skyboxMaterial;
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
@@ -1008,12 +1013,11 @@ export class GameService {
   //********************
   //*     Terrain      *
   //********************
-  public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>): void {
+  public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>, isGenerated: boolean): void {
     this.isFPS = false;
 
-    this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
-
-    let hudService = new GestionHudService;
+    if (!isGenerated)
+      this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
 
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
@@ -1021,7 +1025,6 @@ export class GameService {
     // Then, load the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);//? if too laggy disable antialiasing
     this.engine.exitPointerlock();
-    this.engine.displayLoadingUI();
 
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
@@ -1039,21 +1042,25 @@ export class GameService {
     aboveCamera.position = new BABYLON.Vector3(0, 70, 0)
 
     // attach the camera to the canvas
-    aboveCamera.attachControl(this.canvas, true);
+    aboveCamera.attachControl(this.canvas, false, );
     //locking the camera
     aboveCamera.upperBetaLimit = 1.2;
     aboveCamera.lowerRadiusLimit = 15;
     aboveCamera.upperRadiusLimit = 125;
     aboveCamera.panningDistanceLimit = 0.1;
 
+    // Init Services
+    let hudService = new GestionHudService;
+    hudService.displayGoal(this.scene);
     let matrixService: MatrixService = new MatrixService;
     let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService);
-    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, () => {
+    let gesSlidesService: GestionSlidesService = new GestionSlidesService(this.levelNumber, hudService.hud, () => {
       // FPS transition
       this.resetScene();
       //TODO Transition screen (BABYLON GUI ?)
       this.createFPSScene(new ElementRef<HTMLCanvasElement>(this.canvas));
     });
+    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, gesSlidesService);
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
@@ -1074,9 +1081,6 @@ export class GameService {
     skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
     skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
     skybox.material = skyboxMaterial;
-
-    //create gestion hud
-    hudService.displayGoal(this.scene);
 
 
     this.GroundBoxes = BABYLON.MeshBuilder.CreateBox("GroundBoxes", {width: 1, height: 1, depth: 1}, this.scene);
@@ -1124,7 +1128,7 @@ export class GameService {
     gesMeLoadService.initMeshes(this.scene, this.levelNumber, () => {
       gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
       gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
-      this.engine.hideLoadingUI();
+
       this.animate();
     });
 
