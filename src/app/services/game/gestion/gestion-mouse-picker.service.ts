@@ -37,9 +37,45 @@ export class GestionMousePickerService {
           this.isPlacable = true;
 
           //TODO change double XY depending on building
+          let dx:number = 0;
+          let fx:number = 0;
+          let dy:number = 0;
+          let fy:number = 0;
+          switch (buildList.length) {
+            case 0:
+              dx = -1;
+              fx = 2;
+              dy = -1;
+              fy = 2;
+              break;
+            case 1:
+              dx = -1;
+              fx = 2;
+              dy = -1;
+              fy = 2;
+              break;
+            case 2:
+              dx = -2;
+              fx = 3;
+              dy = -3;
+              fy = 4;
+              break;
+            case 3:
+              dx = -4;
+              fx = 5;
+              dy = -2;
+              fy = 3;
+              break;
+            case 4:
+              dx = -1;
+              fx = 2;
+              dy = -2;
+              fy = 3;
+              break;
+          }
 
-          for (let x = -1; x < 2; x++) {
-            for (let y = -1; y < 2; y++) {
+          for (let x = dx; x < fx; x++) {
+            for (let y = dy; y < fy; y++) {
               if (this.lastPosX+x >= 0 && this.lastPosX+x < matrix.length && this.lastPosY+y >= 0 && this.lastPosY+y < matrix[0].length) {
                 if (matrix[this.lastPosX][this.lastPosY] != matrix[this.lastPosX+x][this.lastPosY+y] || this.gesMeLoadService.buildingsMatrix[this.lastPosX+x][this.lastPosY+y]) {
                   this.isPlacable = false;
