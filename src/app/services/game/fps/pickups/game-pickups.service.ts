@@ -441,8 +441,10 @@ export class GamePickupsService {
           break;
         //BERSERK
         case 22:
+          player.equippedWeapon = 0;
           player.health = 100;
           player.onBerserk = true;
+          player.ui.updateWeapons(0);
           player.ui.updateHealth(player.health);
           break;
         //imunity
