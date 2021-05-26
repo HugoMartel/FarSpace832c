@@ -1,7 +1,3 @@
-//TODO: change the cone to a realy player model ?
-//TODO: change camera borders cause it looks like a fatass rn
-//TODO: add a way to the enemy to talk
-
 import { WindowRefService } from './../services/window-ref.service';
 
 import { MenuService } from './../services/menu/menu.service';
@@ -17,12 +13,6 @@ import { GamePlayerService } from '../services/game/fps/player/game-player.servi
 import { GameUIService } from '../services/game/fps/game-ui.service';
 import * as stuff from '../services/game/fps/randomFunctions/random-functions.service'
 
-// Types defines
-type enemyArray = Array<Array<Array<number>>>;
-type pickupArray = Array<Array<number>>;
-type wallArray = Array<Array<number>>;
-type doorArray = Array<Array<number>>;
-
 //services Gestion
 import { TerrainService } from './../services/game/gestion/terrain.service';
 import { GestionMousePickerService } from './../services/game/gestion/gestion-mouse-picker.service';
@@ -35,6 +25,7 @@ export class GameService {
 
   private size_z: number = 30;
   private terr2Matrix: any[] = [];
+  private buildList: any[] = [];
 
   public canvas!: HTMLCanvasElement;
   public engine!: BABYLON.Engine;
@@ -103,12 +94,12 @@ export class GameService {
       [
         //LEVEL 0
         // [type, coordx, coordz]
-        [8, 7, 7], 
+        [8, 7, 7],
         [8, 5, 5],
         [10, 6, 7],
         [14, 7, 6],
         [8, 7, 8],
-        [16, 8, 7], 
+        [16, 8, 7],
         [17, 9, 5],
         [18, 10, 7],
         [20, 7, 10],
@@ -200,6 +191,7 @@ export class GameService {
   //*       Reset        *
   //**********************
   public resetScene():void {
+    this.engine.stopRenderLoop();
     this.scene.dispose();
     this.engine.dispose();
     //It appears from the devs that only disposing from the scene leaves some stuff in the memory
@@ -517,7 +509,7 @@ export class GameService {
     this.menuService.addShadow(wordWindow);
     menuUI.addControl(wordWindow);
 
-    
+
 
     //******************
     //*  PLAY WINDOW   *
@@ -599,7 +591,7 @@ export class GameService {
   //**********************
   public createFPSScene(canvas: ElementRef<HTMLCanvasElement>): void {
     this.isFPS = true;
-    
+
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
@@ -651,7 +643,7 @@ export class GameService {
       //on reset
       button.onPointerClickObservable.add(() => {
         this.resetScene();
-        
+
         //TODO: change this line in the future
         this.createFPSScene(canvas);
       });
@@ -700,12 +692,12 @@ export class GameService {
         player.shooting = false;
       }
     };
-    
+
     let keyboardEvent = (kbInfo:BABYLON.KeyboardInfo) => {
       kbInfo.event.preventDefault();
       switch (kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
-          switch (kbInfo.event.code) {  
+          switch (kbInfo.event.code) {
             case "KeyE":
               this.keyPressed.push("e");
               break;
@@ -719,11 +711,11 @@ export class GameService {
         case BABYLON.KeyboardEventTypes.KEYUP:
           switch (kbInfo.event.code) {
             case "KeyE":
-              if (this.keyPressed.includes('e')) 
+              if (this.keyPressed.includes('e'))
                 this.keyPressed = this.keyPressed.filter(l => l !== 'e');
               break;
             case 'ShiftLeft':
-              if (this.keyPressed.includes('Shift')) 
+              if (this.keyPressed.includes('Shift'))
                 this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
               break;
             case 'Digit1':
@@ -796,7 +788,7 @@ export class GameService {
         this.engine.enterPointerlock();
       }
     });
-    
+
     //**********************
     //*       MUSIC        *
     //**********************
@@ -822,8 +814,8 @@ export class GameService {
     let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
     skyboxMaterial.backFaceCulling = false;
     skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(
-      "assets/textures/skybox/skyboxRedderSun/", 
-      this.scene, 
+      "assets/textures/skybox/skyboxRedderSun/",
+      this.scene,
       ["_pz.png","_ny.png","_nx.png","_px.png","_nz.png","_py.png"],
     );
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
@@ -972,9 +964,9 @@ export class GameService {
       this.level.pickups.filter(pick => !pick.remove);
 
       //checking if sprinting:
-      if (this.keyPressed.includes('Shift')) 
+      if (this.keyPressed.includes('Shift'))
         player.camera.speed = 0.5;
-      else 
+      else
         player.camera.speed = 0.3;
 
 
@@ -990,12 +982,12 @@ export class GameService {
           if (i.mesh == hit?.pickedMesh) {
             i.open(player.camera.position, player.inventory, this.scene, uiService);
             break;
-          } 
+          }
         }
         for (let i of this.level.switches) {
           if (i.mesh == hit?.pickedMesh || i.topMesh == hit?.pickedMesh) {
             i.on();
-            break; 
+            break;
           }
         }
       }
@@ -1005,7 +997,7 @@ export class GameService {
         if (i.toOpen){
           if (i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene, player);
           if (i.mesh.position.y <= 4) i.mesh.position.y += 0.1;
-          else { 
+          else {
             i.toOpen = false;
             i.state = true;
             i.mesh.position.y = 4;
@@ -1016,7 +1008,7 @@ export class GameService {
           let isAyoneUnderTheDoor = false;
           if (!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 300){
             for(let j of this.level.enemy){
-              if(stuff.distance(i.mesh.position, j.mesh.position) <= 3) isAyoneUnderTheDoor = true; 
+              if(stuff.distance(i.mesh.position, j.mesh.position) <= 3) isAyoneUnderTheDoor = true;
             }
             if(3 >= stuff.distance(i.mesh.position, player.camera.position)) isAyoneUnderTheDoor = true;
             if(!isAyoneUnderTheDoor){
@@ -1053,7 +1045,7 @@ export class GameService {
         ++animationFrameSkipper;
       else {
         //* Weapon firing checks (a weapon has a maximum of 10 animation frames)
-        if (uiService.hasShot && 
+        if (uiService.hasShot &&
           uiService.currentWeapon.cellId <= uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10
           ) {
           // Check if the animation is done
@@ -1064,7 +1056,7 @@ export class GameService {
             if (player.shooting) {
               player.shoot(this.scene, this.level, this.canvas, this.frameCounter);// Shoot again then
             }
-          } else 
+          } else
             ++uiService.currentWeapon.cellId;// If the animation isn't done yet
 
           animationFrameSkipper = 0;//Reset the timer if the animation is triggered
@@ -1099,7 +1091,7 @@ export class GameService {
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
-    
+
     // create a ArcRotateCamera, and set its position to (x:5, y:10, z:-20 )
     let aboveCamera = new BABYLON.ArcRotateCamera(
       'camera1',
@@ -1136,20 +1128,29 @@ export class GameService {
     );
     this.scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
+    //**********************
+    //*       SKYBOX       *
+    //**********************
+    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
+    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/skyboxRedNebulaeNormalSun/", this.scene, ["right.png","bottom.png","front.png","left.png","top.png","back.png"]);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
+
     //create gestion hud
     hudService.displayGoal(this.scene);
 
-    //this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
-    //this.plane.rotation.x = Math.PI/2;
+
     this.GroundBoxes = BABYLON.MeshBuilder.CreateBox("GroundBoxes", {width: 1, height: 1, depth: 1}, this.scene);
 
     let testMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial("testMat", this.scene);
     testMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
-    //this.plane.material = testMat;
+
     this.GroundBoxes.material = testMat;
 
-    //this.plane.registerInstancedBuffer("color", 4);
-    //this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
     this.GroundBoxes.registerInstancedBuffer("color", 4);
     this.GroundBoxes.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
 
@@ -1167,11 +1168,11 @@ export class GameService {
     //console.log(testColorPalette);
     for (let x = 0; x < this.terr2Matrix.length; x++) {
       for (let y = 0; y < this.terr2Matrix[x].length; y++) {
-        //let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
         let instanceTest:BABYLON.InstancedMesh = this.GroundBoxes.createInstance("tplane " + (x*y+y));
         instanceTest.position.x = x;
         instanceTest.position.z = y;
-        //instanceTest.position.y = this.terr2Matrix[x][y];
+
+        // Make the outer border lower than the actual bottom to optimize meshes and geometry
         if (x == 0 || x == 99 || y == 0 || y == 99) {
           instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
         } else {
@@ -1184,25 +1185,13 @@ export class GameService {
       }
     }
 
-    gesMeLoadService.initMeshes(this.scene);
-    gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
-    gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
-    gesMoPickService.addMouseListener(this.scene, this.terr2Matrix);
-
-    //**********************
-    //*       SKYBOX       *
-    //**********************
-    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
-    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-    skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/skyboxRedderSun/", this.scene, ["_px.png","_py.png","_nx.png","_pz.png","_ny.png","_nz.png"]);
-    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-    skybox.material = skyboxMaterial;
-
-    this.engine.hideLoadingUI();
-    this.animate();
+    // Load the 3D models in the scene
+    gesMeLoadService.initMeshes(this.scene, this.levelNumber, () => {
+      gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
+      gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
+      this.engine.hideLoadingUI();
+      this.animate();
+    });
 
   }
 

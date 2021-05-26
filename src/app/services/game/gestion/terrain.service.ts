@@ -9,10 +9,7 @@ export class TerrainService{
   public flatZone: any[] = [];
   //public terrainMatrixTest: any[] = [];
 
-  constructor(private matrixService: MatrixService) {
-    //this.generateTerrain(25, 15, 50, 50);
-    //console.log(this.terrainMatrix);
-  }
+  constructor(private matrixService: MatrixService) {}
 
   public generateTerrain(alpha: number, subsin: number, size_x: number, size_y: number) {
     this.terrainMatrix = this.matrixService.constructMatrix(size_x, size_y);

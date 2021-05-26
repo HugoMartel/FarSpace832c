@@ -98,6 +98,8 @@ a {
 
 @font-face {
   font-family: "DooM";
+  src: url("./assets/fonts/DooM.woff") format("woff");
+  src: url("./assets/fonts/DooM.woff2") format("woff2");
   src: url("./assets/fonts/DooM.ttf") format("truetype");
 }
 

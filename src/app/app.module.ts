@@ -20,6 +20,7 @@ import { MatrixService } from './services/game/gestion/matrix.service';
 import { TerrainService } from './services/game/gestion/terrain.service';
 import { GestionMousePickerService } from './services/game/gestion/gestion-mouse-picker.service';
 import { GestionMeshLoaderService } from './services/game/gestion/gestion-mesh-loader.service';
+import { GestionSlidesService } from './services/game/gestion/gestion-slides.service';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { GestionMeshLoaderService } from './services/game/gestion/gestion-mesh-l
     TerrainService,
     MenuService,
     GestionMousePickerService,
-    GestionMeshLoaderService
+    GestionMeshLoaderService,
+    GestionSlidesService
   ],
   bootstrap: [AppComponent]
 })
