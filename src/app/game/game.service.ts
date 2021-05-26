@@ -138,6 +138,9 @@ export class GameService {
   public async resetScene() {
     this.engine.stopRenderLoop();
     this.scene.dispose();
+    while (this.engine.getLoadedTexturesCache().length > 0) {
+      this.engine._releaseTexture(this.engine.getLoadedTexturesCache()[0]);
+  }
     this.engine.dispose();
     //It appears from the devs that only disposing from the scene leaves some stuff in the memory
   }
@@ -607,9 +610,10 @@ export class GameService {
       button.onPointerClickObservable.add(() => {
         this.resetScene();
 
-        //TODO: change this line in the future
         this.createFPSScene(canvas);
       });
+
+      this.engine.stopRenderLoop();
     });
 
     //creating the level:
@@ -1093,6 +1097,7 @@ export class GameService {
     this.GroundBoxes.registerInstancedBuffer("color", 4);
     this.GroundBoxes.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
 
+    // Generate the color palette of our ground (green -> white)
     let colorPaletteRed: number[] = [];
     let colorPaletteGreen: number[] = [];
     let colorPaletteBlue: number[] = [];
@@ -1102,9 +1107,9 @@ export class GameService {
       colorPaletteGreen[i] = ( Math.exp(((5.1282*i + 2.9744) / this.size_z) - 2.6298) + 13 ) / 25.6;
       colorPaletteBlue[i] = ((0.000167911*tmp**4)-(0.00955384*tmp**3)+(0.169536*tmp**2)-(0.307887*tmp)+2.6)/25.6;
     }
-    //console.log(colorPaletteRed, colorPaletteGreen, colorPaletteBlue);
 
-    //console.log(testColorPalette);
+
+    // Create instances of meshes to display the ground
     for (let x = 0; x < this.terr2Matrix.length; x++) {
       for (let y = 0; y < this.terr2Matrix[x].length; y++) {
         let instanceTest:BABYLON.InstancedMesh = this.GroundBoxes.createInstance("tplane " + (x*y+y));
@@ -1124,10 +1129,16 @@ export class GameService {
       }
     }
 
+    this.GroundBoxes.freezeWorldMatrix();
+
     // Load the 3D models in the scene
     gesMeLoadService.initMeshes(this.scene, this.levelNumber, () => {
       gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
-      gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
+      gesMeLoadService.setupPlacedModules(this.buildList, this.scene, this.terr2Matrix);
+      gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList, hudService);
+
+      let ambianceMusic = new BABYLON.Sound("music", "assets/sound/music/ambiance.wav", this.scene, () => { ambianceMusic.play(); }, { volume: .3, loop: true, });
+      gesSlidesService.displayIntro();
 
       this.animate();
     });

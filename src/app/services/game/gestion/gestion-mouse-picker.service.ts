@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
+import { GestionHudService } from './gestion-hud.service';
 import { GestionMeshLoaderService } from './gestion-mesh-loader.service';
 import { GestionSlidesService } from './gestion-slides.service';
 
@@ -14,7 +15,15 @@ export class GestionMousePickerService {
 
   constructor(private gesMeLoadService: GestionMeshLoaderService, private gesSlidesService: GestionSlidesService) { }
 
-  public addMouseListener(scene:BABYLON.Scene, matrix: number[][], buildList: number[][]) {
+
+  /**
+   * Function to add event listeners to the babylon gestion scene
+   * @param scene babylon js scene
+   * @param matrix double array of the heights (Y-axis for Babylon) of every ground mesh
+   * @param buildList already placed 3D models array to load on the scene
+   * @param hudService HUD used to display info about the modules built
+   */
+  public addMouseListener(scene:BABYLON.Scene, matrix: number[][], buildList: number[][], hudService: GestionHudService) {
 
     /* Mouse event callback */
     let mouseEventCallback:(eventData: BABYLON.PointerInfo, eventState: BABYLON.EventState) => void;
@@ -95,7 +104,6 @@ export class GestionMousePickerService {
           this.isPlacable ? placableColor.ambientColor = new BABYLON.Color3(0, 1, 0) : placableColor.ambientColor = new BABYLON.Color3(1, 0, 0);
 
           this.gesMeLoadService.currentLevelMesh[0].getChildMeshes().forEach((element: any) => {
-            console.log(typeof(element));
             element.isVisible = true;
             element.material = placableColor;
           });
@@ -117,6 +125,7 @@ export class GestionMousePickerService {
 
           scene.onPointerObservable.removeCallback(mouseEventCallback);
           this.gesSlidesService.displaySlides(scene);
+          hudService.updateObj0();
 
           this.isPlacable = false;
         }
@@ -126,15 +135,6 @@ export class GestionMousePickerService {
 
     /* Add the pointer event */
     scene.onPointerObservable.add(mouseEventCallback);
-
-  }
-
-
-  public buildingPlaced(scene:BABYLON.Scene) {
-    // Show the slides
-    this.gesSlidesService.displaySlides(scene);
-
-    // remove the pointer event
 
   }
 

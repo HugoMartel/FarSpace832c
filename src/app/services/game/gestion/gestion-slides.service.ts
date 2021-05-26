@@ -10,6 +10,10 @@ export class GestionSlidesService {
   private slides: GUI.Image[] = [];
   private currentSlide: number;
   private playButton:GUI.Button;
+  private introImage:GUI.Image;
+  private introButton:GUI.Button;
+  private clickToDismissText:GUI.TextBlock;
+  private changeSlideText:GUI.TextBlock;
 
   constructor(@Inject(Number) private buildIndex: number, private hud:GUI.AdvancedDynamicTexture, private buttonCallback:Function) {
 
@@ -61,10 +65,35 @@ export class GestionSlidesService {
         break;
     }
 
+    this.introImage = new GUI.Image("introImage", "assets/gestion/landingMessage.png");
+    this.introImage.shadowBlur = 1;
+    this.introImage.shadowColor = "black";
+    this.introImage.shadowOffsetX = 1;
+    this.introImage.shadowOffsetY = 1;
+    this.introImage.width = "1600px";
+    this.introImage.stretch = GUI.Image.STRETCH_UNIFORM;
+    this.introButton = GUI.Button.CreateSimpleButton("introButton", "");
+    this.introImage.width = "1600px";
+    this.introImage.height = "1120px";
 
-    this.playButton = GUI.Button.CreateImageWithCenterTextButton("playButton", "Find the resource crate!", "assets/menu/buttonGradient.png");
-    this.playButton.width = "400px";
-    this.playButton.height = "40px";
+    this.clickToDismissText = new GUI.TextBlock("clickToDismiss", "click to dismiss...");
+    this.clickToDismissText.textVerticalAlignment = GUI.TextBlock.VERTICAL_ALIGNMENT_BOTTOM;
+    this.clickToDismissText.top = "-30px";
+    this.clickToDismissText.color = "#00f954";
+    this.clickToDismissText.fontSizeInPixels = 20;
+
+    this.changeSlideText = new GUI.TextBlock("changeSlide", "Q <-> D");
+    this.changeSlideText.verticalAlignment = GUI.TextBlock.VERTICAL_ALIGNMENT_BOTTOM;
+    this.changeSlideText.textVerticalAlignment = GUI.TextBlock.VERTICAL_ALIGNMENT_BOTTOM;
+    this.changeSlideText.height = "50px";
+    this.changeSlideText.top = "-30px";
+    this.changeSlideText.color = "#00f954";
+    this.changeSlideText.fontSizeInPixels = 20;
+    this.changeSlideText.zIndex = 1;
+
+    this.playButton = GUI.Button.CreateImageWithCenterTextButton("playButton", "Look for the resource crate!", "assets/menu/buttonGradient.png");
+    this.playButton.width = "500px";
+    this.playButton.height = "60px";
     this.playButton.color = "white";
     this.playButton.fontFamily = "DooM";
     this.playButton.background = "green";
@@ -102,7 +131,7 @@ export class GestionSlidesService {
         /* One time trigger events */
         case BABYLON.KeyboardEventTypes.KEYUP:
           switch (kbInfo.event.code) {
-            case "ArrowRight":
+            case "KeyD":
               // go to the next slide
               if (this.currentSlide + 1 < this.slides.length) {
                 this.hud.addControl(this.slides[++this.currentSlide]);
@@ -113,7 +142,7 @@ export class GestionSlidesService {
                 this.hud.addControl(this.playButton);
               }
               break;
-            case "ArrowLeft":
+            case "KeyA":
               // go to the prev slide
               if (this.currentSlide > 0) {
                 this.hud.addControl(this.slides[--this.currentSlide]);
@@ -133,6 +162,26 @@ export class GestionSlidesService {
     scene.onKeyboardObservable.add(keyboardEvent);
 
     this.hud.addControl(this.slides[0]);
+    this.hud.addControl(this.changeSlideText);
 
   }
+
+
+
+  /**
+   * Display the intro message 
+   */
+  public displayIntro() {
+
+    // On click dismiss
+    this.introButton.onPointerClickObservable.add(() => {
+      this.hud.removeControl(this.introImage);
+      this.hud.removeControl(this.introButton);
+      this.hud.removeControl(this.clickToDismissText);
+    })
+    this.hud.addControl(this.introImage);
+    this.hud.addControl(this.clickToDismissText);
+    this.hud.addControl(this.introButton);
+  }
+
 }
