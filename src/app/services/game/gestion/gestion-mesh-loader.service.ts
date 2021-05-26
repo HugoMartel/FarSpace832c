@@ -19,8 +19,9 @@ export class GestionMeshLoaderService {
   }
 
   // Init the previsu
-  public initMeshes(scene: BABYLON.Scene, moduleIndex: number) {
+  public initMeshes(scene: BABYLON.Scene, moduleIndex: number, onSuccess: Function) {
 
+    
     // Defaults to the first module
     let modulePath:string = "assets/Blender/My/1stQG/";
     let moduleName:string = "1stQG.glb";
@@ -36,18 +37,22 @@ export class GestionMeshLoaderService {
         break;
     }
 
-    BABYLON.SceneLoader.ImportMesh("", modulePath, moduleName, scene, (newMeshes) => {
+    BABYLON.SceneLoader.ImportMesh("", modulePath, moduleName, scene, (newMeshes) => {//!ERROR
+      // Callback called on mesh Load
       newMeshes[0].getChildMeshes().forEach(element => {
         element.isVisible = false;
         element.isPickable = false;
       });
-        newMeshes[0].metadata = "module";
-        this.baseMeshes.push(newMeshes[0]);
-      });
+      newMeshes[0].metadata = "module";
+      this.baseMeshes.push(newMeshes[0]);
+      
+      onSuccess();
+
+    });
 
   }
 
-  public load1stQG(posX: number, posY: number, scene: any, matrix: any[]) {
+  public load1stQG(posX: number, posY: number, scene: any, matrix: any[], onSuccess: Function) {
     for (let x = -1; x < 2; x++) {
       for (let y = -1; y < 2; y++) {
         this.buildingsMatrix[posX+x][posY+y] = 1;
@@ -59,20 +64,25 @@ export class GestionMeshLoaderService {
       newMeshes[0].position.z = posY;
       newMeshes[0].position.y = matrix[posX][posY]+0.05;
       newMeshes[0].metadata = "1stQG";
+
+      onSuccess();
     });
   }
 
-  public loadRTG_Power_Plant(posX: number, posY: number, scene: any, matrix: any[]) {
+  public loadRTG_Power_Plant(posX: number, posY: number, scene: any, matrix: any[], onSuccess: Function) {
     for (let x = -1; x < 2; x++) {
       for (let y = -1; y < 2; y++) {
         this.buildingsMatrix[posX+x][posY+y] = 1;
       }
     }
     BABYLON.SceneLoader.ImportMesh("", "assets/Blender/My/RTG_Power_Plant/", "RTG_Power_Plant.glb", scene, (newMeshes) => {
+      // Callback called on mesh Load
       newMeshes[0].position.x = posX;
       newMeshes[0].position.z = posY;
       newMeshes[0].position.y = matrix[posX][posY]+0.05;
       newMeshes[0].metadata = "RTG_Power_Plant";
+
+      onSuccess();
     });
   }
 

@@ -135,6 +135,7 @@ export class GameService {
   //*       Reset        *
   //**********************
   public resetScene():void {
+    this.engine.stopRenderLoop();
     this.scene.dispose();
     this.engine.dispose();
     //It appears from the devs that only disposing from the scene leaves some stuff in the memory
@@ -493,11 +494,11 @@ export class GameService {
       //*                           FPS or Gestion                             *
       //************************************************************************
 
-      ///*
-      this.createFPSScene(canvas);//! will not be used in the future
-      //*/
-
       /*
+      this.createFPSScene(canvas);//! will not be used in the future
+      */
+
+      ///*
       let introVideo:HTMLVideoElement = document.createElement("video");
       introVideo.width = canvas.nativeElement.width;
       introVideo.height = canvas.nativeElement.height;
@@ -523,7 +524,7 @@ export class GameService {
         videoContainer?.removeChild(introVideo);
         canvas.nativeElement.style.display = "block";
       });
-      */
+      //*/
     });
   }
 
@@ -1062,20 +1063,29 @@ export class GameService {
     );
     this.scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
+    //**********************
+    //*       SKYBOX       *
+    //**********************
+    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
+    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/skyboxRedNebulaeNormalSun/", this.scene, ["right.png","bottom.png","front.png","left.png","top.png","back.png"]);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
+
     //create gestion hud
     hudService.displayGoal(this.scene);
 
-    //this.plane = BABYLON.Mesh.CreatePlane("plane", 1, this.scene, true);
-    //this.plane.rotation.x = Math.PI/2;
+    
     this.GroundBoxes = BABYLON.MeshBuilder.CreateBox("GroundBoxes", {width: 1, height: 1, depth: 1}, this.scene);
 
     let testMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial("testMat", this.scene);
     testMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
-    //this.plane.material = testMat;
+
     this.GroundBoxes.material = testMat;
 
-    //this.plane.registerInstancedBuffer("color", 4);
-    //this.plane.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
     this.GroundBoxes.registerInstancedBuffer("color", 4);
     this.GroundBoxes.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
 
@@ -1093,11 +1103,11 @@ export class GameService {
     //console.log(testColorPalette);
     for (let x = 0; x < this.terr2Matrix.length; x++) {
       for (let y = 0; y < this.terr2Matrix[x].length; y++) {
-        //let instanceTest:BABYLON.InstancedMesh = this.plane.createInstance("tplane " + (x*y+y));
         let instanceTest:BABYLON.InstancedMesh = this.GroundBoxes.createInstance("tplane " + (x*y+y));
         instanceTest.position.x = x;
         instanceTest.position.z = y;
-        //instanceTest.position.y = this.terr2Matrix[x][y];
+        
+        // Make the outer border lower than the actual bottom to optimize meshes and geometry
         if (x == 0 || x == 99 || y == 0 || y == 99) {
           instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
         } else {
@@ -1110,25 +1120,18 @@ export class GameService {
       }
     }
 
-    gesMeLoadService.initMeshes(this.scene, this.levelNumber);
-    gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
-    gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix);
-    gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
+    // Load the 3D models in the scene
+    gesMeLoadService.initMeshes(this.scene, this.levelNumber, () => {
+      
+      gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
 
-    //**********************
-    //*       SKYBOX       *
-    //**********************
-    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
-    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-    skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/skyboxRedderSun/", this.scene, ["_px.png","_py.png","_nx.png","_pz.png","_ny.png","_nz.png"]);
-    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-    skybox.material = skyboxMaterial;
+      gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix, () => {
+        gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
 
-    this.engine.hideLoadingUI();
-    this.animate();
+        this.engine.hideLoadingUI();
+        this.animate();
+      });
+    });
 
   }
 
