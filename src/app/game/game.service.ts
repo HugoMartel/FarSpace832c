@@ -845,6 +845,9 @@ export class GameService {
         //TODO: change this line in the future
         this.createFPSScene(canvas);
       });
+      //stopping the render loop and releasing the pointer
+      this.engine.exitPointerlock();
+      this.engine.stopRenderLoop();
     });
     //creating the level:
     // Create the FPS Levels

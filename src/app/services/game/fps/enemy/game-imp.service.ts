@@ -21,7 +21,7 @@ export class GameImpService extends GameEnemyService {
   constructor(position: Array<number>, @Inject(Number) private sec: number) { 
     //10 = life, sec = state, scene obvious
     super(position, 70, 1, sec);
-    this.speed = 0.05;
+    this.speed = 0.065;
     this.stateFrames = [
       [0, 3],   //sleep
       [12, 15], //ambush

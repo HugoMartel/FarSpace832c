@@ -92,7 +92,7 @@ export class GameFireballService {
         }
         //moving the mesh
         else{
-          let speed = 0.1;
+          let speed = 0.2;
           this.coord[0] += speed * Math.cos(this.angle);
           this.coord[1] += speed * Math.sin(this.angle);
           //updating sprite coord:
