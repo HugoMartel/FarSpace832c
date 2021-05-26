@@ -113,7 +113,7 @@ export class GestionMousePickerService {
             buildList = [];//temp fix just for testing, to keep until game final win coded
           }
 
-          //need to be saved : buildList, matrix
+          //need to be saved : buildList
 
           //TODO display info on the module you just placed and switch to FPS when the info is done displaying
           /*
