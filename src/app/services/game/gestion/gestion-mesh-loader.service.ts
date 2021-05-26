@@ -8,9 +8,9 @@ import { MatrixService } from './matrix.service';
 })
 export class GestionMeshLoaderService {
 
-  public buildingsMatrix: any[] = [];
+  public buildingsMatrix: number[][] = [];
 
-  public currentLevelMesh: any[] = [];
+  public currentLevelMesh: BABYLON.AbstractMesh[] = [];
 
   constructor(private matrixService: MatrixService) {}
 
@@ -59,7 +59,7 @@ export class GestionMeshLoaderService {
     });
   }
 
-  public loadBuilding(posX: number, posY: number, scene: any, matrix: any[], moduleIndex: number) {
+  public loadBuilding(posX: number, posY: number, scene: BABYLON.Scene, matrix: number[][], moduleIndex: number) {
     let modulePath:string = "assets/Blender/My/1stQG/";
     let moduleName:string = "1stQG.glb";
     switch (moduleIndex) {
@@ -116,4 +116,11 @@ export class GestionMeshLoaderService {
       newMeshes[0].metadata = moduleName;
     });
   }
+
+  public setupPlacedModules(listBuild: number [][], scene: BABYLON.Scene, matrix: number[][]) {
+    for (let i = 0; i < listBuild.length; i++) {
+      this.loadBuilding(listBuild[i][0], listBuild[i][1], scene, matrix, i);
+    }
+  }
+
 }

@@ -14,11 +14,11 @@ export class GestionMousePickerService {
 
   constructor(private gesMeLoadService: GestionMeshLoaderService, private gesSlidesService: GestionSlidesService) { }
 
-  public addMouseListener(scene:BABYLON.Scene, matrix: any[], buildList: any[]) {
+  public addMouseListener(scene:BABYLON.Scene, matrix: number[][], buildList: number[][]) {
 
     /* Mouse event callback */
     let mouseEventCallback:(eventData: BABYLON.PointerInfo, eventState: BABYLON.EventState) => void;
-    
+
     mouseEventCallback = (ptInfo:BABYLON.PointerInfo) => {
       ptInfo.event.preventDefault();
       // Detect the event type and if the input is a left click
@@ -95,6 +95,7 @@ export class GestionMousePickerService {
           this.isPlacable ? placableColor.ambientColor = new BABYLON.Color3(0, 1, 0) : placableColor.ambientColor = new BABYLON.Color3(1, 0, 0);
 
           this.gesMeLoadService.currentLevelMesh[0].getChildMeshes().forEach((element: any) => {
+            console.log(typeof(element));
             element.isVisible = true;
             element.material = placableColor;
           });
@@ -111,7 +112,7 @@ export class GestionMousePickerService {
       } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button == 2) {
         if (this.isPlacable) {
           this.gesMeLoadService.loadBuilding(this.lastPosX, this.lastPosY, scene, matrix, buildList.length);
-          if (buildList.length < 5) 
+          if (buildList.length < 5)
             buildList.push([this.lastPosX, this.lastPosY]);
 
           scene.onPointerObservable.removeCallback(mouseEventCallback);
@@ -134,7 +135,7 @@ export class GestionMousePickerService {
     this.gesSlidesService.displaySlides(scene);
 
     // remove the pointer event
-    
+
   }
 
 }

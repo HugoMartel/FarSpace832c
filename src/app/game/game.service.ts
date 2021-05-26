@@ -25,8 +25,8 @@ import { GestionSlidesService } from '../services/game/gestion/gestion-slides.se
 export class GameService {
 
   private size_z: number = 30;
-  private terr2Matrix: any[] = [];
-  private buildList: any[] = [];
+  private terr2Matrix: number[][] = [];
+  private buildList: number[][] = [];
 
   public canvas!: HTMLCanvasElement;
   public engine!: BABYLON.Engine;
