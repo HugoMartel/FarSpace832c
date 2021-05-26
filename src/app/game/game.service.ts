@@ -723,7 +723,7 @@ export class GameService {
     menuUI.addControl(window);
 
     // Planet Image
-    let planet:GUI.Image = new GUI.Image("planetImage", "assets/menu/FarSpace832c.png");
+    let planet:GUI.Image = new GUI.Image("planetImage", "assets/FarSpace832c.png");
     planet.width = "300px";
     planet.height = "300px";
     planet.top = "-100px";
