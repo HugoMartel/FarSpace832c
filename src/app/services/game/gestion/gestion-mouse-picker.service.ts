@@ -29,15 +29,22 @@ export class GestionMousePickerService {
           this.lastPosY = pickInfo.pickedMesh.position.z;
 
           // Save the mouse position for the mesh
-          this.gesMeLoadService.baseMeshes[buildList.length].position.x = this.lastPosX;
-          this.gesMeLoadService.baseMeshes[buildList.length].position.z = this.lastPosY;
-          this.gesMeLoadService.baseMeshes[buildList.length].position.y = matrix[this.lastPosX][this.lastPosY]+0.05;
+          this.gesMeLoadService.currentLevelMesh[0].position.x = this.lastPosX;
+          this.gesMeLoadService.currentLevelMesh[0].position.z = this.lastPosY;
+          this.gesMeLoadService.currentLevelMesh[0].position.y = matrix[this.lastPosX][this.lastPosY]+0.05;
 
           // Test if the module is placable at this position
           this.isPlacable = true;
+
+          //TODO change double XY depending on building
+
           for (let x = -1; x < 2; x++) {
             for (let y = -1; y < 2; y++) {
-              if (matrix[this.lastPosX][this.lastPosY] != matrix[this.lastPosX+x][this.lastPosY+y] || this.gesMeLoadService.buildingsMatrix[this.lastPosX+x][this.lastPosY+y]) {
+              if (this.lastPosX+x >= 0 && this.lastPosX+x < matrix.length && this.lastPosY+y >= 0 && this.lastPosY+y < matrix[0].length) {
+                if (matrix[this.lastPosX][this.lastPosY] != matrix[this.lastPosX+x][this.lastPosY+y] || this.gesMeLoadService.buildingsMatrix[this.lastPosX+x][this.lastPosY+y]) {
+                  this.isPlacable = false;
+                }
+              }else {
                 this.isPlacable = false;
               }
             }
@@ -47,42 +54,40 @@ export class GestionMousePickerService {
           let placableColor = new BABYLON.StandardMaterial("isPlacable", scene);
           this.isPlacable ? placableColor.ambientColor = new BABYLON.Color3(0, 1, 0) : placableColor.ambientColor = new BABYLON.Color3(1, 0, 0);
 
-          this.gesMeLoadService.baseMeshes[buildList.length].getChildMeshes().forEach((element: any) => {
+          this.gesMeLoadService.currentLevelMesh[0].getChildMeshes().forEach((element: any) => {
             element.isVisible = true;
             element.material = placableColor;
           });
       }else {
-        this.gesMeLoadService.baseMeshes[buildList.length].getChildMeshes().forEach((element: any) => {
+        this.gesMeLoadService.currentLevelMesh[0].getChildMeshes().forEach((element: any) => {
           element.isVisible = false;
         });
       }
 
     // Detect right click to place a module
-    } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button === 1) {
+    // ptInfo.event.button == 0   ----->    LeftClick
+    //                        1   ----->    MiddleClick
+    //                        2   ----->    RightClick
+  } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button == 0) {
         if (this.isPlacable) {
-          this.gesMeLoadService.baseMeshes[buildList.length].getChildMeshes().forEach((element: any) => {
-            element.isVisible = true;
-            element.material = null;
-          });
+          this.gesMeLoadService.loadBuilding(this.lastPosX, this.lastPosY, scene, matrix, buildList.length);
           buildList.push([this.lastPosX, this.lastPosY]);
-          if (this.gesMeLoadService.baseMeshes.length <= buildList.length) {
-            
-            
-            //TODO display info on the module you just placed and switch to FPS when the info is done displaying
-            /*
-            onEnd();
-            */
 
-
-
-            buildList = [];
+          if (5 <= buildList.length) {
+            //TODO Game Final Win.
+            buildList = [];//temp fix just for testing, to keep until game final win coded
           }
 
+          //need to be saved : buildList, matrix
+
+          //TODO display info on the module you just placed and switch to FPS when the info is done displaying
+          /*
+          onEnd();
+          */
+
           this.isPlacable = false;
-
         }
-
-      }
+      } else {}
     });
   }
 

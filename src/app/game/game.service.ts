@@ -91,12 +91,12 @@ export class GameService {
       [
         //LEVEL 0
         // [type, coordx, coordz]
-        [8, 7, 7], 
+        [8, 7, 7],
         [8, 5, 5],
         [10, 6, 7],
         [14, 7, 6],
         [8, 7, 8],
-        [16, 8, 7], 
+        [16, 8, 7],
         [17, 9, 5],
         [18, 10, 7],
         [20, 7, 10],
@@ -111,8 +111,8 @@ export class GameService {
     //all doors
     this.allDoors = [
       [
-        //LEVEL 0 
-        [14, 13, 2, 0, 0], 
+        //LEVEL 0
+        [14, 13, 2, 0, 0],
         [-14, -13, 1, 0, 1]
       ],
       [
@@ -126,7 +126,7 @@ export class GameService {
         [11, 11, 0],
       ],
     ];
-  
+
   }
 
 
@@ -453,7 +453,7 @@ export class GameService {
     this.menuService.addShadow(wordWindow);
     menuUI.addControl(wordWindow);
 
-    
+
 
     //******************
     //*  PLAY WINDOW   *
@@ -535,7 +535,7 @@ export class GameService {
   //**********************
   public createFPSScene(canvas: ElementRef<HTMLCanvasElement>): void {
     this.isFPS = true;
-    
+
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
@@ -587,7 +587,7 @@ export class GameService {
       //on reset
       button.onPointerClickObservable.add(() => {
         this.resetScene();
-        
+
         //TODO: change this line in the future
         this.createFPSScene(canvas);
       });
@@ -637,12 +637,12 @@ export class GameService {
         player.shooting = false;
       }
     };
-    
+
     let keyboardEvent = (kbInfo:BABYLON.KeyboardInfo) => {
       kbInfo.event.preventDefault();
       switch (kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
-          switch (kbInfo.event.code) {  
+          switch (kbInfo.event.code) {
             case "KeyE":
               this.keyPressed.push("e");
               break;
@@ -656,11 +656,11 @@ export class GameService {
         case BABYLON.KeyboardEventTypes.KEYUP:
           switch (kbInfo.event.code) {
             case "KeyE":
-              if (this.keyPressed.includes('e')) 
+              if (this.keyPressed.includes('e'))
                 this.keyPressed = this.keyPressed.filter(l => l !== 'e');
               break;
             case 'ShiftLeft':
-              if (this.keyPressed.includes('Shift')) 
+              if (this.keyPressed.includes('Shift'))
                 this.keyPressed = this.keyPressed.filter(l => l !== 'Shift');
               break;
             case 'Digit1':
@@ -733,7 +733,7 @@ export class GameService {
         this.engine.enterPointerlock();
       }
     });
-    
+
     //**********************
     //*       MUSIC        *
     //**********************
@@ -759,8 +759,8 @@ export class GameService {
     let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
     skyboxMaterial.backFaceCulling = false;
     skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(
-      "assets/textures/skybox/skyboxRedderSun/", 
-      this.scene, 
+      "assets/textures/skybox/skyboxRedderSun/",
+      this.scene,
       ["_pz.png","_ny.png","_nx.png","_px.png","_nz.png","_py.png"],
     );
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
@@ -899,9 +899,9 @@ export class GameService {
       this.level.pickups.filter(pick => !pick.remove);
 
       //checking if sprinting:
-      if (this.keyPressed.includes('Shift')) 
+      if (this.keyPressed.includes('Shift'))
         player.camera.speed = 0.5;
-      else 
+      else
         player.camera.speed = 0.3;
 
 
@@ -917,12 +917,12 @@ export class GameService {
           if (i.mesh == hit?.pickedMesh) {
             i.open(player.camera.position, player.inventory, this.scene, uiService);
             break;
-          } 
+          }
         }
         for (let i of this.level.switches) {
           if (i.mesh == hit?.pickedMesh || i.topMesh == hit?.pickedMesh) {
             i.on();
-            break; 
+            break;
           }
         }
       }
@@ -932,7 +932,7 @@ export class GameService {
         if (i.toOpen){
           if (i.mesh.position.y == 1 && !i.state && i.toOpen) i.openSound(this.scene, player);
           if (i.mesh.position.y <= 4) i.mesh.position.y += 0.1;
-          else { 
+          else {
             i.toOpen = false;
             i.state = true;
             i.mesh.position.y = 4;
@@ -943,7 +943,7 @@ export class GameService {
           let isAyoneUnderTheDoor = false;
           if (!i.toClose && i.state && this.frameCounter - i.counterSinceOpened >= 300){
             for(let j of this.level.enemy){
-              if(stuff.distance(i.mesh.position, j.mesh.position) <= 3) isAyoneUnderTheDoor = true; 
+              if(stuff.distance(i.mesh.position, j.mesh.position) <= 3) isAyoneUnderTheDoor = true;
             }
             if(3 >= stuff.distance(i.mesh.position, player.camera.position)) isAyoneUnderTheDoor = true;
             if(!isAyoneUnderTheDoor){
@@ -980,7 +980,7 @@ export class GameService {
         ++animationFrameSkipper;
       else {
         //* Weapon firing checks (a weapon has a maximum of 10 animation frames)
-        if (uiService.hasShot && 
+        if (uiService.hasShot &&
           uiService.currentWeapon.cellId <= uiService.currentWeaponAnimationFrames + uiService.currentWeaponId * 10
           ) {
           // Check if the animation is done
@@ -991,7 +991,7 @@ export class GameService {
             if (player.shooting) {
               player.shoot(this.scene, this.level, this.canvas, this.frameCounter);// Shoot again then
             }
-          } else 
+          } else
             ++uiService.currentWeapon.cellId;// If the animation isn't done yet
 
           animationFrameSkipper = 0;//Reset the timer if the animation is triggered
@@ -1026,7 +1026,7 @@ export class GameService {
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
-    
+
     // create a ArcRotateCamera, and set its position to (x:5, y:10, z:-20 )
     let aboveCamera = new BABYLON.ArcRotateCamera(
       'camera1',
@@ -1078,7 +1078,7 @@ export class GameService {
     //create gestion hud
     hudService.displayGoal(this.scene);
 
-    
+
     this.GroundBoxes = BABYLON.MeshBuilder.CreateBox("GroundBoxes", {width: 1, height: 1, depth: 1}, this.scene);
 
     let testMat: BABYLON.StandardMaterial = new BABYLON.StandardMaterial("testMat", this.scene);
@@ -1106,7 +1106,7 @@ export class GameService {
         let instanceTest:BABYLON.InstancedMesh = this.GroundBoxes.createInstance("tplane " + (x*y+y));
         instanceTest.position.x = x;
         instanceTest.position.z = y;
-        
+
         // Make the outer border lower than the actual bottom to optimize meshes and geometry
         if (x == 0 || x == 99 || y == 0 || y == 99) {
           instanceTest.scaling.y = this.terr2Matrix[x][y]*2 + 0.1;
@@ -1122,15 +1122,10 @@ export class GameService {
 
     // Load the 3D models in the scene
     gesMeLoadService.initMeshes(this.scene, this.levelNumber, () => {
-      
       gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
-
-      gesMeLoadService.load1stQG(50, 50, this.scene, this.terr2Matrix, () => {
-        gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
-
-        this.engine.hideLoadingUI();
-        this.animate();
-      });
+      gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
+      this.engine.hideLoadingUI();
+      this.animate();
     });
 
   }
