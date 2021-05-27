@@ -1245,7 +1245,7 @@ export class GameService {
       }
 
       // Slow down the animations
-      if (animationFrameSkipper != this.weaponMaxFrames[player.equippedWeapon])
+      if (animationFrameSkipper < this.weaponMaxFrames[player.equippedWeapon])
         ++animationFrameSkipper;
       else {
         //* Weapon firing checks (a weapon has a maximum of 10 animation frames)
