@@ -1316,10 +1316,9 @@ export class GameService {
     hudService.displayGoal(this.scene);
     let matrixService: MatrixService = new MatrixService;
     let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService);
-    let gesSlidesService: GestionSlidesService = new GestionSlidesService(this.levelNumber, hudService.hud, () => {
+    let gesSlidesService: GestionSlidesService = new GestionSlidesService(this.levelNumber-1, hudService.hud, () => {
       // FPS transition
       this.resetScene();
-      //TODO Transition screen (BABYLON GUI ?)
       this.createFPSScene(new ElementRef<HTMLCanvasElement>(this.canvas));
     });
     let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, gesSlidesService);
