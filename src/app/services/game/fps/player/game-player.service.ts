@@ -162,6 +162,7 @@ export class GamePlayerService {
     //Add attachment controls
     //slowing down the camera speed
     this.camera.speed = 0.3;
+    this.camera.angularSensibility = 0.05;
     this.camera.checkCollisions = true;
     this.camera.applyGravity = true;
     this.camera.ellipsoid = new BABYLON.Vector3(1.3, 1, 1.3);
