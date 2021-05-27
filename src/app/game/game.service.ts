@@ -1312,7 +1312,7 @@ export class GameService {
     aboveCamera.panningDistanceLimit = 0.1;
 
     // Init Services
-    let hudService = new GestionHudService(this.levelNumber);
+    let hudService = new GestionHudService(this.levelNumber-1);
     hudService.displayGoal(this.scene);
     let matrixService: MatrixService = new MatrixService;
     let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService);
