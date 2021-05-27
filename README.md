@@ -27,7 +27,7 @@ FarSpace832c is a first person shooter game that will make you learn a whole lot
   
 ## Installation 
 
-### Run the client side
+### Run project
 
 Install the project
 
@@ -38,16 +38,16 @@ Install the project
   npm run build
 ```
 
-If you want to connect to the database run the server, otherwise just run `dist/index.html`!
+Then launch `dist/index.html`!
 
 ---
 
-### Run the server side
+### Liveserver version
 
 ```bash
   npm start
 ```
-Then, simply connect to `https://localhost:4200` or your custom hostname!
+Then, simply connect to `http://localhost:4200`
 
 
   
