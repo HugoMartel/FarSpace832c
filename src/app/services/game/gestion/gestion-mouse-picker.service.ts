@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
+import { GestionHudService } from './gestion-hud.service';
 import { GestionMeshLoaderService } from './gestion-mesh-loader.service';
+import { GestionSlidesService } from './gestion-slides.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,11 +13,22 @@ export class GestionMousePickerService {
   private lastPosX: number = 0;
   private lastPosY: number = 0;
 
-  constructor(private gesMeLoadService: GestionMeshLoaderService, onEnd: Function) { }
+  constructor(private gesMeLoadService: GestionMeshLoaderService, private gesSlidesService: GestionSlidesService) { }
 
-  public addMouseListener(scene:BABYLON.Scene, matrix: any[], buildList: any[]) {
-    /* Add the mouse events */
-    scene.onPointerObservable.add((ptInfo:BABYLON.PointerInfo) => {
+
+  /**
+   * Function to add event listeners to the babylon gestion scene
+   * @param scene babylon js scene
+   * @param matrix double array of the heights (Y-axis for Babylon) of every ground mesh
+   * @param buildList already placed 3D models array to load on the scene
+   * @param hudService HUD used to display info about the modules built
+   */
+  public addMouseListener(scene:BABYLON.Scene, matrix: number[][], buildList: number[][], hudService: GestionHudService) {
+
+    /* Mouse event callback */
+    let mouseEventCallback:(eventData: BABYLON.PointerInfo, eventState: BABYLON.EventState) => void;
+
+    mouseEventCallback = (ptInfo:BABYLON.PointerInfo) => {
       ptInfo.event.preventDefault();
       // Detect the event type and if the input is a left click
       //! BABYLON.PointerInput.LeftClick means right click...)
@@ -40,6 +53,7 @@ export class GestionMousePickerService {
           let fx:number = 0;
           let dy:number = 0;
           let fy:number = 0;
+
           switch (buildList.length) {
             case 0:
               dx = -1;
@@ -79,7 +93,7 @@ export class GestionMousePickerService {
                 if (matrix[this.lastPosX][this.lastPosY] != matrix[this.lastPosX+x][this.lastPosY+y] || this.gesMeLoadService.buildingsMatrix[this.lastPosX+x][this.lastPosY+y]) {
                   this.isPlacable = false;
                 }
-              }else {
+              } else {
                 this.isPlacable = false;
               }
             }
@@ -93,44 +107,52 @@ export class GestionMousePickerService {
             element.isVisible = true;
             element.material = placableColor;
           });
-      }else {
-        this.gesMeLoadService.currentLevelMesh[0].getChildMeshes().forEach((element: any) => {
-          element.isVisible = false;
-        });
-      }
+        } else {
+          this.gesMeLoadService.currentLevelMesh[0].getChildMeshes().forEach((element: any) => {
+            element.isVisible = false;
+          });
+        }
 
-    // Detect right click to place a module
-    // ptInfo.event.button == 0   ----->    LeftClick
-    //                        1   ----->    MiddleClick
-    //                        2   ----->    RightClick
-  } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button == 0) {
+      // Detect right click to place a module
+      // ptInfo.event.button == 0   ----->    LeftClick
+      //                        1   ----->    MiddleClick
+      //                        2   ----->    RightClick
+      } else if (ptInfo.type === BABYLON.PointerEventTypes.POINTERUP && ptInfo.event.button == 2) {
         if (this.isPlacable) {
           this.gesMeLoadService.loadBuilding(this.lastPosX, this.lastPosY, scene, matrix, buildList.length);
-          buildList.push([this.lastPosX, this.lastPosY]);
+          if (buildList.length < 5)
+            buildList.push([this.lastPosX, this.lastPosY]);
 
-          if (5 <= buildList.length) {
-            //TODO Game Final Win.
-            buildList = [];//temp fix just for testing, to keep until game final win coded
+          scene.onPointerObservable.removeCallback(mouseEventCallback);
+          this.gesSlidesService.displaySlides(scene);
+          
+          switch (buildList.length - 2) {//-1 for the base mesh and -1 for the one that just got added
+            case 0:
+              hudService.updateObj0();
+              break;
+            case 1:
+              hudService.updateObj1();
+              break;
+            case 2:
+              hudService.updateObj2();
+              break;
+            case 3:
+              hudService.updateObj3();
+              break;
+            case 4:
+              hudService.updateObj4();
+              break;
           }
-
-          //need to be saved : buildList
-
-          //TODO display info on the module you just placed and switch to FPS when the info is done displaying
-          /*
-          onEnd();
-          */
 
           this.isPlacable = false;
         }
-      } else {}
-    });
+
+      }
+    };
+
+    /* Add the pointer event */
+    scene.onPointerObservable.add(mouseEventCallback);
+
   }
-
-
-
-
-
-
-
 
 }

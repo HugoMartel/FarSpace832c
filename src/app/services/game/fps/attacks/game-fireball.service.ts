@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import * as BABYLON from '@babylonjs/core';
-import * as stuff from '../randomFunctions/random-functions.service'
+import * as stuff from '../randomFunctions/random-functions.service';
 import {GamePlayerService} from '../player/game-player.service';
 //import { SSL_OP_NO_QUERY_MTU } from 'node:constants';
 

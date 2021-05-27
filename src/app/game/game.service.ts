@@ -11,7 +11,7 @@ import "@babylonjs/loaders/glTF"; //don't forget to npm install --save-dev @baby
 import { GameLevelService } from '../services/game/fps/game-level.service';
 import { GamePlayerService } from '../services/game/fps/player/game-player.service';
 import { GameUIService } from '../services/game/fps/game-ui.service';
-import * as stuff from '../services/game/fps/randomFunctions/random-functions.service'
+import * as stuff from '../services/game/fps/randomFunctions/random-functions.service';
 
 //services Gestion
 import { TerrainService } from './../services/game/gestion/terrain.service';
@@ -19,13 +19,14 @@ import { GestionMousePickerService } from './../services/game/gestion/gestion-mo
 import { GestionMeshLoaderService } from './../services/game/gestion/gestion-mesh-loader.service';
 import { MatrixService } from '../services/game/gestion/matrix.service';
 import { GestionHudService } from './../services/game/gestion/gestion-hud.service';
+import { GestionSlidesService } from '../services/game/gestion/gestion-slides.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
 
   private size_z: number = 30;
-  private terr2Matrix: any[] = [];
-  private buildList: any[] = [];
+  private terr2Matrix: number[][] = [];
+  private buildList: number[][] = [[50, 50]];
 
   public canvas!: HTMLCanvasElement;
   public engine!: BABYLON.Engine;
@@ -389,9 +390,12 @@ export class GameService {
   //**********************
   //*       Reset        *
   //**********************
-  public resetScene():void {
+  public async resetScene() {
     this.engine.stopRenderLoop();
     this.scene.dispose();
+    while (this.engine.getLoadedTexturesCache().length > 0) {
+      this.engine._releaseTexture(this.engine.getLoadedTexturesCache()[0]);
+  }
     this.engine.dispose();
     //It appears from the devs that only disposing from the scene leaves some stuff in the memory
   }
@@ -401,7 +405,7 @@ export class GameService {
   //**********************
   //*       Menu         *
   //**********************
-  public createMenuScene(canvas: ElementRef<HTMLCanvasElement>):void {
+  public async createMenuScene(canvas: ElementRef<HTMLCanvasElement>) {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
 
@@ -749,11 +753,6 @@ export class GameService {
       //*                           FPS or Gestion                             *
       //************************************************************************
 
-      ///*
-      this.createFPSScene(canvas);//! will not be used in the future
-      //*/
-
-      /*
       let introVideo:HTMLVideoElement = document.createElement("video");
       introVideo.width = canvas.nativeElement.width;
       introVideo.height = canvas.nativeElement.height;
@@ -771,7 +770,7 @@ export class GameService {
       if (videoContainer !== null) {
         videoContainer.prepend(introVideo);
         canvas.nativeElement.style.display = "none";
-        this.createPlanetScene(canvas);
+        this.createPlanetScene(canvas, false);
       }
 
       introVideo.addEventListener('ended', (event:Event) => {
@@ -779,7 +778,7 @@ export class GameService {
         videoContainer?.removeChild(introVideo);
         canvas.nativeElement.style.display = "block";
       });
-      */
+
     });
   }
 
@@ -788,7 +787,7 @@ export class GameService {
   //**********************
   //*      Shooter       *
   //**********************
-  public createFPSScene(canvas: ElementRef<HTMLCanvasElement>): void {
+  public async createFPSScene(canvas: ElementRef<HTMLCanvasElement>) {
     this.isFPS = true;
 
     // The first step is to get the reference of the canvas element from our HTML document
@@ -804,6 +803,24 @@ export class GameService {
     this.scene = new BABYLON.Scene(this.engine);
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
+
+    //**********************
+    //*       SKYBOX       *
+    //**********************
+    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
+    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(
+      "assets/textures/skybox/skyboxRedNebulaeNormalSun/", 
+      this.scene, 
+      ["right.png","top.png","front.png","left.png","bottom.png","back.png"]
+    );
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
+
+    // INIT SERVICES
     let uiService = new GameUIService(this.scene, this.menuService);
     let player = new GamePlayerService(this.scene, this.canvas, uiService, this.allPlayerSpawn[this.levelNumber],() => {
       //adding a background
@@ -843,12 +860,11 @@ export class GameService {
       button.onPointerClickObservable.add(() => {
         this.resetScene();
 
-        //TODO: change this line in the future
         this.createFPSScene(canvas);
       });
       //stopping the render loop and releasing the pointer
       this.engine.exitPointerlock();
-      this.engine.stopRenderLoop();
+      //this.engine.stopRenderLoop();//! if fullscreen is exited or entered, the game will not show up
     });
     //creating the level:
     //Create the FPS Levels
@@ -860,8 +876,9 @@ export class GameService {
       this.allSwitches[this.levelNumber],
       1,
       () => {
+        ++this.levelNumber;
         this.resetScene();
-        this.createPlanetScene(new ElementRef<HTMLCanvasElement>(this.canvas));//! will need to adjust the args
+        this.createPlanetScene(new ElementRef<HTMLCanvasElement>(this.canvas), true);
         this.animate();
       }
     );
@@ -1008,21 +1025,6 @@ export class GameService {
         loop: true,
       });
     };
-    //**********************
-    //*       SKYBOX       *
-    //**********************
-    let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
-    let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
-    skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(
-      "assets/textures/skybox/skyboxRedderSun/",
-      this.scene,
-      ["_pz.png","_ny.png","_nx.png","_px.png","_nz.png","_py.png"],
-    );
-    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-    skybox.material = skyboxMaterial;
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
@@ -1273,12 +1275,11 @@ export class GameService {
   //********************
   //*     Terrain      *
   //********************
-  public createPlanetScene(canvas: ElementRef<HTMLCanvasElement>): void {
+  public async createPlanetScene(canvas: ElementRef<HTMLCanvasElement>, isGenerated: boolean) {
     this.isFPS = false;
 
-    this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
-
-    let hudService = new GestionHudService;
+    if (!isGenerated)
+      this.terr2Matrix = this.terrainService.generateTerrain(this.size_z, 15, 100, 100);
 
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
@@ -1286,7 +1287,6 @@ export class GameService {
     // Then, load the Babylon 3D engine:
     this.engine = new BABYLON.Engine(this.canvas, true);//? if too laggy disable antialiasing
     this.engine.exitPointerlock();
-    this.engine.displayLoadingUI();
 
     // create a basic BJS Scene object
     this.scene = new BABYLON.Scene(this.engine);
@@ -1304,21 +1304,25 @@ export class GameService {
     aboveCamera.position = new BABYLON.Vector3(0, 70, 0)
 
     // attach the camera to the canvas
-    aboveCamera.attachControl(this.canvas, true);
+    aboveCamera.attachControl(this.canvas, false, );
     //locking the camera
     aboveCamera.upperBetaLimit = 1.2;
     aboveCamera.lowerRadiusLimit = 15;
     aboveCamera.upperRadiusLimit = 125;
     aboveCamera.panningDistanceLimit = 0.1;
 
+    // Init Services
+    let hudService = new GestionHudService(this.levelNumber);
+    hudService.displayGoal(this.scene);
     let matrixService: MatrixService = new MatrixService;
     let gesMeLoadService: GestionMeshLoaderService = new GestionMeshLoaderService(matrixService);
-    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, () => {
+    let gesSlidesService: GestionSlidesService = new GestionSlidesService(this.levelNumber, hudService.hud, () => {
       // FPS transition
       this.resetScene();
       //TODO Transition screen (BABYLON GUI ?)
       this.createFPSScene(new ElementRef<HTMLCanvasElement>(this.canvas));
     });
+    let gesMoPickService: GestionMousePickerService = new GestionMousePickerService(gesMeLoadService, gesSlidesService);
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     let hemisphericLight:BABYLON.HemisphericLight = new BABYLON.HemisphericLight(
@@ -1334,14 +1338,11 @@ export class GameService {
     let skybox:BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, this.scene);
     let skyboxMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
     skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/skyboxRedNebulaeNormalSun/", this.scene, ["right.png","bottom.png","front.png","left.png","top.png","back.png"]);
+    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("assets/textures/skybox/skyboxRedNebulaeNormalSun/", this.scene, ["right.png","top.png","front.png","left.png","bottom.png","back.png"]);
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
     skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
     skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
     skybox.material = skyboxMaterial;
-
-    //create gestion hud
-    hudService.displayGoal(this.scene);
 
 
     this.GroundBoxes = BABYLON.MeshBuilder.CreateBox("GroundBoxes", {width: 1, height: 1, depth: 1}, this.scene);
@@ -1354,6 +1355,7 @@ export class GameService {
     this.GroundBoxes.registerInstancedBuffer("color", 4);
     this.GroundBoxes.instancedBuffers.color = new BABYLON.Color4(0, 0, 0, 1);
 
+    // Generate the color palette of our ground (green -> white)
     let colorPaletteRed: number[] = [];
     let colorPaletteGreen: number[] = [];
     let colorPaletteBlue: number[] = [];
@@ -1363,9 +1365,9 @@ export class GameService {
       colorPaletteGreen[i] = ( Math.exp(((5.1282*i + 2.9744) / this.size_z) - 2.6298) + 13 ) / 25.6;
       colorPaletteBlue[i] = ((0.000167911*tmp**4)-(0.00955384*tmp**3)+(0.169536*tmp**2)-(0.307887*tmp)+2.6)/25.6;
     }
-    //console.log(colorPaletteRed, colorPaletteGreen, colorPaletteBlue);
 
-    //console.log(testColorPalette);
+
+    // Create instances of meshes to display the ground
     for (let x = 0; x < this.terr2Matrix.length; x++) {
       for (let y = 0; y < this.terr2Matrix[x].length; y++) {
         let instanceTest:BABYLON.InstancedMesh = this.GroundBoxes.createInstance("tplane " + (x*y+y));
@@ -1385,11 +1387,18 @@ export class GameService {
       }
     }
 
+    this.GroundBoxes.freezeWorldMatrix();
+
     // Load the 3D models in the scene
     gesMeLoadService.initMeshes(this.scene, this.levelNumber, () => {
       gesMeLoadService.initBuildingMatrix(this.terr2Matrix.length, this.terr2Matrix[0].length);
-      gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList);
-      this.engine.hideLoadingUI();
+      gesMeLoadService.setupPlacedModules(this.buildList, this.scene, this.terr2Matrix);
+      gesMoPickService.addMouseListener(this.scene, this.terr2Matrix, this.buildList, hudService);
+
+      let ambianceMusic = new BABYLON.Sound("music", "assets/sound/music/ambiance.wav", this.scene, () => { ambianceMusic.play(); }, { volume: .3, loop: true, });
+      if (this.levelNumber == 1)
+        gesSlidesService.displayIntro();
+
       this.animate();
     });
 

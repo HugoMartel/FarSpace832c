@@ -3,7 +3,7 @@ import * as BABYLON from '@babylonjs/core';
 
 import { GameUIService } from '../game-ui.service';
 import { GameLevelService } from '../game-level.service';
-import * as stuff from '../randomFunctions/random-functions.service'
+import * as stuff from '../randomFunctions/random-functions.service';
 import { GameEnemyService } from '../game-enemy.service';
 
 @Injectable({
@@ -271,8 +271,8 @@ export class GamePlayerService {
 
         // Create the ray
         let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
-        let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
-        rayHelper.show(scene, new BABYLON.Color3(1,1,1));//White
+        //let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
+        //rayHelper.show(scene, new BABYLON.Color3(1,1,1));//White
 
         // Check if the ray did hit something eventually
         this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene, frame);
@@ -304,8 +304,8 @@ export class GamePlayerService {
 
         // Create the ray
         let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
-        let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
-        rayHelper.show(scene, new BABYLON.Color3(0,0,0));//Black
+        //let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
+        //rayHelper.show(scene, new BABYLON.Color3(0,0,0));//Black
 
         // Check if the ray did hit something eventually
         this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene, frame);
@@ -348,8 +348,8 @@ export class GamePlayerService {
             ray.direction.y,
             Math.sin(alpha) * ray.direction.x + Math.cos(alpha) * ray.direction.z
           );
-          let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
-          rayHelper.show(scene, new BABYLON.Color3(1,0,0));//Red
+          //let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
+          //rayHelper.show(scene, new BABYLON.Color3(1,0,0));//Red
 
           // Check if the ray did hit something eventually
           this.shootRay(ray, hitDistance, level.enemy, puffs[i], puffAnim, scene, frame);
@@ -394,8 +394,8 @@ export class GamePlayerService {
             ray.direction.y,
             Math.sin(alpha) * ray.direction.x + Math.cos(alpha) * ray.direction.z
           );
-          let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
-          rayHelper.show(scene, new BABYLON.Color3(0,1,0));//Green
+          //let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
+          //rayHelper.show(scene, new BABYLON.Color3(0,1,0));//Green
 
           // Check if the ray did hit something eventually
           this.shootRay(ray, hitDistance, level.enemy, puffs[i], puffAnim, scene, frame);
@@ -437,8 +437,8 @@ export class GamePlayerService {
 
         // Create the ray
         let ray:BABYLON.Ray = this.camera.getForwardRay(hitDistance);
-        let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
-        rayHelper.show(scene, new BABYLON.Color3(0,0,1));//Blue
+        //let rayHelper:BABYLON.RayHelper = new BABYLON.RayHelper(ray);
+        //rayHelper.show(scene, new BABYLON.Color3(0,0,1));//Blue
 
         // Check if the ray did hit something eventually
         this.shootRay(ray, hitDistance, level.enemy, puff, puffAnim, scene, frame);

@@ -3,7 +3,7 @@ import {GameFireballService} from '../fps/attacks/game-fireball.service';
 
 import * as BABYLON from '@babylonjs/core';
 import { GamePlayerService } from './player/game-player.service';
-import * as stuff from './randomFunctions/random-functions.service'
+import * as stuff from './randomFunctions/random-functions.service';
 import { GameDoorsService } from "./levelEnv/game-doors.service"
 @Injectable({ providedIn: 'root' })
 
