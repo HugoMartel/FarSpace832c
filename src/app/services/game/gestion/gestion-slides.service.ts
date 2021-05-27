@@ -92,40 +92,45 @@ export class GestionSlidesService {
       // Ecosystem
       case 2:
         // Slide 0
-        this.slides.push(new GUI.Image("slide0", "assets/gestion/2/0.png"));
+        this.slides.push(new GUI.Image("slide0", "assets/gestion/3/0.png"));
         this.setupSlide(this.slides[0]);
         this.slides[0].width = "1600px";
         this.slides[0].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 1
-        this.slides.push(new GUI.Image("slide1", "assets/gestion/2/1.png"));
+        this.slides.push(new GUI.Image("slide1", "assets/gestion/3/1.png"));
         this.setupSlide(this.slides[1]);
         this.slides[1].width = "1600px";
         this.slides[1].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 2
-        this.slides.push(new GUI.Image("slide2", "assets/gestion/2/2.png"));
+        this.slides.push(new GUI.Image("slide2", "assets/gestion/3/2.jpg"));
         this.setupSlide(this.slides[2]);
-        this.slides[2].width = "600px";
+        this.slides[2].width = "1200px";
         this.slides[2].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 3
-        this.slides.push(new GUI.Image("slide3", "assets/gestion/2/3.png"));
+        this.slides.push(new GUI.Image("slide3", "assets/gestion/2/3.jpg"));
         this.setupSlide(this.slides[3]);
-        this.slides[3].width = "1200px";
+        this.slides[3].width = "700px";
         this.slides[3].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 4
-        this.slides.push(new GUI.Image("slide4", "assets/gestion/2/4.png"));
+        this.slides.push(new GUI.Image("slide4", "assets/gestion/2/4.jpg"));
         this.setupSlide(this.slides[4]);
-        this.slides[4].width = "1000px";
+        this.slides[4].width = "700px";
         this.slides[4].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 5
-        this.slides.push(new GUI.Image("slide5", "assets/gestion/2/5.png"));
+        this.slides.push(new GUI.Image("slide5", "assets/gestion/2/5.jpg"));
         this.setupSlide(this.slides[5]);
-        this.slides[5].width = "800px";
+        this.slides[5].width = "1300px";
         this.slides[5].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 6
-        this.slides.push(new GUI.Image("slide6", "assets/gestion/2/6.png"));
+        this.slides.push(new GUI.Image("slide6", "assets/gestion/2/6.jpg"));
         this.setupSlide(this.slides[6]);
-        this.slides[6].width = "1400px";
+        this.slides[6].width = "1600px";
         this.slides[6].stretch = GUI.Image.STRETCH_UNIFORM;
+        // Slide 6
+        this.slides.push(new GUI.Image("slide7", "assets/gestion/2/7.png"));
+        this.setupSlide(this.slides[7]);
+        this.slides[7].width = "1300px";
+        this.slides[7].stretch = GUI.Image.STRETCH_UNIFORM;
         break;
 
       // Social
@@ -136,35 +141,30 @@ export class GestionSlidesService {
         this.slides[0].width = "1600px";
         this.slides[0].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 1
-        this.slides.push(new GUI.Image("slide1", "assets/gestion/3/1.jpg"));
+        this.slides.push(new GUI.Image("slide1", "assets/gestion/3/1.png"));
         this.setupSlide(this.slides[1]);
-        this.slides[1].width = "1600px";
+        this.slides[1].width = "800px";
         this.slides[1].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 2
-        this.slides.push(new GUI.Image("slide2", "assets/gestion/3/2.jpg"));
+        this.slides.push(new GUI.Image("slide2", "assets/gestion/3/2.png"));
         this.setupSlide(this.slides[2]);
-        this.slides[2].width = "1200px";
+        this.slides[2].width = "600px";
         this.slides[2].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 3
-        this.slides.push(new GUI.Image("slide3", "assets/gestion/3/3.jpg"));
+        this.slides.push(new GUI.Image("slide3", "assets/gestion/3/3.png"));
         this.setupSlide(this.slides[3]);
-        this.slides[3].width = "700px";
+        this.slides[3].width = "1200px";
         this.slides[3].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 4
-        this.slides.push(new GUI.Image("slide4", "assets/gestion/3/4.jpg"));
+        this.slides.push(new GUI.Image("slide4", "assets/gestion/3/4.png"));
         this.setupSlide(this.slides[4]);
-        this.slides[4].width = "700px";
+        this.slides[4].width = "1000px";
         this.slides[4].stretch = GUI.Image.STRETCH_UNIFORM;
         // Slide 5
-        this.slides.push(new GUI.Image("slide5", "assets/gestion/3/5.jpg"));
+        this.slides.push(new GUI.Image("slide5", "assets/gestion/3/5.png"));
         this.setupSlide(this.slides[5]);
         this.slides[5].width = "900px";
         this.slides[5].stretch = GUI.Image.STRETCH_UNIFORM;
-        // Slide 6
-        this.slides.push(new GUI.Image("slide6", "assets/gestion/3/6.png"));
-        this.setupSlide(this.slides[6]);
-        this.slides[6].width = "900px";
-        this.slides[6].stretch = GUI.Image.STRETCH_UNIFORM;
         break;
     }
 
