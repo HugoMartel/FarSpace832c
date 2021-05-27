@@ -32,6 +32,7 @@ export class GameService {
   public engine!: BABYLON.Engine;
   private scene!: BABYLON.Scene;
   public frameCounter: number;
+  public weaponMaxFrames: number[];
   private ground!: Array<BABYLON.Mesh>;
   public isFPS: boolean;
   public fullscreen: Function;
@@ -56,6 +57,7 @@ export class GameService {
     private terrainService: TerrainService
   ) {
     this.frameCounter = 0;
+    this.weaponMaxFrames = [2,1,4,4,1,1,4];
     this.ground = [];
     this.keyPressed = [];
     this.isFPS = false;
@@ -1178,7 +1180,7 @@ export class GameService {
       //* checking if e is pressed:
       if (this.keyPressed.includes('e')) {
         //shooting a ray
-        let ray = player.camera.getForwardRay(5)
+        let ray = player.camera.getForwardRay(3);
         let hit = this.scene.pickWithRay(ray, (mesh:BABYLON.AbstractMesh) => mesh.metadata !== "player" && mesh.id !== "ray", false);
         for (let i of this.level.doors) {
           if (i.mesh == hit?.pickedMesh) {
@@ -1243,7 +1245,7 @@ export class GameService {
       }
 
       // Slow down the animations
-      if (animationFrameSkipper != 4)
+      if (animationFrameSkipper != this.weaponMaxFrames[player.equippedWeapon])
         ++animationFrameSkipper;
       else {
         //* Weapon firing checks (a weapon has a maximum of 10 animation frames)
