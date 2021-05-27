@@ -125,7 +125,24 @@ export class GestionMousePickerService {
 
           scene.onPointerObservable.removeCallback(mouseEventCallback);
           this.gesSlidesService.displaySlides(scene);
-          hudService.updateObj0();
+          
+          switch (buildList.length - 2) {//-1 for the base mesh and -1 for the one that just got added
+            case 0:
+              hudService.updateObj0();
+              break;
+            case 1:
+              hudService.updateObj1();
+              break;
+            case 2:
+              hudService.updateObj2();
+              break;
+            case 3:
+              hudService.updateObj3();
+              break;
+            case 4:
+              hudService.updateObj4();
+              break;
+          }
 
           this.isPlacable = false;
         }
